@@ -1,9 +1,9 @@
-import axios from "axios";
+import axiosInstance from "../common/utils/axiosConfig";
 import { ILogin } from "../typing";
 
 
 export const loginService = async (payload: ILogin) => {
-  const res = await axios.post("https://api-dev.seoulacademy.edu.vn/api/login", {
+  const res = await axiosInstance.post("/login", {
     username: payload.username,
     password: payload.password,
     rememberPassword: payload.rememberPassword,

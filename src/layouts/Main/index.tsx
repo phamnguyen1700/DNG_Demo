@@ -9,6 +9,9 @@ import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
+import Collapse from '@mui/material/Collapse';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Avatar from '@mui/material/Avatar';
@@ -22,8 +25,8 @@ import { Link } from 'react-router-dom';
 import { paths } from '../../route/path';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchMenuList } from '../../redux/actions/menuAction';
-
-
+import { RootState } from '../../redux/store';
+import { syncAuthState } from '../../redux/actions/auth';
 
 interface IUser {
   id: number;
@@ -38,6 +41,8 @@ interface IUser {
 }
 
 
+
+
 const drawerWidth = 240;
 
 interface LayoutProps {
@@ -49,19 +54,21 @@ const ResponsiveDrawer: React.FC<LayoutProps> = ({ window, children }) => {
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
   const [user, setUser] = useState<IUser | null>(null);
-  // Lấy thông tin user từ localStorage
   const dispatch: AppDispatch = useDispatch();
-  const { menuList, menuLoading, menuError } = useSelector((state: any) => state.menu);
+  const { menuList = [], menuLoading, menuError } = useSelector((state: any) => state.menu);
+  const [open, setOpen] = React.useState(false);
+
+  const userData = localStorage.getItem('user');
+  console.log('USER DATA FROM LOCAL STORAGE:', userData); 
+  const stateUserData = useSelector((state: RootState) => state.auth.user);
+  console.log('USER DATA FROM STATE:', stateUserData);
+
 
   useEffect(() => {
-    console.log('Dispatching fetchMenuList...');
-    dispatch(fetchMenuList());
-  }, [menuList, dispatch]);
-
-
-  useEffect(() => {
-    const userData = localStorage.getItem('user');
-    if (userData) {
+    if (!userData) {
+      setUser(stateUserData);
+        return
+    } else {
       try {
         const parseUser = JSON.parse(userData);
         setUser(parseUser);
@@ -69,8 +76,46 @@ const ResponsiveDrawer: React.FC<LayoutProps> = ({ window, children }) => {
         console.log('Lỗi parse:', error);
       }
     }
-  },[]);
+  },[stateUserData]);
 
+  useEffect(() => {
+    console.log('Dispatching fetchMenuList...');
+    dispatch(fetchMenuList());
+  }, []);
+
+
+  //hàm đệ quy để lấy ra các menu con
+  const renderMenuItems = (menuItems: any) => {
+
+    if (!menuItems || !Array.isArray(menuItems)) {
+      console.log('menuItems is not an array:', menuItems);
+      return null;
+  }
+
+    return menuItems.map((item: any) => {
+      const handleClick = () => {
+        setOpen(!open);
+      };
+
+      return (
+        <div key={item.id}>
+          <ListItem disablePadding>
+            <ListItemButton onClick={item.children ? handleClick : undefined} component={Link} to={item.url}>
+              <ListItemText primary={item.name} />
+              {item.children ? open ? <ExpandLessIcon/> : <ExpandMoreIcon/> : null}
+              </ListItemButton>
+          </ListItem>
+          {item.children && (
+            <Collapse in={open} timeout="auto" unmountOnExit>
+              <List component="div" disablePadding>
+                {renderMenuItems(item.children)}
+              </List>
+            </Collapse>
+          )}
+        </div>
+      );
+    });
+  };
 
 
   const handleDrawerToggle = () => {
@@ -92,15 +137,9 @@ const ResponsiveDrawer: React.FC<LayoutProps> = ({ window, children }) => {
     <div>
       <Toolbar />
       <Divider />
-      <List>
-        {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text) => (
-          <ListItem key={text} disablePadding>
-            <ListItemButton>
-              <ListItemText primary={text} />
-            </ListItemButton>
-          </ListItem>
-        ))}
-      </List>
+        <List>
+          {renderMenuItems(menuList)}
+        </List>
       <Divider />
     </div>
   );
@@ -263,3 +302,7 @@ const ResponsiveDrawer: React.FC<LayoutProps> = ({ window, children }) => {
 };
 
 export default ResponsiveDrawer;
+
+
+
+

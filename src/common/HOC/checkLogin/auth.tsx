@@ -2,7 +2,9 @@ import React from 'react'
 import { Root } from 'react-dom/client';
 import { useSelector } from 'react-redux';
 import { Navigate } from 'react-router-dom';
-import { RootState } from '../../../redux/store';
+import { AppDispatch, RootState } from '../../../redux/store';
+import { syncAuthState } from '../../../redux/actions/auth';
+import { useDispatch } from 'react-redux';
 
 interface CheckLoginProps {
     navigation: boolean;
@@ -15,6 +17,12 @@ const loginAuth = (
 ) => {
     const AuthWrapper = (props: any) => {
         const { user: data } = useSelector((state: RootState) => state.auth);
+        const dispatch: AppDispatch = useDispatch(); // Khởi tạo dispatch
+        const token = localStorage.getItem('authToken');
+
+        if (!data && token) {
+            dispatch(syncAuthState());
+        }
 
         //DIEU HUONG
         if (navigation && data) {

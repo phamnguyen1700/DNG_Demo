@@ -24,9 +24,9 @@ export const login = createAsyncThunk(
       return rejectWithValue(null);
     }
   } 
-);
+)
 
-export const syncAuthState = createAsyncThunk(
+/*export const syncAuthState = createAsyncThunk(
   "auth/syncState",
   async (_, { dispatch }) => {
     const token = localStorage.getItem("authToken");
@@ -39,4 +39,21 @@ export const syncAuthState = createAsyncThunk(
       dispatch({ type: 'LOGOUT' });
     }
   }
+);*/
+
+export const syncAuthState = createAsyncThunk(
+  "auth/syncState",
+  async (_, { dispatch, rejectWithValue }) => {
+    const token = localStorage.getItem("authToken");
+    const userData = localStorage.getItem("user");
+
+    if (token && userData) {
+      const user = JSON.parse(userData);
+      return { token, user }; // Return user data to update the state
+    } else {
+      dispatch(logout()); // Ensure the state and localStorage are cleared if no token or userData
+      return rejectWithValue('No token found');
+    }
+  }
 );
+

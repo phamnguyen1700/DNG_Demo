@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { login } from "../actions/auth";
 import { IAuthState } from "../../typing/Auth";
-
+import { syncAuthState } from "../actions/auth";
 const initialState: IAuthState = {
   loading: false,
   user: null,
@@ -20,6 +20,15 @@ const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      .addCase(syncAuthState.fulfilled, (state, action) => {
+        if (action.payload) {
+          state.user = action.payload.user;
+        }
+      })
+      .addCase(syncAuthState.rejected, (state) => {
+        state.user = null;
+        state.error = "Failed to sync auth state";
+      })
       //loading = true
       .addCase(login.pending, (state) => {
         state.loading = true;

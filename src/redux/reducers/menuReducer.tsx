@@ -9,7 +9,7 @@ interface MenuState {
 }
 
 const initialState: MenuState = {
-    menuList: null,
+    menuList: [],
     menuLoading: false,
     menuError: null,
 };

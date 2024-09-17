@@ -7,7 +7,7 @@ import { login } from '../../redux/actions/auth';
 import { RootState, AppDispatch } from '../../redux/store';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate để điều hướng
-import loginAuth from '../../common/HOC/checkLogin/auth';
+import loginAuth from '../../common/HOC/auth';
 import { paths } from '../../route/path';
 import { fetchMenuList } from '../../redux/actions/menuAction';
 interface IFormInput {
@@ -49,7 +49,7 @@ const LoginForm: React.FC = () => {
        const result = await dispatch(login(data));
        console.log("Result:", result);
        if(result.meta.requestStatus === "fulfilled"){
-            console.log('Login success', result);
+        navigate(paths.overview);
        }else{
         console.log('Login fail', result);
     } 
@@ -108,4 +108,4 @@ const LoginForm: React.FC = () => {
     );
 };
 
-export default loginAuth(LoginForm, { navigation: true, navigationPath: paths.home });
+export default LoginForm;

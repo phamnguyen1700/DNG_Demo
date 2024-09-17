@@ -21,12 +21,16 @@ import Tooltip from '@mui/material/Tooltip';
 import MenuIcon from '@mui/icons-material/Menu';
 import useLogout from '../../common/hooks/logout';
 import { AppDispatch } from '../../redux/store';
-import { Link } from 'react-router-dom';
+import { Link, Outlet } from 'react-router-dom';
 import { paths } from '../../route/path';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchMenuList } from '../../redux/actions/menuAction';
 import { RootState } from '../../redux/store';
 import { syncAuthState } from '../../redux/actions/auth';
+import Auth from '../../common/HOC/auth';
+import { USER_KEY } from '../../constants/app';
+import { getUserLocalStore } from '../../common/actions/stores';
+import { setUserInStore } from '../../redux/reducers/authReducers';
 
 interface IUser {
   id: number;
@@ -46,43 +50,32 @@ interface IUser {
 const drawerWidth = 240;
 
 interface LayoutProps {
-  window?: () => Window;
-  children: React.ReactNode;  // Nhận `children` từ props để hiển thị nội dung
+  // window?: () => Window;
+  // children: React.ReactNode;  // Nhận `children` từ props để hiển thị nội dung
 }
 
-const ResponsiveDrawer: React.FC<LayoutProps> = ({ window, children }) => {
+const ResponsiveDrawer: React.FC<LayoutProps> = () => {
+  const dispatch: AppDispatch = useDispatch();
+  const { menuList = [], menuLoading, menuError } = useSelector((state: RootState) => state.menu);
+  const logout = useLogout(); // Truyền hàm logout đúng cách
+
+  const [open, setOpen] = React.useState(false);
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
-  const [user, setUser] = useState<IUser | null>(null);
-  const dispatch: AppDispatch = useDispatch();
-  const { menuList = [], menuLoading, menuError } = useSelector((state: any) => state.menu);
-  const [open, setOpen] = React.useState(false);
-
-  const userData = localStorage.getItem('user');
-  console.log('USER DATA FROM LOCAL STORAGE:', userData); 
-  const stateUserData = useSelector((state: RootState) => state.auth.user);
-  console.log('USER DATA FROM STATE:', stateUserData);
-
+  const {user} = useSelector((state: RootState) => state.auth);
 
   useEffect(() => {
-    if (!userData) {
-      setUser(stateUserData);
-        return
-    } else {
-      try {
-        const parseUser = JSON.parse(userData);
-        setUser(parseUser);
-      } catch (error) {
-        console.log('Lỗi parse:', error);
-      }
-    }
-  },[stateUserData]);
-
-  useEffect(() => {
-    console.log('Dispatching fetchMenuList...');
-    dispatch(fetchMenuList());
+    if(menuList.length === 0){
+      dispatch(fetchMenuList());
+    } 
   }, []);
 
+  useEffect(() => {
+    if(!user){
+      const userLocal = getUserLocalStore()
+      dispatch(setUserInStore(userLocal));
+    }
+  },[user])
 
   //hàm đệ quy để lấy ra các menu con
   const renderMenuItems = (menuItems: any) => {
@@ -131,7 +124,7 @@ const ResponsiveDrawer: React.FC<LayoutProps> = ({ window, children }) => {
     setAnchorElUser(null);
   };
 
-  const logout = useLogout(); // Truyền hàm logout đúng cách
+  
 
   const drawer = (
     <div>
@@ -144,7 +137,7 @@ const ResponsiveDrawer: React.FC<LayoutProps> = ({ window, children }) => {
     </div>
   );
 
-  const container = window !== undefined ? () => window().document.body : undefined;
+  const container = window !== undefined ? () => window.document.body : undefined;
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -169,7 +162,7 @@ const ResponsiveDrawer: React.FC<LayoutProps> = ({ window, children }) => {
           
           {/* Logo on the AppBar */}
           <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-          <Link to={paths.home} style={{ textDecoration:'none', color:'white'}}>
+          <Link to={paths.overview} style={{ textDecoration:'none', color:'white'}}>
             My Logo
             </Link>
 
@@ -295,13 +288,15 @@ const ResponsiveDrawer: React.FC<LayoutProps> = ({ window, children }) => {
       >
         <Toolbar />
         {/* Render nội dung truyền qua props */}
-        {children}
+        <div>
+          <Outlet/>
+        </div>
       </Box>
     </Box>
   );
 };
 
-export default ResponsiveDrawer;
+export default Auth({WrappedComponent:ResponsiveDrawer});
 
 
 

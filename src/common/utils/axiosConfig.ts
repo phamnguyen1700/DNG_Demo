@@ -1,4 +1,5 @@
 import axios from "axios";
+import { ACCESS_TOKEN_KEY } from "../../constants/app";
 
 //tạo ĩnstance axios
 const axiosInstance = axios.create({
@@ -11,7 +12,7 @@ const axiosInstance = axios.create({
 //thêm interceptor
   axiosInstance.interceptors.request.use(
     (config) => {
-      const token = localStorage.getItem("authToken");
+      const token = localStorage.getItem(ACCESS_TOKEN_KEY);
       
     
       if (token) {

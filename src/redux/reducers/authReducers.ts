@@ -2,6 +2,8 @@ import { createSlice } from "@reduxjs/toolkit";
 import { login } from "../actions/auth";
 import { IAuthState } from "../../typing/Auth";
 import { syncAuthState } from "../actions/auth";
+import { USER_KEY } from "../../constants/app";
+import { setTokenLocalStore, setUserLocalStore } from "../../common/actions/stores";
 const initialState: IAuthState = {
   loading: false,
   user: null,
@@ -17,14 +19,12 @@ const authSlice = createSlice({
       state.user = null;
       localStorage.clear();
     },
+    setUserInStore: (state, action) => {
+      state.user = action.payload;
+    }
   },
   extraReducers: (builder) => {
     builder
-      .addCase(syncAuthState.fulfilled, (state, action) => {
-        if (action.payload) {
-          state.user = action.payload.user;
-        }
-      })
       .addCase(syncAuthState.rejected, (state) => {
         state.user = null;
         state.error = "Failed to sync auth state";
@@ -44,13 +44,13 @@ const authSlice = createSlice({
       .addCase(login.fulfilled, (state, action: any) => {
         console.log("Payload:", action.payload);
         state.loading = false;
-        state.user = action.payload;
+        state.user = action.payload.user;
         //lưu token vào local storage
-        localStorage.setItem("authToken", action.payload.token);
-        localStorage.setItem("user", JSON.stringify(action.payload.user));
+        setTokenLocalStore(action.payload.token)
+        setUserLocalStore(action.payload.user);
       });
   },
 });
 
-export const { logout } = authSlice.actions; // Action logout nếu cần
+export const { logout, setUserInStore } = authSlice.actions; // Action logout nếu cần
 export default authSlice.reducer;

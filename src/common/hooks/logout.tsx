@@ -9,7 +9,7 @@ const useLogout = () => {
 
     const handleLogout = () => {
         dispatch(logout());
-        navigate(paths.login);
+        navigate(paths.overview);
     };
 
     return handleLogout;

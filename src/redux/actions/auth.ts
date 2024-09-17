@@ -2,6 +2,7 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import * as services from "../../services/auth";
 import { ILogin } from "../../typing";
 import { logout } from "../reducers/authReducers";
+import { USER_KEY } from "../../constants/app";
 
 //XỬ LÝ ĐĂNG NHẬP VỚI DỮ LIỆU TỪ API
 
@@ -44,16 +45,9 @@ export const login = createAsyncThunk(
 export const syncAuthState = createAsyncThunk(
   "auth/syncState",
   async (_, { dispatch, rejectWithValue }) => {
-    const token = localStorage.getItem("authToken");
-    const userData = localStorage.getItem("user");
+    const userData = localStorage.getItem(USER_KEY);
 
-    if (token && userData) {
-      const user = JSON.parse(userData);
-      return { token, user }; // Return user data to update the state
-    } else {
-      dispatch(logout()); // Ensure the state and localStorage are cleared if no token or userData
-      return rejectWithValue('No token found');
-    }
+ 
   }
 );
 

@@ -1,7 +1,14 @@
 import React from 'react'
+import { Outlet } from 'react-router-dom'
 
-export default function index() {
+const AuthLayout = () => {
   return (
-    <div>index</div>
+    <div>
+      Auth Layout 
+      <div>
+          <Outlet/>
+        </div>      
+    </div>
   )
 }
+export default AuthLayout;

@@ -3,7 +3,7 @@ import { fetchMenuList } from '../actions/menuAction';
 
 
 interface MenuState {
-    menuList: any[] | null;
+    menuList: any[];
     menuLoading: boolean;
     menuError: string | null;
 }
@@ -21,7 +21,7 @@ const menuSlice = createSlice({
     reducers: {
         // Các action khác nếu cần thêm
         clearMenuList: (state) => {
-            state.menuList = null;
+            state.menuList = [];
         },
     },
     extraReducers: (builder) => {

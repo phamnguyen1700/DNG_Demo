@@ -19,103 +19,81 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Tooltip from '@mui/material/Tooltip';
 import MenuIcon from '@mui/icons-material/Menu';
-import useLogout from '../../common/hooks/logout';
-import { AppDispatch } from '../../redux/store';
 import { Link, Outlet } from 'react-router-dom';
-import { paths } from '../../route/path';
 import { useSelector, useDispatch } from 'react-redux';
+import { RootState, AppDispatch } from '../../redux/store';
 import { fetchMenuList } from '../../redux/actions/menuAction';
-import { RootState } from '../../redux/store';
-import { syncAuthState } from '../../redux/actions/auth';
-import Auth from '../../common/HOC/auth';
-import { USER_KEY } from '../../constants/app';
 import { getUserLocalStore } from '../../common/actions/stores';
 import { setUserInStore } from '../../redux/reducers/authReducers';
+import useLogout from '../../common/hooks/logout';
+import Auth from '../../common/HOC/auth';
+import { menuConfig } from '../../Menu/menuConfig';
+import { paths } from '../../route/path';
 
-interface IUser {
+interface MenuItem {
   id: number;
-  phone: string;
-  username: string;
-  email: string;
-  first_name: string;
-  last_name: string;
-  fullname: string;
-  image_url: string;
-  main_group_id: number;
+  name: string;
+  url?: string;
+  children?: MenuItem[];
 }
-
-
-
 
 const drawerWidth = 240;
 
-interface LayoutProps {
-  // window?: () => Window;
-  // children: React.ReactNode;  // Nhận `children` từ props để hiển thị nội dung
-}
-
-const ResponsiveDrawer: React.FC<LayoutProps> = () => {
+const ResponsiveDrawer: React.FC = () => {
   const dispatch: AppDispatch = useDispatch();
-  const { menuList = [], menuLoading, menuError } = useSelector((state: RootState) => state.menu);
-  const logout = useLogout(); // Truyền hàm logout đúng cách
-
-  const [open, setOpen] = React.useState(false);
-  const [mobileOpen, setMobileOpen] = React.useState(false);
-  const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
-  const {user} = useSelector((state: RootState) => state.auth);
+  const logout = useLogout();
+  const [open, setOpen] = useState<{ [key: number]: boolean }>({});
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
+  const { user } = useSelector((state: RootState) => state.auth);
 
   useEffect(() => {
-    if(menuList.length === 0){
-      dispatch(fetchMenuList());
-    } 
-  }, []);
-
-  useEffect(() => {
-    if(!user){
-      const userLocal = getUserLocalStore()
+    if (!user) {
+      const userLocal = getUserLocalStore();
       dispatch(setUserInStore(userLocal));
     }
-  },[user])
+  }, [user, dispatch]);
 
-  //hàm đệ quy để lấy ra các menu con
-  const renderMenuItems = (menuItems: any) => {
-
-    if (!menuItems || !Array.isArray(menuItems)) {
-      console.log('menuItems is not an array:', menuItems);
-      return null;
-  }
-
-    return menuItems.map((item: any) => {
-      const handleClick = () => {
-        setOpen(!open);
-      };
-
-      return (
-        <div key={item.id}>
-          <ListItem disablePadding>
-            <ListItemButton onClick={item.children ? handleClick : undefined} component={Link} to={item.url}>
-              <ListItemText primary={item.name} />
-              {item.children ? open ? <ExpandLessIcon/> : <ExpandMoreIcon/> : null}
-              </ListItemButton>
-          </ListItem>
-          {item.children && (
-            <Collapse in={open} timeout="auto" unmountOnExit>
-              <List component="div" disablePadding>
-                {renderMenuItems(item.children)}
-              </List>
-            </Collapse>
-          )}
-        </div>
-      );
-    });
+  const handleToggle = (id: number) => {
+    setOpen((prevOpen) => ({
+      ...prevOpen,
+      [id]: !prevOpen[id],
+    }));
   };
 
+  const renderMenuItems = (menuItems: MenuItem[]) => {
+    return menuItems.map((item) => (
+      <div key={item.id}>
+        <ListItem disablePadding>
+          <ListItemButton
+            onClick={() => {
+              if (item.children) {
+                handleToggle(item.id);
+              }
+            }}
+            component={item.children ? 'button' : Link}
+            to={item.children ? '#' : item.url || '#'}
+          >
+            <ListItemText primary={item.name} />
+            {item.children ? (open[item.id] ? <ExpandLessIcon /> : <ExpandMoreIcon />) : null}
+          </ListItemButton>
+        </ListItem>
+        {item.children && (
+          <Collapse in={open[item.id]} timeout="auto" unmountOnExit>
+            <List component="div" disablePadding>
+              {renderMenuItems(item.children)}
+            </List>
+          </Collapse>
+        )}
+      </div>
+    ));
+  };
+  
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
 
-  // User menu handlers
   const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElUser(event.currentTarget);
   };
@@ -124,20 +102,16 @@ const ResponsiveDrawer: React.FC<LayoutProps> = () => {
     setAnchorElUser(null);
   };
 
-  
-
   const drawer = (
     <div>
       <Toolbar />
       <Divider />
-        <List>
-          {renderMenuItems(menuList)}
-        </List>
+      <List>
+        {renderMenuItems(menuConfig)}
+      </List>
       <Divider />
     </div>
   );
-
-  const container = window !== undefined ? () => window.document.body : undefined;
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -159,15 +133,11 @@ const ResponsiveDrawer: React.FC<LayoutProps> = () => {
           >
             <MenuIcon />
           </IconButton>
-          
-          {/* Logo on the AppBar */}
           <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-          <Link to={paths.overview} style={{ textDecoration:'none', color:'white'}}>
-            My Logo
+            <Link to={paths.overview} style={{ textDecoration: 'none', color: 'white' }}>
+              My Logo
             </Link>
-
           </Typography>
-          {/* Avatar with Dropdown for user actions */}
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
@@ -176,7 +146,6 @@ const ResponsiveDrawer: React.FC<LayoutProps> = () => {
             </Tooltip>
             <Menu
               sx={{ mt: '45px' }}
-              id="menu-appbar"
               anchorEl={anchorElUser}
               anchorOrigin={{
                 vertical: 'top',
@@ -190,60 +159,23 @@ const ResponsiveDrawer: React.FC<LayoutProps> = () => {
               open={Boolean(anchorElUser)}
               onClose={handleCloseUserMenu}
             >
-
-            <MenuItem onClick={handleCloseUserMenu}>
-                <Typography 
-                  component="div"
-                  style={{
-                    display: 'flex', 
-                    justifyContent: 'center', 
-                    alignItems: 'center', 
-                    textAlign: 'center',
-                    width: '100%',
-                  }}>
+              <MenuItem onClick={handleCloseUserMenu}>
+                <Typography component="div" sx={{ width: '100%', textAlign: 'center' }}>
                   <p>{user?.fullname}</p>
                 </Typography>
               </MenuItem>
-
               <MenuItem onClick={handleCloseUserMenu}>
-                <Typography 
-                  component="div"
-                  style={{
-                    display: 'flex', 
-                    justifyContent: 'center', 
-                    alignItems: 'center', 
-                    textAlign: 'center',
-                    width: '100%',
-                  }}>
+                <Typography component="div" sx={{ width: '100%', textAlign: 'center' }}>
                   <p>{user?.main_group_id}</p>
                 </Typography>
               </MenuItem>
-
               <MenuItem onClick={handleCloseUserMenu}>
-                <Link 
-                  to="/profile" 
-                  style={{ 
-                    textDecoration: 'none', 
-                    color: 'inherit', 
-                    display: 'flex', 
-                    justifyContent: 'center', 
-                    alignItems: 'center', 
-                    width: '100%',
-                  }}>
-                  <Typography style={{ textAlign: 'center' }}>Profile</Typography>
+                <Link to="/profile" style={{ textDecoration: 'none', color: 'inherit', width: '100%', textAlign: 'center' }}>
+                  Profile
                 </Link>
               </MenuItem>
-
               <MenuItem onClick={logout}>
-                <Typography 
-                  component="div"
-                  style={{
-                    display: 'flex', 
-                    justifyContent: 'center', 
-                    alignItems: 'center', 
-                    textAlign: 'center',
-                    width: '100%',
-                  }}>
+                <Typography component="div" sx={{ width: '100%', textAlign: 'center' }}>
                   Logout
                 </Typography>
               </MenuItem>
@@ -251,19 +183,12 @@ const ResponsiveDrawer: React.FC<LayoutProps> = () => {
           </Box>
         </Toolbar>
       </AppBar>
-      <Box
-        component="nav"
-        sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
-        aria-label="mailbox folders"
-      >
+      <Box component="nav" sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }} aria-label="mailbox folders">
         <Drawer
-          container={container}
           variant="temporary"
           open={mobileOpen}
           onClose={handleDrawerToggle}
-          ModalProps={{
-            keepMounted: true, // Better open performance on mobile.
-          }}
+          ModalProps={{ keepMounted: true }}
           sx={{
             display: { xs: 'block', sm: 'none' },
             '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
@@ -282,22 +207,12 @@ const ResponsiveDrawer: React.FC<LayoutProps> = () => {
           {drawer}
         </Drawer>
       </Box>
-      <Box
-        component="main"
-        sx={{ flexGrow: 1, p: 3, width: { sm: `calc(100% - ${drawerWidth}px)` } }}
-      >
+      <Box component="main" sx={{ flexGrow: 1, p: 3, width: { sm: `calc(100% - ${drawerWidth}px)` } }}>
         <Toolbar />
-        {/* Render nội dung truyền qua props */}
-        <div>
-          <Outlet/>
-        </div>
+        <Outlet />
       </Box>
     </Box>
   );
 };
 
-export default Auth({WrappedComponent:ResponsiveDrawer});
-
-
-
-
+export default Auth({ WrappedComponent: ResponsiveDrawer });

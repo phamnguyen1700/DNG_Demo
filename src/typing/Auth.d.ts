@@ -25,7 +25,7 @@ export interface IAuthState {
     error: string | null;
 }
 
-export interface MenuItem {
+export interface IMenuItem {
     id: number,
     name: string,
     url: string,
@@ -33,10 +33,10 @@ export interface MenuItem {
     index: number,
     active: string,
     module: string,
-    children?: MenuItem[]//children có thể có hoặc không
+    children?: IMenuItem[]//children có thể có hoặc không
 }
 
-export interface MenuResponse {
+export interface IMenuResponse {
     status: number,
     message: string,
     data: MenuItem[]

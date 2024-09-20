@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import  ResponsiveDrawer  from '../../layouts/Main/index';
+import { USER_KEY } from '../../constants/app';
 
 interface IUser {
     id: number;
@@ -20,7 +21,7 @@ const Profile: React.FC = () => {
 
     //lấy dữ liệu ra từ localstorage
     useEffect(() => {
-        const userData = localStorage.getItem('user');//lấy dựa theo key userData
+        const userData = localStorage.getItem(USER_KEY);//lấy dựa theo key userData
         console.log('lấy từ local:', userData);
         if (userData) {
             try {

@@ -8,6 +8,8 @@ import { paths } from './path';
 import Main from '../layouts/Main';
 import Student from '../pages/students';
 import Detail from '../pages/students/detail';
+import Program from '../Program/index'; // Import ProgramList component
+import Course from '../Course/index'; // Import CourseList component
 const AppRoutes = () => {
   return (
     <Routes>
@@ -15,9 +17,12 @@ const AppRoutes = () => {
         <Route path={paths.auth.login} element={<Login />} />
       </Route>
       <Route path={paths.overview} element={<Main />}>
-          <Route path={paths.overview} element={<Home />}/>
-          <Route path={paths.student.list} element={<Student />} />
-          <Route path={paths.student.detail} element={<Detail />}/>
+        <Route path={paths.overview} element={<Home />} />
+        <Route path={paths.profile} element={<Profile />} />
+        <Route path={paths.student.list} element={<Student />} />
+        <Route path={paths.student.detail} element={<Detail />} />
+        <Route path={paths.program.list} element={<Program />} /> {/* Thêm route cho Program */}
+        <Route path={paths.course.list} element={<Course />} />
       </Route>
     </Routes>
   );

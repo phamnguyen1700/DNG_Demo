@@ -11,5 +11,11 @@ export const paths = {
     student:{
         list: "/students",
         detail: "/students/:id",
-    }
-}
+    },
+    program: {
+        list: '/programs',
+    },
+    course: {
+        list: '/courses',
+    },
+};

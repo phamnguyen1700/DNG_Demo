@@ -1,4 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { IStore } from '../../typing/storeType';
 import { fetchStore } from '../actions/storeActions';
 
@@ -24,7 +24,7 @@ const storeSlice = createSlice({
             state.status = 'loading';
         })
         .addCase(fetchStore.fulfilled, (state, action) => {
-            console.log('cấu trúc api của StoreList', action.payload);
+            console.log('DANH SÁCH CÁC CHI NHÁNH REDUCER', action.payload);
             state.status = 'succeeded';
             state.stores = action.payload;
         })

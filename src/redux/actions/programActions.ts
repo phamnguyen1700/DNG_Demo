@@ -15,6 +15,7 @@ export const fetchProgramList = createAsyncThunk(
     }, { rejectWithValue }) => {
         try {
             const response = await getProgramList(params);
+            console.log('DANH SÁCH PROGRAM ACTION', response);
             return response.data;
         } catch (error: any) {
             console.error('Error in fetchProgramList:', error);

@@ -9,7 +9,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate để điều hướng
 import loginAuth from '../../common/HOC/auth';
 import { paths } from '../../route/path';
-import { fetchMenuList } from '../../redux/actions/menuAction';
+// import { fetchMenuList } from '../../redux/actions/menuAction';
 interface IFormInput {
     username: string;
     password: string;

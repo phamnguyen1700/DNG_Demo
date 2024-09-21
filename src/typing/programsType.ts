@@ -1,7 +1,7 @@
 // src/typing/programTypes.ts
 
 export interface IProgram {
-    id?: number;
+    id: number;
     name: string;
     store_id?: string ;
     program_group_name?: string | null; // Tên nhóm ngành
@@ -18,15 +18,6 @@ export interface IProgram {
     level: string;
 }
 
-export interface IProgramFormValues {
-    name: string;
-    store_id?: string;
-    type: string;
-    certificate_type: string;
-    program_group_name?: string | null;
-    description?: string | null;
-  }
-  
 
 export interface IProgramState {
     programList: IProgram[]; // Danh sách các chương trình

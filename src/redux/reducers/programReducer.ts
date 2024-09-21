@@ -22,10 +22,11 @@ const programSlice = createSlice({
         state.status = 'loading'
       })
       .addCase(fetchProgramList.fulfilled, (state, action) => {
+        console.log('DANH SÁCH PROGRAM REDUCER', action.payload);
         state.status = 'succeeded';
-        state.programList = Array.isArray(action.payload.list) ? action.payload.list : [];
-        state.filteredProgramList = action.payload.list || [];
-        state.total = action.payload.total || 0;
+        state.programList = action.payload.list;
+        state.filteredProgramList = action.payload.list;
+        state.total = action.payload.total;
     })
       .addCase(fetchProgramList.rejected, (state, action) => {
         state.status = 'failed'

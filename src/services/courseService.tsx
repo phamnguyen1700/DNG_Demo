@@ -1,5 +1,6 @@
 // src/services/courseService.ts
 import axiosInstance from '../../src/common/utils/axiosConfig';
+import { IPayloadSaveCourse } from '../typing/courseType';
 //lấy danh sách khóa học
 export const getCourseList = async (params: {
     limit: number;
@@ -15,8 +16,22 @@ export const getCourseList = async (params: {
 
     
     const response = await axiosInstance.get('/course/list', { params });
+    console.log('999999999999999', response);
     return response.data;
 };
+
+
+
+
+
+
+export const saveCourseService = async (courseData: IPayloadSaveCourse) => await axiosInstance.post('/course/save', courseData)
+
+
+
+
+
+
 
 
 // src/services/courseService.ts

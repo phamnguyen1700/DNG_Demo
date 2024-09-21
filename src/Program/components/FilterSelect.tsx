@@ -1,17 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import React from 'react';
 import { TextField, Select, MenuItem, Box, Button } from '@mui/material';
-import { fetchProgramList } from '../../redux/actions/programActions';
-import { AppDispatch, RootState } from '../../redux/store';
-import { fetchStore } from '../../redux/actions/storeActions';
-
+import { IStore } from '../../typing/storeType';
 interface IProps{
     curFilter: any;
     onUpdateFilter: (newFilter: any) => void;
     onSearchData:(newFilter: any)=>void;
 }
-const FilterData: React.FC = (props:IProps) => {
-    const {curFilter,onSearchData,onUpdateFilter} = props;
+const FilterData: React.FC<IProps>= ({ curFilter, onUpdateFilter, onSearchData }) => {
+    // const {curFilter,onSearchData,onUpdateFilter} = props;
     /**
      * curFilter -> Thay đổi giá trị của các bộ lọc, update giá trị mới dựa vô curFilter (cũ): VD: onUpdateFilter({...curFilter, storeId: '1'})
      * onUpdateFilter -> onUpdateFilter({...curFilter, storeId: '1'});
@@ -28,52 +24,33 @@ const FilterData: React.FC = (props:IProps) => {
      * 
      */
 
-
-
-
-    const dispatch = useDispatch<AppDispatch>();
-        // Lấy danh sách chi nhánh
-    const stores = useSelector((state: RootState) => state.store.stores);
-    // State tạm thời để lưu trữ giá trị của các bộ lọc
-    const [storeId, setStoreId] = useState<string>(''); // Sử dụng string để lưu trữ storeId
-    const [active, setActive] = useState<string>('');
-    const [searchText, setSearchText] = useState<string>('');
-
-    useEffect(() => {
-        // Gọi API lấy danh sách chi nhánh
-        dispatch(fetchStore());
-
-    }, [dispatch]);
-
-
+    
     // Hàm xử lý khi nhấn nút "Lọc"
     const applyFilters = () => {
         // Gọi action fetchProgramList với các tham số lọc
-        dispatch(fetchProgramList({
-            limit: 10, // hoặc giá trị tùy ý
-            offset: 0, // hoặc giá trị tùy ý
-            store_id: storeId ,  // truyền trực tiếp storeId (sẽ là string)
-            active,    // giá trị trạng thái
-            key: searchText, // giá trị tìm kiếm
-        }));
+        console.log('Dữ liệu filter:', curFilter); // Kiểm tra xem dữ liệu có chính xác không
+        onSearchData(curFilter);
     };
+
 
     return (
         <Box display="flex" gap={2} alignItems="center">
             <Select 
-                value={storeId} 
-                onChange={(e) => setStoreId(e.target.value as string)} 
+                value={curFilter.storeId} 
+                onChange={(e) => onUpdateFilter({...curFilter, storeId: e.target.value})} 
                 displayEmpty
             >
                 <MenuItem value="">Tất cả Chi nhánh</MenuItem>
-                {stores.map((store) => (
+                {curFilter.stores.map((store: IStore) => (
                     <MenuItem key={store.id} value={store.id.toString()}>
                         {store.name}
                     </MenuItem>
                 ))}
             </Select>
 
-            <Select value={active} onChange={(e) => setActive(e.target.value)} displayEmpty>
+            <Select value={curFilter.active} onChange={(e) => onUpdateFilter({ ...curFilter, active: e.target.value})}
+            displayEmpty
+            >
                 <MenuItem value="">Tất cả Trạng thái</MenuItem>
                 <MenuItem value="1">Hoạt động</MenuItem>
                 <MenuItem value="0">Không hoạt động</MenuItem>
@@ -82,8 +59,8 @@ const FilterData: React.FC = (props:IProps) => {
             <TextField 
                 label="Tìm kiếm" 
                 variant="outlined" 
-                value={searchText}
-                onChange={(e) => setSearchText(e.target.value)} 
+                value={curFilter.searchText}
+                onChange={(e) => onUpdateFilter({ ...curFilter, searchText: e.target.value})} 
             />
 
             <Button variant="contained" color="primary" onClick={applyFilters}>

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Modal, Button, Box, TextField, MenuItem, Select, FormControl, InputLabel } from '@mui/material';
 import { SelectChangeEvent } from '@mui/material/Select';
-import { IPayloadSaveProgram, Program } from '../../typing/programsType';
+import { IPayloadSaveProgram, IProgram } from '../../typing/programsType';
 import { AppDispatch, RootState } from '../../redux/store';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchStore } from '../../redux/actions/storeActions';
@@ -11,12 +11,12 @@ import ModalConfirm from '../../components/modal/modalComfirm'; // Import ModalC
 interface ModalFormProps {
   show: boolean;
   handleClose: () => void;
-  //data có sẵn để cập nhật
-  existingData?: Program;
+  existingData?: IProgram;
   onRefresh: () => void;
 }
 
 const ModalForm: React.FC<ModalFormProps> = ({ show, handleClose, existingData, onRefresh }) => {
+
   const dispatch = useDispatch<AppDispatch>();
   const currentUser = useSelector((state: RootState ) => state.auth.user);
 
@@ -32,7 +32,8 @@ const ModalForm: React.FC<ModalFormProps> = ({ show, handleClose, existingData, 
   const stores = useSelector((state: RootState) => state.store.stores);
   
   // State để lưu giá trị của form
-  const [formValues, setFormValues] = useState<Omit<Program, 'created_by' | 'created_at' | 'created_name' | 'created_avatar'>>({
+  const [formValues, setFormValues] = useState<Omit<IProgram, 'created_by' | 'created_at' | 'created_name' | 'created_avatar'>>({
+    id: 0,
     name: '',
     store_id: '',
     type: '',
@@ -43,12 +44,7 @@ const ModalForm: React.FC<ModalFormProps> = ({ show, handleClose, existingData, 
     group_id: '', // Thiết lập giá trị mặc định nếu cần
   });
 
-  // Khi mở modal trong chế độ cập nhật, thiết lập giá trị form
-  useEffect(() => {
-    if (existingData) {
-      setFormValues(existingData);
-    }
-  }, [existingData]);
+
 
   // Xử lý khi giá trị input thay đổi cho TextField
   const handleTextFieldChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -89,18 +85,41 @@ const ModalForm: React.FC<ModalFormProps> = ({ show, handleClose, existingData, 
       //to do something
       setShowConfirmModal(false);
       onRefresh && onRefresh();
+      handleClose();
     }
   };
 
+  const handleConfirmCancel = () => {
+    setShowConfirmModal(false);
+  }
+ 
   // Hủy xác nhận
   const handleCancel = () => {
-    setShowConfirmModal(false);
-    handleClose(); // Đóng cả hai popup
+    setFormValues({
+      id: 0,
+      name: '',
+      store_id: '',
+      type: '',
+      certificate_type: '',
+      description: '',
+      active: 1,
+      level: '',
+      group_id: '',
+    });
+    handleClose();
   };
+    // Khi mở modal trong chế độ cập nhật, thiết lập giá trị form
+    useEffect(() => {
+      if (show && existingData) {
+        setFormValues(existingData);
+      }
+    }, [show, existingData]);
+
+
 
   return (
     <>
-      <Modal open={show} onClose={handleClose}>
+      <Modal open={show} onClose={handleCancel}>
         <Box sx={{ padding: '20px', backgroundColor: '#fff', borderRadius: '8px', maxWidth: '500px', margin: '50px auto' }}>
           <h2>{existingData ? 'Cập nhật chương trình' : 'Tạo mới chương trình'}</h2>
           <form onSubmit={(e) => { e.preventDefault(); handleOpenConfirmModal(); }}>
@@ -195,7 +214,7 @@ const ModalForm: React.FC<ModalFormProps> = ({ show, handleClose, existingData, 
             </FormControl>
 
             <Box display="flex" justifyContent="space-between" marginTop="20px">
-              <Button variant="contained" color="secondary" onClick={handleClose}>
+              <Button variant="contained" color="secondary" onClick={handleCancel}>
                 Hủy
               </Button>
               <Button variant="contained" color="primary" onClick={handleOpenConfirmModal}>
@@ -212,7 +231,7 @@ const ModalForm: React.FC<ModalFormProps> = ({ show, handleClose, existingData, 
         title="Xác nhận"
         message={`Bạn có chắc chắn muốn ${existingData ? 'cập nhật' : 'tạo mới'} chương trình này?`}
         onConfirm={handleConfirm}
-        onClose={handleCancel}
+        onClose={handleConfirmCancel}
       />
     </>
   );

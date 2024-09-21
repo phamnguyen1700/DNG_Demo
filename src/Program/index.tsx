@@ -4,38 +4,82 @@ import { AppDispatch, RootState } from '../redux/store';
 import { fetchProgramList } from '../redux/actions/programActions';
 import TableData from './components/TableData';
 import FilterData from './components/FilterSelect';
-import { Program, Program as ProgramType } from '../typing/programsType';
+import { IProgram, IProgram as ProgramType } from '../typing/programsType';
 import { Button } from '@mui/material';
 import ModalSave from './components/ModalSave';
 import { IResponse } from '../typing/app';
-
-const DEFAULT_LIST:IResponse<Program> = {
+import { fetchStore } from '../redux/actions/storeActions';
+const DEFAULT_LIST:IResponse<IProgram> = {
     list: [],
     total: 0
+}
+
+interface INewFilter {
+    storeId: string;
+    active: string;
+    searchText: string;
 }
 const Program = () => {
     const dispatch = useDispatch<AppDispatch>();
     const { filteredProgramList, total, status } = useSelector((state: RootState) => state.program);
+    //lấy danh sách chi nhánh
+
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
 
     const [showModal, setShowModal] = useState(false);
     const [selectedProgram, setSelectedProgram] = useState<ProgramType | undefined>(undefined);
-    const [filter, setFilter] = useState(null);
-    const [programs, setPrograms] = useState<IResponse<Program>>(DEFAULT_LIST);
+
+
+    //danh sách default
+    const [programs, setPrograms] = useState<IResponse<IProgram>>(DEFAULT_LIST);
+
+    //cập nhật filter
+    const onUpdateFilter = (newFilter: INewFilter) => {
+        setFilter(newFilter);
+    }
+
+    //gọi api tìm kiếm
+    const onSearchData = (newFilter: INewFilter) => {
+        setPage(0);
+
+        const params: any = {
+            limit: rowsPerPage,
+            offset: 0,
+        };
+        if (newFilter.storeId) {
+            params.store_id = newFilter.storeId;
+        }
+        if (newFilter.active) {
+            params.active = newFilter.active;
+        }
+        if (newFilter.searchText) {
+            params.key = newFilter.searchText;
+        }
+    
+//sửa lại cái này
+        getAPI(params);
+        setFilter(newFilter);
+    }
 
     useEffect(() => {
+        dispatch(fetchStore());
         dispatch(fetchProgramList({ 
             limit: rowsPerPage,
             offset: page * rowsPerPage,
         }))
-        .then(response => {
-            console.log('API Response:', response);
-        })
-        .catch(error => {
-            console.error('Error fetching program list:', error);
-        });
     }, [dispatch, page, rowsPerPage]);
+
+    const stores = useSelector((state: RootState) => state.store.stores);
+    
+    //ngậm giá trị truyền đi 
+    const [curFilter, setFilter] = useState<any>({
+        storeId: '',
+        active: '',
+        searchText: '',
+        stores: stores
+    });
+
 
     // Xử lý khi nhấn "Edit" chương trình
     const handleEdit = (program: ProgramType) => {
@@ -62,10 +106,15 @@ const Program = () => {
     }
 
     const handleRefresh = () => {
-        //call api get list
+        //call api get
+        dispatch(fetchProgramList({ 
+            limit: rowsPerPage,
+            offset: page * rowsPerPage,
+        }))
     }
     const getAPI = (params:any) =>{
         //call api get list
+        dispatch(fetchProgramList(params))
     }
     /*
         onUpdateFilter = (newFilter)=> setFilter(newFilter);
@@ -93,7 +142,11 @@ const Program = () => {
                     Create
                 </Button>
             </div>
-            <FilterData />
+            <FilterData 
+                curFilter={curFilter} 
+                onUpdateFilter={onUpdateFilter} 
+                onSearchData={onSearchData}
+            />
             {status === 'loading' && <p>Loading...</p>}
             {status === 'succeeded' && (
                 <TableData

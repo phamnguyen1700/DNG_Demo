@@ -14,18 +14,18 @@ import {
   TablePagination,
 } from '@mui/material';
 import { Edit } from '@mui/icons-material';
-import { Program } from '../../typing/programsType';
+import { IProgram } from '../../typing/programsType';
 import { useDispatch } from 'react-redux';
 // import { tongleProgramStatus } from '../../redux/actions/programActions';
 import { AppDispatch } from '../../redux/store';
 
 
 interface TableDataProps {
-  programs: Program[];
+  programs: IProgram[];
   total: number;
   page: number;
   rowsPerPage: number;
-  onEdit: (program: Program) => void;
+  onEdit: (program: IProgram) => void;
   onPageChange: (event: unknown, newPage: number) => void;
   onRowsPerPageChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }

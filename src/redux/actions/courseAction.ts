@@ -1,6 +1,7 @@
 // src/redux/actions/courseActions.ts
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { getCourseList, updateCourseStatus } from '../../services/courseService';
+import { getCourseList, saveCourseService, updateCourseStatus } from '../../services/courseService';
+import { IPayloadSaveCourse } from '../../typing/courseType';
 
 export const fetchCourseList = createAsyncThunk(
     'course/fetchCourseList',
@@ -14,7 +15,8 @@ export const fetchCourseList = createAsyncThunk(
     }, { rejectWithValue }) => {
         try {
             const response = await getCourseList(params);
-            return response.data;
+            console.log('88888888888888888888', response);
+            return response;
         } catch (error: any) {
             console.error('Error in fetchCourseList:', error);
             return rejectWithValue(
@@ -23,6 +25,31 @@ export const fetchCourseList = createAsyncThunk(
         }
     }
 );
+
+
+
+// Action tạo mới hoặc cập nhật khóa học
+export const saveCourseAction = createAsyncThunk(
+    'course/saveCourseActtion',
+    async (courseData: IPayloadSaveCourse, { rejectWithValue, fulfillWithValue }) => {
+        try {
+            const res = await saveCourseService(courseData);
+            if ( res.status === 1 ) {
+                return fulfillWithValue(res.data);
+            } else {
+                return rejectWithValue(null);
+            } 
+        } catch ( error ) {
+            return rejectWithValue(null);
+        }
+    }
+);
+
+
+
+
+
+
 
 // Action cập nhật trạng thái khóa học
 export const toggleCourseStatus = createAsyncThunk(

@@ -8,7 +8,7 @@ export const loginService = async (payload: ILogin) => {
     password: payload.password,
     rememberPassword: payload.rememberPassword,
   });
-  return res.data;
+  return res;
 }
 
 

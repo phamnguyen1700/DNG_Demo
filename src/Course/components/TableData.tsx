@@ -15,18 +15,18 @@ import {
   TablePagination,
 } from '@mui/material';
 import { Edit } from '@mui/icons-material';
-import { Course } from '../../typing/courseType';
+import { ICourse } from '../../typing/courseType';
 import { AppDispatch } from '../../redux/store';
 import { useDispatch } from 'react-redux';
 // import { toggleCourseStatus } from '../../redux/actions/courseAction';
 
 
 interface TableDataProps {
-  courses: Course[];
+  courses: ICourse[];
   total: number;
   page: number;
   rowsPerPage: number;
-  onEdit: (course: Course) => void;
+  onEdit: (course: ICourse) => void;
   onPageChange: (event: unknown, newPage: number) => void;
   onRowsPerPageChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }

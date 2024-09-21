@@ -22,7 +22,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import { Link, Outlet } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from '../../redux/store';
-import { fetchMenuList } from '../../redux/actions/menuAction';
+// import { fetchMenuList } from '../../redux/actions/menuAction';
 import { getUserLocalStore } from '../../common/actions/stores';
 import { setUserInStore } from '../../redux/reducers/authReducers';
 import useLogout from '../../common/hooks/logout';

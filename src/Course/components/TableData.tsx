@@ -16,9 +16,6 @@ import {
 } from '@mui/material';
 import { Edit } from '@mui/icons-material';
 import { ICourse } from '../../typing/courseType';
-import { AppDispatch } from '../../redux/store';
-import { useDispatch } from 'react-redux';
-// import { toggleCourseStatus } from '../../redux/actions/courseAction';
 
 
 interface TableDataProps {
@@ -29,6 +26,7 @@ interface TableDataProps {
   onEdit: (course: ICourse) => void;
   onPageChange: (event: unknown, newPage: number) => void;
   onRowsPerPageChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onToggleStatus: (course: ICourse) => void;
 }
 
 const TableData: React.FC<TableDataProps> = ({
@@ -39,12 +37,13 @@ const TableData: React.FC<TableDataProps> = ({
   onEdit,
   onPageChange,
   onRowsPerPageChange,
+  onToggleStatus,
 }) => {
-  const dispatch = useDispatch<AppDispatch>();
+  // const dispatch = useDispatch<AppDispatch>();
 
-  // const handleToggleStatus = (course: Course) => {
-  //   const newStatus = course.active === 1 ? '0' : '1';
-  //   dispatch(toggleCourseStatus({ id: course.id.toString(), status: newStatus }));
+  // const handleToggleStatus = (course: ICourse) => {
+  //   const newStatus = course.active === 1 ? 0 : 1;
+  //   dispatch(toggleCourseStatus({ id: course.id, active: newStatus }));
   // }
 
   return (
@@ -72,8 +71,8 @@ const TableData: React.FC<TableDataProps> = ({
               <TableCell>{course.number_session}</TableCell>
               <TableCell>
                 <Switch 
-                  checked={course.active === 1}
-                  // onChange={() => handleToggleStatus(course)}  
+                  checked={course.active === 1}  
+                  onChange={() => onToggleStatus(course)}                
                 />
               </TableCell>
               <TableCell>
@@ -97,7 +96,6 @@ const TableData: React.FC<TableDataProps> = ({
         page={page}
         onPageChange={onPageChange}
         rowsPerPage={rowsPerPage}
-        onRowsPerPageChange={onRowsPerPageChange}
       />
     </TableContainer>
   );

@@ -1,7 +1,7 @@
 // src/typing/courseTypes.ts
 
 export interface ICourse {
-    id?: number;
+    id: number;
     name: string;
     number_session: number;
     active: number;

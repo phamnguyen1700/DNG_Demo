@@ -1,4 +1,3 @@
-// src/program/components/TableData.tsx
 import React from 'react';
 import {
   Table,
@@ -16,9 +15,7 @@ import {
 import { Edit } from '@mui/icons-material';
 import { IProgram } from '../../typing/programsType';
 import { useDispatch } from 'react-redux';
-// import { tongleProgramStatus } from '../../redux/actions/programActions';
 import { AppDispatch } from '../../redux/store';
-
 
 interface TableDataProps {
   programs: IProgram[];
@@ -41,10 +38,13 @@ const TableData: React.FC<TableDataProps> = ({
 }) => {
   const dispatch = useDispatch<AppDispatch>();
 
-  // const handleTongleStatus = (program: Program) => {
-  //   const newStatus = program.active === 1 ? '0' : '1';
-  //   dispatch(tongleProgramStatus({ id: program.id.toString(), status: newStatus }));
-  // }
+  // Function to handle toggle of the status (active/inactive)
+  const handleToggleStatus = (program: IProgram) => {
+    const newStatus = program.active === 1 ? '0' : '1';
+    // Dispatch action to toggle program status (currently commented out)
+    // dispatch(toggleProgramStatus({ id: program.id.toString(), status: newStatus }));
+  };
+
   return (
     <TableContainer>
       <Table>
@@ -73,10 +73,10 @@ const TableData: React.FC<TableDataProps> = ({
               <TableCell>{program.certificate_type}</TableCell>
               <TableCell>{program.description}</TableCell>
               <TableCell>
-                  <Switch 
-                  checked={program.active === 1} 
-                  // onChange={() => handleTongleStatus(program)}
-                  />
+                <Switch
+                  checked={program.active === 1}
+                  onChange={() => handleToggleStatus(program)}
+                />
               </TableCell>
               <TableCell>
                 <Tooltip title={`ID: ${program.created_by} - ${program.created_name}`}>

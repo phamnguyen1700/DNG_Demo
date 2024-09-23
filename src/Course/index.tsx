@@ -10,6 +10,9 @@ import { IPayloadSaveCourse, ICourse as CourseType } from '../typing/courseType'
 import { Button } from '@mui/material';
 import { fetchProgramList } from '../redux/actions/programActions'; // Nếu cần sử dụng danh sách chương trình khóa học
 import ModalSave from './components/ModalSave'; // Component tạo mới hoặc cập nhật khóa học
+import { toggleCourseStatus } from '../../src/redux/actions/courseAction';
+import ModalConfirm from '../../src/components/modal/modalComfirm'; // Import ModalConfirm
+
 const DEFAULT_LIST = {
     list: [],
     total: 0
@@ -27,9 +30,10 @@ const Course = () => {
     const dispatch = useDispatch<AppDispatch>();
     const { filteredCourseList, total, status } = useSelector((state: RootState) => state.course);
     
-
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [showModal, setShowModal] = useState(false); // State điều khiển Modal
     const [selectedCourse, setSelectedCourse] = useState<CourseType | undefined>(undefined); // State lưu khóa học được chọn
+    const [courseToToggle, setCourseToToggle] = useState<CourseType | null>(null); // State lưu course cần toggle
 
     
     const [page, setPage] = useState(0);
@@ -65,26 +69,31 @@ const Course = () => {
         setFilter(newFilter);
     };
 
+          
+    const programs = useSelector((state: RootState) => state.program.programList); // Lấy danh sách chương trình khóa học
+    console.log('programs:', programs);
+    const stores = useSelector((state: RootState) => state.store.stores); // Fetch danh sách chi nhánh
+    console.log('stores:', stores); 
+ 
        
     // Fetch danh sách khóa học khi có sự thay đổi về trang hoặc bộ lọc
     useEffect(() => {
-        dispatch(fetchStore()); // Fetch danh sách chi nhánh nếu cần
-        dispatch(fetchProgramList({
-            limit: 100,
-            offset: 0,
-        })); // Fetch danh sách chương trình khóa học nếu cần
+        if (stores.length === 0) {
+            dispatch(fetchStore()); // Fetch danh sách chi nhánh nếu cần
+        }
+        if (programs.length === 0) {
+            dispatch(fetchProgramList({
+                limit: 100,
+                offset: 0,
+            })); // Fetch danh sách chương trình khóa học nếu cần
+        }
         dispatch(fetchCourseList({
             limit: rowsPerPage,
             offset: page * rowsPerPage,
         }));
-    }, [dispatch, page, rowsPerPage]);
+    }, [dispatch, page, rowsPerPage, stores.length, programs.length]);
 
 
-    
-
-    const programs = useSelector((state: RootState) => state.program.programList); // Lấy danh sách chương trình khóa học
-    const stores = useSelector((state: RootState) => state.store.stores); // Fetch danh sách chi nhánh
-    
     const [curFilter, setFilter] = useState<any>({
         storeId: '',
         active: '',
@@ -93,6 +102,31 @@ const Course = () => {
         programs: programs
     });
 
+
+
+    const handleOpenConfirmModal = (course: CourseType) => {
+        setCourseToToggle(course); // Lưu khóa học vào state
+        setShowConfirmModal(true);
+    }
+
+    const handleCloseConfirmModal = () => {
+        setShowConfirmModal(false);
+    }
+
+      // Hàm toggle status
+    const handleConfirmToggle = () => {
+        if (courseToToggle) {
+            const newStatus = courseToToggle.active === 1 ? 0 : 1;
+            dispatch(toggleCourseStatus({ id: courseToToggle.id, active: newStatus }));
+            dispatch(fetchCourseList({
+                limit: rowsPerPage,
+                offset: page * rowsPerPage,
+            }));
+            setShowConfirmModal(false); // Đóng modal sau khi xác nhận
+            handleRefresh(); // Refresh lại danh sách khóa học
+          }
+  };
+  
     
 
     const handleEdit = (course: CourseType) => {
@@ -162,6 +196,7 @@ const Course = () => {
                     onEdit={handleEdit} // Gọi hàm handleEdit khi nhấn nút "Edit"
                     onPageChange={handlePageChange}
                     onRowsPerPageChange={handleRowsPerPageChange}
+                    onToggleStatus={handleOpenConfirmModal} // Gọi hàm handleToggleStatus khi nhấn nút "Toggle"
                 />
             )}
             {status === 'failed' && <p>Failed to load courses</p>}
@@ -173,6 +208,13 @@ const Course = () => {
                 existingData={selectedCourse} // Truyền dữ liệu khóa học nếu đang cập nhật
                 onRefresh={handleRefresh}
             />
+            <ModalConfirm
+                show={showConfirmModal}
+                title="Xác nhận"
+                message="Bạn có chắc chắn muốn thay đổi trạng thái khóa học này?"
+                onConfirm={handleConfirmToggle} // Xác nhận toggle
+                onClose={handleCloseConfirmModal} // Hủy toggle
+        />
         </div>
     );
 };

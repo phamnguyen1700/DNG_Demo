@@ -27,7 +27,7 @@ const courseSlice = createSlice({
             .addCase(fetchCourseList.fulfilled, (state, action) => {
                 console.log('DANH SÁCH COURSE REDUCER', action.payload);
                 state.status = 'succeeded';
-                state.courseList = action.payload;
+                state.courseList = action.payload.list;
                 state.filteredCourseList = action.payload.list; // Khởi tạo danh sách lọc giống danh sách gốc
                 state.total = action.payload.total;
             })
@@ -47,12 +47,14 @@ const courseSlice = createSlice({
                 state.status = 'failed';
                 state.error = (action.payload as { message: string }).message;
             })
-            /*.addCase(toggleCourseStatus.fulfilled, (state, action) => {
-                const course = state.courseList.find(course => course.id.toString() === action.payload.id);
+            .addCase(toggleCourseStatus.fulfilled, (state, action) => {
+                console.log('CAU TRUC DU LIEU TRA VE', action.payload);
+                const course = state.courseList.find((course) => course.id === action.payload.id);
                 if (course) {
-                    course.active = action.payload.active;
+                  course.active = action.payload.status; // Cập nhật trạng thái mới
                 }
-            });*/
+                state.status = 'succeeded'; // Đánh dấu là đã hoàn thành
+            });
     },
 });
 

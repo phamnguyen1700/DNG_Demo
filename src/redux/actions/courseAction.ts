@@ -54,10 +54,11 @@ export const saveCourseAction = createAsyncThunk(
 // Action cập nhật trạng thái khóa học
 export const toggleCourseStatus = createAsyncThunk(
     'course/toggleCourseStatus',
-    async ({ id, active }: { id: string; active: string }, { rejectWithValue }) => {
+    async ({ id, active }: { id: number; active: number }, { rejectWithValue }) => {
         try {
             const response = await updateCourseStatus(id, active);
-            return { id, active: response.active }; // Trả về `id` và `active` mới sau khi cập nhật
+            console.log('ACTION!!!', response);
+            return { id, status: response.status }; // Trả về `id` và `active` mới sau khi cập nhật
         } catch (error: any) {
             console.error('Error in toggleCourseStatus:', error);
             return rejectWithValue(

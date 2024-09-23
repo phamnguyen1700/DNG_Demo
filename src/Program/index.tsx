@@ -30,6 +30,14 @@ const Program = () => {
     const [showModal, setShowModal] = useState(false);
     const [selectedProgram, setSelectedProgram] = useState<ProgramType | undefined>(undefined);
 
+        //ngậm giá trị truyền đi 
+    const [curFilter, setFilter] = useState<any>({
+        storeId: '',
+        active: '',
+        searchText: '',
+        stores: [],
+    });
+
 
     //danh sách default
     const [programs, setPrograms] = useState<IResponse<IProgram>>(DEFAULT_LIST);
@@ -62,23 +70,23 @@ const Program = () => {
         setFilter(newFilter);
     }
 
+    const stores = useSelector((state: RootState) => state.store.stores);
+
     useEffect(() => {
-        dispatch(fetchStore());
+        if (stores.length === 0) {
+            dispatch(fetchStore());
+        }
         dispatch(fetchProgramList({ 
             limit: rowsPerPage,
             offset: page * rowsPerPage,
-        }))
-    }, [dispatch, page, rowsPerPage]);
+        }));
+        setFilter({
+            ...curFilter,
+            stores: stores
+        });
+    }, [dispatch, page, rowsPerPage, stores.length]);
 
-    const stores = useSelector((state: RootState) => state.store.stores);
     
-    //ngậm giá trị truyền đi 
-    const [curFilter, setFilter] = useState<any>({
-        storeId: '',
-        active: '',
-        searchText: '',
-        stores: stores
-    });
 
 
     // Xử lý khi nhấn "Edit" chương trình

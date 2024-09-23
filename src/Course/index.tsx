@@ -35,7 +35,14 @@ const Course = () => {
     const [selectedCourse, setSelectedCourse] = useState<CourseType | undefined>(undefined); // State lưu khóa học được chọn
     const [courseToToggle, setCourseToToggle] = useState<CourseType | null>(null); // State lưu course cần toggle
 
-    
+    const [curFilter, setFilter] = useState<any>({
+        storeId: '',
+        active: '',
+        searchText: '',
+        stores: [],
+        programs: []
+    });
+
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
 
@@ -68,12 +75,12 @@ const Course = () => {
         getAPI(params); // Gọi API tìm kiếm với các filter
         setFilter(newFilter);
     };
+    
+ 
 
           
     const programs = useSelector((state: RootState) => state.program.programList); // Lấy danh sách chương trình khóa học
-    console.log('programs:', programs);
     const stores = useSelector((state: RootState) => state.store.stores); // Fetch danh sách chi nhánh
-    console.log('stores:', stores); 
  
        
     // Fetch danh sách khóa học khi có sự thay đổi về trang hoặc bộ lọc
@@ -91,16 +98,16 @@ const Course = () => {
             limit: rowsPerPage,
             offset: page * rowsPerPage,
         }));
+        setFilter({
+            storeId: '',
+            active: '',
+            searchText: '',
+            stores: stores,
+            programs: programs
+        });
     }, [dispatch, page, rowsPerPage, stores.length, programs.length]);
 
 
-    const [curFilter, setFilter] = useState<any>({
-        storeId: '',
-        active: '',
-        searchText: '',
-        stores: stores,
-        programs: programs
-    });
 
 
 

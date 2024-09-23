@@ -1,10 +1,10 @@
 // src/redux/actions/programActions.ts
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { getProgramList, saveProgramService } from '../../services/programService';
+import { getProgramListService, saveProgramService } from '../../services/programService';
 import { IPayloadSaveProgram } from '../../typing/programsType';
 
 //lấy danh sách chương trình
-export const fetchProgramList = createAsyncThunk(
+export const fetchProgramListAction = createAsyncThunk(
     'program/fetchProgramList',
     async (params: {
         limit: number;
@@ -14,8 +14,7 @@ export const fetchProgramList = createAsyncThunk(
         key?: string;
     }, { rejectWithValue }) => {
         try {
-            const response = await getProgramList(params);
-            console.log('DANH SÁCH PROGRAM ACTION', response);
+            const response = await getProgramListService(params);
             return response.data;
         } catch (error: any) {
             console.error('Error in fetchProgramList:', error);

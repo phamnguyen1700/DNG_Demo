@@ -8,8 +8,8 @@ import { saveCourseAction } from '../../redux/actions/courseAction';
 import ModalConfirm from '../../components/modal/modalComfirm'; // Import ModalConfirm
 import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
-import { fetchStore } from '../../redux/actions/storeActions';
-import { fetchProgramList } from '../../redux/actions/programActions';
+import { fetchStoreAction } from '../../redux/actions/storeActions';
+import { fetchProgramListAction } from '../../redux/actions/programActions';
 interface ModalSaveProps {
   show: boolean;
   handleClose: () => void;
@@ -27,8 +27,8 @@ const ModalSave: React.FC<ModalSaveProps> = ({ show, handleClose, existingData, 
   // Lấy danh sách chi nhánh
   useEffect(() => {
     // Gọi API lấy danh sách chi nhánh
-    dispatch(fetchStore());
-    dispatch(fetchProgramList(
+    dispatch(fetchStoreAction());
+    dispatch(fetchProgramListAction(
       {
         limit: 100,
         offset: 0
@@ -54,26 +54,6 @@ const ModalSave: React.FC<ModalSaveProps> = ({ show, handleClose, existingData, 
     program_name: ''  // Giá trị mặc định hoặc lấy từ danh sách programs dựa vào program_id
 
   });
-
-  
-  // Hủy xác nhận
-  const handleCancel = () => {
-    setFormValues({
-      id: 0,
-      name: '',
-      program_id: '',
-      store_id: '',
-      price: 0,
-      number_session: 0,
-      description: '',
-      active: 1, // Giá trị mặc định cho active
-      store_name: '', // Bạn có thể lấy từ danh sách stores dựa vào store_id
-      program_type: '', // Giá trị mặc định hoặc lấy từ danh sách programs dựa vào program_id
-      program_name: ''  // Giá trị mặc định hoặc lấy từ danh sách programs dựa vào program_id
-    });
-    handleClose();
-  };
-
 
   
   // Xử lý khi giá trị input thay đổi cho TextField
@@ -125,6 +105,29 @@ const ModalSave: React.FC<ModalSaveProps> = ({ show, handleClose, existingData, 
       handleClose(); 
     }
   };
+
+    
+  
+  // Hủy xác nhận
+  const handleCancel = () => {
+    setFormValues({
+      id: 0,
+      name: '',
+      program_id: '',
+      store_id: '',
+      price: 0,
+      number_session: 0,
+      description: '',
+      active: 1, // Giá trị mặc định cho active
+      store_name: '', // Bạn có thể lấy từ danh sách stores dựa vào store_id
+      program_type: '', // Giá trị mặc định hoặc lấy từ danh sách programs dựa vào program_id
+      program_name: ''  // Giá trị mặc định hoặc lấy từ danh sách programs dựa vào program_id
+    });
+    handleClose();
+  };
+
+
+
     // Khi mở modal trong chế độ cập nhật, thiết lập giá trị form
     useEffect(() => {
       if (show && existingData) {
@@ -134,7 +137,7 @@ const ModalSave: React.FC<ModalSaveProps> = ({ show, handleClose, existingData, 
 
   return (
     <>
-    <Modal open={show} onClose={handleClose}>
+    <Modal open={show} onClose={handleCancel}>
       <Box sx={{ padding: '20px', backgroundColor: '#fff', borderRadius: '8px', maxWidth: '500px', margin: '50px auto' }}>
         <h2>{existingData ? 'Cập nhật khóa học' : 'Tạo mới khóa học'}</h2>
         <form onSubmit={(e) => { e.preventDefault(); handleOpenConfirmModal(); }}>

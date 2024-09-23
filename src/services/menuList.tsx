@@ -6,7 +6,6 @@ export const fetchMenuListService = async () => {
         const res = await axiosInstance.get("/menu/list");
 
         const menuList = res.data.data; // Chỉ lấy mảng 'data' từ API
-        console.log("API Response:", menuList); // Log để kiểm tra API trả về
 
         localStorage.setItem("menuList", JSON.stringify(menuList)); // Lưu vào localStorage
         return menuList;  

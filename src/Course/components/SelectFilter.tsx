@@ -12,7 +12,6 @@ interface IProps {
 const FilterData: React.FC<IProps> = ({ curFilter, onUpdateFilter, onSearchData }) => {
   // Hàm xử lý khi nhấn nút "Lọc"
   const applyFilters = () => {
-    console.log('Dữ liệu filter:', curFilter); // Kiểm tra xem dữ liệu có chính xác không
     onSearchData(curFilter);
   };
 
@@ -26,7 +25,7 @@ const FilterData: React.FC<IProps> = ({ curFilter, onUpdateFilter, onSearchData 
       >
         <MenuItem value="">Tất cả Chi nhánh</MenuItem>
         {curFilter.stores.map((store: IStore) => (
-          <MenuItem key={store.id} value={store.id.toString()}>
+          <MenuItem key={store.id} value={store.id}>
             {store.name}
           </MenuItem>
         ))}
@@ -40,7 +39,7 @@ const FilterData: React.FC<IProps> = ({ curFilter, onUpdateFilter, onSearchData 
       >
         <MenuItem value="">Tất cả Chương trình</MenuItem>
         {curFilter.programs.map((program: IProgram) => (
-          <MenuItem key={program.id} value={program.id.toString()}>
+          <MenuItem key={program.id} value={program.id}>
             {program.name}
           </MenuItem>
         ))}

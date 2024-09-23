@@ -1,6 +1,6 @@
 // src/redux/reducers/courseSlice.ts
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { fetchCourseList, saveCourseAction, toggleCourseStatus } from '../actions/courseAction';
+import { fetchCourseListAction, saveCourseAction, toggleCourseStatus } from '../actions/courseAction';
 import { CourseState, ICourse } from '../../typing/courseType';
 
 const initialState: CourseState = {
@@ -21,17 +21,17 @@ const courseSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder
-            .addCase(fetchCourseList.pending, (state) => {
+            .addCase(fetchCourseListAction.pending, (state) => {
                 state.status = 'loading';
             })
-            .addCase(fetchCourseList.fulfilled, (state, action) => {
+            .addCase(fetchCourseListAction.fulfilled, (state, action) => {
                 console.log('DANH SÁCH COURSE REDUCER', action.payload);
                 state.status = 'succeeded';
                 state.courseList = action.payload.list;
                 state.filteredCourseList = action.payload.list; // Khởi tạo danh sách lọc giống danh sách gốc
                 state.total = action.payload.total;
             })
-            .addCase(fetchCourseList.rejected, (state, action) => {
+            .addCase(fetchCourseListAction.rejected, (state, action) => {
                 state.status = 'failed';
                 state.error = (action.payload as { message: string }).message;
             })

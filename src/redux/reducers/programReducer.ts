@@ -1,7 +1,7 @@
 import React from 'react'
 import { IProgramState } from '../../typing/programsType'
 import { createSlice } from '@reduxjs/toolkit'
-import { fetchProgramList, saveProgramAction } from '../actions/programActions'
+import { fetchProgramListAction, saveProgramAction } from '../actions/programActions'
 
 const initialState: IProgramState = {
   programList: [],
@@ -18,17 +18,17 @@ const programSlice = createSlice({
     {},
   extraReducers: (builder) => {
     builder
-      .addCase(fetchProgramList.pending, (state) => {
+      .addCase(fetchProgramListAction.pending, (state) => {
         state.status = 'loading'
       })
-      .addCase(fetchProgramList.fulfilled, (state, action) => {
+      .addCase(fetchProgramListAction.fulfilled, (state, action) => {
         console.log('DANH SÁCH PROGRAM REDUCER', action.payload);
         state.status = 'succeeded';
         state.programList = action.payload.list;
         state.filteredProgramList = action.payload.list;
         state.total = action.payload.total;
     })
-      .addCase(fetchProgramList.rejected, (state, action) => {
+      .addCase(fetchProgramListAction.rejected, (state, action) => {
         state.status = 'failed'
         state.error = (action.payload as { message: string }).message
       })

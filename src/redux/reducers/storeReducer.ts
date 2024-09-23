@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { IStore } from '../../typing/storeType';
-import { fetchStore } from '../actions/storeActions';
+import { fetchStoreAction } from '../actions/storeActions';
 
 interface StoreState {
     stores: IStore[];
@@ -20,15 +20,15 @@ const storeSlice = createSlice({
     reducers: {},
     extraReducers: (builder) => {
         builder
-        .addCase(fetchStore.pending, (state) => {
+        .addCase(fetchStoreAction.pending, (state) => {
             state.status = 'loading';
         })
-        .addCase(fetchStore.fulfilled, (state, action) => {
+        .addCase(fetchStoreAction.fulfilled, (state, action) => {
             console.log('DANH SÁCH CÁC CHI NHÁNH REDUCER', action.payload);
             state.status = 'succeeded';
             state.stores = action.payload;
         })
-        .addCase(fetchStore.rejected, (state, action) => {
+        .addCase(fetchStoreAction.rejected, (state, action) => {
             state.status = 'failed';
             state.error = (action.payload as { message: string }).message;
         })

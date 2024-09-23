@@ -4,7 +4,7 @@ import { SelectChangeEvent } from '@mui/material/Select';
 import { IPayloadSaveProgram, IProgram } from '../../typing/programsType';
 import { AppDispatch, RootState } from '../../redux/store';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchStore } from '../../redux/actions/storeActions';
+import { fetchStoreAction } from '../../redux/actions/storeActions';
 import { saveProgramAction } from '../../redux/actions/programActions';
 import ModalConfirm from '../../components/modal/modalComfirm'; // Import ModalConfirm
 
@@ -26,7 +26,7 @@ const ModalForm: React.FC<ModalFormProps> = ({ show, handleClose, existingData, 
   // Lấy danh sách chi nhánh
   useEffect(() => {
     // Gọi API lấy danh sách chi nhánh
-    dispatch(fetchStore());
+    dispatch(fetchStoreAction());
   },[dispatch]);
 
   const stores = useSelector((state: RootState) => state.store.stores);
@@ -78,6 +78,7 @@ const ModalForm: React.FC<ModalFormProps> = ({ show, handleClose, existingData, 
     if(existingData?.id){
       dataToSave.id = existingData.id
     }
+    console.log('Data to save:', dataToSave);
 
     // Gọi action để tạo mới hoặc cập nhật chương trình
     const result = await dispatch(saveProgramAction(dataToSave));

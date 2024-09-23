@@ -1,10 +1,10 @@
 // src/redux/actions/courseActions.ts
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { getCourseList, saveCourseService, updateCourseStatus } from '../../services/courseService';
+import { getCourseListService , saveCourseService, updateCourseStatus } from '../../services/courseService';
 import { IPayloadSaveCourse } from '../../typing/courseType';
 
-export const fetchCourseList = createAsyncThunk(
-    'course/fetchCourseList',
+export const fetchCourseListAction = createAsyncThunk(
+    'course/fetchCourseListAction',
     async (params: {
         limit: number;
         offset: number;
@@ -14,11 +14,9 @@ export const fetchCourseList = createAsyncThunk(
         key?: string;
     }, { rejectWithValue }) => {
         try {
-            const response = await getCourseList(params);
-            console.log('88888888888888888888', response);
+            const response = await getCourseListService(params);
             return response;
         } catch (error: any) {
-            console.error('Error in fetchCourseList:', error);
             return rejectWithValue(
                 error.response?.data || 'An unexpected error occurred'
             );

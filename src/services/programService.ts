@@ -1,7 +1,7 @@
 import axiosInstance from '../../src/common/utils/axiosConfig';
 import { IPayloadSaveProgram } from '../typing/programsType';
 //lấy danh sách chương trình
-export const getProgramList = async (params: {
+export const getProgramListService = async (params: {
     limit: number;
     offset: number;
     store_id?: string;
@@ -13,7 +13,6 @@ export const getProgramList = async (params: {
     console.log('URL gọi API:', fullUrl, 'Với các tham số:', params);
 
     const response = await axiosInstance.get('/program/list', { params });
-    console.log('DANH SÁCH PROGRAM SERVICE', response);
     return response;
 };
 

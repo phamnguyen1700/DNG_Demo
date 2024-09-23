@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../redux/store';
-import { fetchProgramList } from '../redux/actions/programActions';
+import { fetchProgramListAction } from '../redux/actions/programActions';
 import TableData from './components/TableData';
 import FilterData from './components/FilterSelect';
 import { IProgram, IProgram as ProgramType } from '../typing/programsType';
 import { Button } from '@mui/material';
 import ModalSave from './components/ModalSave';
 import { IResponse } from '../typing/app';
-import { fetchStore } from '../redux/actions/storeActions';
+import { fetchStoreAction } from '../redux/actions/storeActions';
 const DEFAULT_LIST:IResponse<IProgram> = {
     list: [],
     total: 0
@@ -74,9 +74,9 @@ const Program = () => {
 
     useEffect(() => {
         if (stores.length === 0) {
-            dispatch(fetchStore());
+            dispatch(fetchStoreAction());
         }
-        dispatch(fetchProgramList({ 
+        dispatch(fetchProgramListAction({ 
             limit: rowsPerPage,
             offset: page * rowsPerPage,
         }));
@@ -115,14 +115,14 @@ const Program = () => {
 
     const handleRefresh = () => {
         //call api get
-        dispatch(fetchProgramList({ 
+        dispatch(fetchProgramListAction({ 
             limit: rowsPerPage,
             offset: page * rowsPerPage,
         }))
     }
     const getAPI = (params:any) =>{
         //call api get list
-        dispatch(fetchProgramList(params))
+        dispatch(fetchProgramListAction(params))
     }
     /*
         onUpdateFilter = (newFilter)=> setFilter(newFilter);

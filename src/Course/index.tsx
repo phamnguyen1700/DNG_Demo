@@ -2,13 +2,13 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../redux/store';
-import { fetchCourseList } from '../redux/actions/courseAction';
-import { fetchStore } from '../redux/actions/storeActions'; // Nếu cần sử dụng danh sách chi nhánh
+import { fetchCourseListAction } from '../redux/actions/courseAction';
+import { fetchStoreAction } from '../redux/actions/storeActions'; // Nếu cần sử dụng danh sách chi nhánh
 import TableData from './components/TableData';
 import FilterData from './components/SelectFilter'; // Component lọc dữ liệu
-import { IPayloadSaveCourse, ICourse as CourseType } from '../typing/courseType';
+import { ICourse as CourseType } from '../typing/courseType';
 import { Button } from '@mui/material';
-import { fetchProgramList } from '../redux/actions/programActions'; // Nếu cần sử dụng danh sách chương trình khóa học
+import { fetchProgramListAction } from '../redux/actions/programActions'; // Nếu cần sử dụng danh sách chương trình khóa học
 import ModalSave from './components/ModalSave'; // Component tạo mới hoặc cập nhật khóa học
 import { toggleCourseStatus } from '../../src/redux/actions/courseAction';
 import ModalConfirm from '../../src/components/modal/modalComfirm'; // Import ModalConfirm
@@ -39,6 +39,7 @@ const Course = () => {
         storeId: '',
         active: '',
         searchText: '',
+        programId: '',
         stores: [],
         programs: []
     });
@@ -82,19 +83,20 @@ const Course = () => {
     const programs = useSelector((state: RootState) => state.program.programList); // Lấy danh sách chương trình khóa học
     const stores = useSelector((state: RootState) => state.store.stores); // Fetch danh sách chi nhánh
  
+        console.log('PROGRAMS', programs);
        
     // Fetch danh sách khóa học khi có sự thay đổi về trang hoặc bộ lọc
     useEffect(() => {
         if (stores.length === 0) {
-            dispatch(fetchStore()); // Fetch danh sách chi nhánh nếu cần
+            dispatch(fetchStoreAction()); // Fetch danh sách chi nhánh nếu cần
         }
         if (programs.length === 0) {
-            dispatch(fetchProgramList({
+            dispatch(fetchProgramListAction({
                 limit: 100,
                 offset: 0,
             })); // Fetch danh sách chương trình khóa học nếu cần
         }
-        dispatch(fetchCourseList({
+        dispatch(fetchCourseListAction({
             limit: rowsPerPage,
             offset: page * rowsPerPage,
         }));
@@ -125,7 +127,7 @@ const Course = () => {
         if (courseToToggle) {
             const newStatus = courseToToggle.active === 1 ? 0 : 1;
             dispatch(toggleCourseStatus({ id: courseToToggle.id, active: newStatus }));
-            dispatch(fetchCourseList({
+            dispatch(fetchCourseListAction({
                 limit: rowsPerPage,
                 offset: page * rowsPerPage,
             }));
@@ -163,7 +165,7 @@ const Course = () => {
 
     const handleRefresh = () => {
         //call api get
-        dispatch(fetchCourseList({ 
+        dispatch(fetchCourseListAction({ 
             limit: rowsPerPage,
             offset: page * rowsPerPage,
         }))
@@ -171,7 +173,7 @@ const Course = () => {
 
     const getAPI = (params:any) =>{
         //call api get list
-        return dispatch(fetchCourseList(params))
+        return dispatch(fetchCourseListAction(params))
     }
 
 

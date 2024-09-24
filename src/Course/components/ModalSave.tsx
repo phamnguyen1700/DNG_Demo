@@ -10,6 +10,12 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
 import { fetchStoreAction } from '../../redux/actions/storeActions';
 import { fetchProgramListAction } from '../../redux/actions/programActions';
+import * as yup from 'yup';
+import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+
+
+
 interface ModalSaveProps {
   show: boolean;
   handleClose: () => void;
@@ -38,6 +44,16 @@ const ModalSave: React.FC<ModalSaveProps> = ({ show, handleClose, existingData, 
 
   const stores = useSelector((state: RootState) => state.store.stores);
   const programs = useSelector((state: RootState) => state.program.programList);
+
+
+  const schema = yup.object().shape({
+    name: yup.string().required('Tên khóa học không được để trống'),
+    store_id: yup.number().required('Vui lòng chọn chi nhánh'),
+    program_id: yup.number().required('Vui lòng chọn chương trình đào tạo'),
+    price: yup.number().required('Học phí là bắt buộc').min(1, 'Học phí phải lớn hơn 0'),
+    number_session: yup.number().required('Số buổi học là bắt buộc').min(1, 'Số buổi học phải lớn hơn 0').max(365, 'Số buổi học không được lớn hơn 365'),
+    description: yup.string().max(300, 'Mô tả không được vượt quá 300 ký tự')
+  })
   
 
   const [formValues, setFormValues] = useState<Omit<ICourse, 'created_by' | 'created_at' | 'created_name' | 'created_avatar'>>({
@@ -51,9 +67,21 @@ const ModalSave: React.FC<ModalSaveProps> = ({ show, handleClose, existingData, 
     active: 1, // Giá trị mặc định cho active
     store_name: '', // Bạn có thể lấy từ danh sách stores dựa vào store_id
     program_type: '', // Giá trị mặc định hoặc lấy từ danh sách programs dựa vào program_id
-    program_name: ''  // Giá trị mặc định hoặc lấy từ danh sách programs dựa vào program_id
-
+    program_name: '',  // Giá trị mặc định hoặc lấy từ danh sách programs dựa vào program_id
+    elementary_settings: [
+      {
+        id: 3,
+        coefficient: 10,
+      }, 
+      {
+        id: 4,
+        coefficient: 10,
+      }
+    ],
+    training_settings: []
   });
+
+  console.log('FORM VALUES', formValues);
 
   
   // Xử lý khi giá trị input thay đổi cho TextField
@@ -87,9 +115,13 @@ const ModalSave: React.FC<ModalSaveProps> = ({ show, handleClose, existingData, 
       name: formValues.name, // Sẽ là chuỗi
       program_id: Number(formValues.program_id), // Sẽ là số
       store_id: Number(formValues.store_id), // Sẽ là số
+      description: formValues.description || '', // Sẽ là chuỗi
+      active: formValues.active, // Sẽ là số
       price: formValues.price, // Sẽ là số
       number_session: formValues.number_session, // Sẽ là số
-      description: formValues.description || '', // Sẽ là chuỗi
+      elementary_settings: formValues.elementary_settings,
+      training_settings: formValues.training_settings
+
     };
     if(existingData?.id){
       dataToSave.id = existingData.id
@@ -121,7 +153,18 @@ const ModalSave: React.FC<ModalSaveProps> = ({ show, handleClose, existingData, 
       active: 1, // Giá trị mặc định cho active
       store_name: '', // Bạn có thể lấy từ danh sách stores dựa vào store_id
       program_type: '', // Giá trị mặc định hoặc lấy từ danh sách programs dựa vào program_id
-      program_name: ''  // Giá trị mặc định hoặc lấy từ danh sách programs dựa vào program_id
+      program_name: '',  // Giá trị mặc định hoặc lấy từ danh sách programs dựa vào program_id
+      elementary_settings: [
+        {
+          id: 3,
+          coefficient: 10,
+        }, 
+        {
+          id: 4,
+          coefficient: 10,
+        }
+      ],
+      training_settings: []
     });
     handleClose();
   };
@@ -131,7 +174,10 @@ const ModalSave: React.FC<ModalSaveProps> = ({ show, handleClose, existingData, 
     // Khi mở modal trong chế độ cập nhật, thiết lập giá trị form
     useEffect(() => {
       if (show && existingData) {
-        setFormValues(existingData);
+        setFormValues({
+          ...formValues,
+          ...existingData
+        });
       }
     }, [show, existingData]);
 

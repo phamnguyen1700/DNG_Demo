@@ -83,7 +83,6 @@ const Course = () => {
     const programs = useSelector((state: RootState) => state.program.programList); // Lấy danh sách chương trình khóa học
     const stores = useSelector((state: RootState) => state.store.stores); // Fetch danh sách chi nhánh
  
-        console.log('PROGRAMS', programs);
        
     // Fetch danh sách khóa học khi có sự thay đổi về trang hoặc bộ lọc
     useEffect(() => {

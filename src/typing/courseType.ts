@@ -16,7 +16,8 @@ export interface ICourse {
     program_id: string;
     price: number;
     description: string;
-    
+    elementary_settings: { id: number, coefficient: number }[];
+    training_settings: [];
 }
 
 export interface CourseState {
@@ -35,6 +36,9 @@ export interface IPayloadSaveCourse {
     price: number;
     number_session: number;
     description: string;
+    active: number;
+    elementary_settings: { id: number, coefficient: number }[];
+    training_settings: [];
 }
 
 

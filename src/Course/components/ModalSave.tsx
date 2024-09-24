@@ -12,6 +12,8 @@ import { fetchProgramListAction } from '../../redux/actions/programActions';
 import * as yup from 'yup';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
+import { toast, ToastContainer } from 'react-toastify';  // Import toast
+import 'react-toastify/dist/ReactToastify.css';  // Import CSS của react-toastify
 
 interface ModalSaveProps {
   show: boolean;
@@ -69,9 +71,12 @@ const ModalSave: React.FC<ModalSaveProps> = ({ show, handleClose, existingData, 
 
     const result = await dispatch(saveCourseAction(dataToSave));
     if (result.meta.requestStatus === 'fulfilled') {
+      toast.success(`${existingData ? 'Cập nhật' : 'Tạo mới'} khóa học thành công!`);
       setShowConfirmModal(false);
       onRefresh && onRefresh();
       handleClose(); 
+    } else {
+      toast.error(`${existingData ? 'Cập nhật' : 'Tạo mới'} khóa học thất bại!`);
     }
   };
 
@@ -104,6 +109,7 @@ const ModalSave: React.FC<ModalSaveProps> = ({ show, handleClose, existingData, 
 
   return (
     <>
+     <ToastContainer/>
       <Modal open={show} onClose={handleCancel}>
         <Box sx={{ padding: '20px', backgroundColor: '#fff', borderRadius: '8px', maxWidth: '500px', margin: '50px auto' }}>
           <h2>{existingData ? 'Cập nhật khóa học' : 'Tạo mới khóa học'}</h2>

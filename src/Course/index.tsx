@@ -12,6 +12,8 @@ import { fetchProgramListAction } from '../redux/actions/programActions'; // N�
 import ModalSave from './components/ModalSave'; // Component tạo mới hoặc cập nhật khóa học
 import { toggleCourseStatus } from '../../src/redux/actions/courseAction';
 import ModalConfirm from '../../src/components/modal/modalComfirm'; // Import ModalConfirm
+import { toast, ToastContainer } from 'react-toastify';  // Import toast
+import 'react-toastify/dist/ReactToastify.css';  // Import CSS của react-toastify
 
 const DEFAULT_LIST = {
     list: [],
@@ -129,10 +131,16 @@ const Course = () => {
             dispatch(fetchCourseListAction({
                 limit: rowsPerPage,
                 offset: page * rowsPerPage,
-            }));
-            setShowConfirmModal(false); // Đóng modal sau khi xác nhận
-            handleRefresh(); // Refresh lại danh sách khóa học
-          }
+            }))
+            .then(() => {
+                toast.success('Trạng thái khóa học đã được thay đổi thành công!');  // Thông báo thành công
+                handleRefresh();
+            })
+            .catch(() => {
+                toast.error('Đã có lỗi xảy ra khi thay đổi trạng thái khóa học!');  // Thông báo lỗi
+            });
+            setShowConfirmModal(false);
+          } 
   };
   
     
@@ -167,7 +175,8 @@ const Course = () => {
         dispatch(fetchCourseListAction({ 
             limit: rowsPerPage,
             offset: page * rowsPerPage,
-        }))
+        }));
+        // toast.success('Danh sách khóa học đã được cập nhật!');  // Thông báo thành công
     }
 
     const getAPI = (params:any) =>{
@@ -179,6 +188,7 @@ const Course = () => {
  
     return (
         <div>
+            <ToastContainer />
             {/* Nút tạo mới khóa học */}
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
                 <Button variant="contained" color="primary" onClick={handleOpenModal}>

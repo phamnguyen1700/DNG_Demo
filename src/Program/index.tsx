@@ -9,6 +9,10 @@ import { Button } from '@mui/material';
 import ModalSave from './components/ModalSave';
 import { IResponse } from '../typing/app';
 import { fetchStoreAction } from '../redux/actions/storeActions';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';  // Import CSS của react-toastify
+
+
 const DEFAULT_LIST:IResponse<IProgram> = {
     list: [],
     total: 0
@@ -118,7 +122,8 @@ const Program = () => {
         dispatch(fetchProgramListAction({ 
             limit: rowsPerPage,
             offset: page * rowsPerPage,
-        }))
+        }));
+        // toast.success('Danh sách chương trình đã được cập nhật!');  // Thông báo thành công
     }
     const getAPI = (params:any) =>{
         //call api get list
@@ -144,6 +149,7 @@ const Program = () => {
    //ông nội -> cha -> con -> cháu -> con -> cha -> nội -> con -> cha. => useContext
     return (
         <div>
+            <ToastContainer autoClose={5000} />
             {/* Nút tạo mới chương trình */}
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
                 <Button variant="contained" color="primary" onClick={handleOpenModal}>

@@ -10,6 +10,8 @@ import ModalConfirm from '../../components/modal/modalComfirm'; // Import ModalC
 import * as yup from 'yup';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
+import 'react-toastify/dist/ReactToastify.css';  // Import CSS của react-toastify
+import { toast, ToastContainer } from 'react-toastify';  // Import toast
 
 interface ModalFormProps {
   show: boolean;
@@ -70,10 +72,12 @@ const ModalForm: React.FC<ModalFormProps> = ({ show, handleClose, existingData, 
     // Gọi action để tạo mới hoặc cập nhật chương trình
     const result = await dispatch(saveProgramAction(dataToSave));
     if(result.meta.requestStatus === 'fulfilled'){
-      //to do something
+      toast.success(`${existingData ? 'Cập nhật' : 'Tạo mới'} chương trình thành công!`);
       setShowConfirmModal(false);
       onRefresh && onRefresh();
       handleClose();
+    } else {
+      toast.error(`${existingData ? 'Cập nhật' : 'Tạo mới'} chương trình thất bại!`);
     }
   };
 
@@ -111,6 +115,7 @@ const ModalForm: React.FC<ModalFormProps> = ({ show, handleClose, existingData, 
 
   return (
     <>
+    <ToastContainer />
       <Modal open={show} onClose={handleCancel}>
         <Box sx={{ padding: '20px', backgroundColor: '#fff', borderRadius: '8px', maxWidth: '500px', margin: '50px auto' }}>
           <h2>{existingData ? 'Cập nhật chương trình' : 'Tạo mới chương trình'}</h2>

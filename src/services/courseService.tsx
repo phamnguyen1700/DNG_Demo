@@ -40,3 +40,4 @@ export const updateCourseStatus = async (id: number, status: number) => {
     console.log('SERVICE!!!', response);
     return response;
 };
+    

@@ -109,7 +109,6 @@ const ModalSave: React.FC<ModalSaveProps> = ({ show, handleClose, existingData, 
 
   return (
     <>
-     <ToastContainer/>
       <Modal open={show} onClose={handleCancel}>
         <Box sx={{ padding: '20px', backgroundColor: '#fff', borderRadius: '8px', maxWidth: '500px', margin: '50px auto' }}>
           <h2>{existingData ? 'Cập nhật khóa học' : 'Tạo mới khóa học'}</h2>

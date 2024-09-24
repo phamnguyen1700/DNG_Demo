@@ -188,7 +188,6 @@ const Course = () => {
  
     return (
         <div>
-            <ToastContainer />
             {/* Nút tạo mới khóa học */}
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
                 <Button variant="contained" color="primary" onClick={handleOpenModal}>

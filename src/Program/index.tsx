@@ -149,7 +149,6 @@ const Program = () => {
    //ông nội -> cha -> con -> cháu -> con -> cha -> nội -> con -> cha. => useContext
     return (
         <div>
-            <ToastContainer autoClose={5000} />
             {/* Nút tạo mới chương trình */}
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
                 <Button variant="contained" color="primary" onClick={handleOpenModal}>

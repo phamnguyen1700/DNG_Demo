@@ -115,7 +115,6 @@ const ModalForm: React.FC<ModalFormProps> = ({ show, handleClose, existingData, 
 
   return (
     <>
-    <ToastContainer />
       <Modal open={show} onClose={handleCancel}>
         <Box sx={{ padding: '20px', backgroundColor: '#fff', borderRadius: '8px', maxWidth: '500px', margin: '50px auto' }}>
           <h2>{existingData ? 'Cập nhật chương trình' : 'Tạo mới chương trình'}</h2>

@@ -5,7 +5,7 @@ interface ModalConfirmProps {
   show: boolean;
   title: string;
   message: string;
-  onConfirm: () => void;
+  onConfirm: (data: any) => void;
   onClose: () => void;
 }
 

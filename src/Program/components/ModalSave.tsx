@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { Modal, Button, Box, TextField, MenuItem, Select, FormControl, InputLabel } from '@mui/material';
 import { SelectChangeEvent } from '@mui/material/Select';
-import { IPayloadSaveProgram, IProgram } from '../../typing/programsType';
+import { IPayloadSaveProgram, IProgram, IProgramValidation } from '../../typing/programsType';
 import { AppDispatch, RootState } from '../../redux/store';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchStoreAction } from '../../redux/actions/storeActions';
 import { saveProgramAction } from '../../redux/actions/programActions';
 import ModalConfirm from '../../components/modal/modalComfirm'; // Import ModalConfirm
+import * as yup from 'yup';
+import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
 
 interface ModalFormProps {
   show: boolean;
@@ -16,12 +19,11 @@ interface ModalFormProps {
 }
 
 const ModalForm: React.FC<ModalFormProps> = ({ show, handleClose, existingData, onRefresh }) => {
-
-  const dispatch = useDispatch<AppDispatch>();
-  const currentUser = useSelector((state: RootState ) => state.auth.user);
-
-  // State để quản lý việc hiển thị của ModalConfirm
+  
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const dispatch = useDispatch<AppDispatch>();
+  
+  const currentUser = useSelector((state: RootState ) => state.auth.user);
 
   // Lấy danh sách chi nhánh
   useEffect(() => {
@@ -30,55 +32,40 @@ const ModalForm: React.FC<ModalFormProps> = ({ show, handleClose, existingData, 
   },[dispatch]);
 
   const stores = useSelector((state: RootState) => state.store.stores);
+
+  const scheme = yup.object().shape({
+    name: yup.string().required('Tên chương trình không được để trống'),
+    store_id: yup.number().required('Vui lòng chọn chi nhánh').typeError('Vui lòng chọn chi nhánh hợp lệ'),
+    type: yup.string().required('Loại chương trình không được để trống'),
+    level: yup.string().required('Trình độ không được để trống'),
+    certificate_type: yup.string().required('Bằng cấp không được để trống'),
+    group_id: yup.number().required('Nhóm ngành không được để trống').typeError('Vui lòng chọn nhóm ngành hợp lệ'),
+    description: yup.string().max(300, 'Mô tả không được vượt quá 300 ký tự')
+  
+  });
   
   // State để lưu giá trị của form
-  const [formValues, setFormValues] = useState<Omit<IProgram, 'created_by' | 'created_at' | 'created_name' | 'created_avatar'>>({
-    id: 0,
-    name: '',
-    store_id: '',
-    type: '',
-    certificate_type: '',
-    description: '',
-    active: 1,
-    level: '', // Thêm level vào form
-    group_id: '', // Thiết lập giá trị mặc định nếu cần
+  const { register, handleSubmit, formState: { errors }, reset } = useForm<IProgramValidation>({
+    resolver: yupResolver(scheme),
   });
 
-
-
-  // Xử lý khi giá trị input thay đổi cho TextField
-  const handleTextFieldChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = event.target;
-    setFormValues({ ...formValues, [name]: value });
-  };
-
-  // Xử lý khi giá trị input thay đổi cho Select
-  const handleSelectChange = (event: SelectChangeEvent<string>) => {
-    const { name, value } = event.target;
-    setFormValues({ ...formValues, [name as string]: value });
-  };
-
-  // Xử lý khi người dùng nhấn "Tạo mới" hoặc "Cập nhật"
-  const handleOpenConfirmModal = () => {
+  const handleSubmitWithValidation = (data: IProgramValidation) => {
+    console.log('Data after validation:', data);
     setShowConfirmModal(true);
-  };
+  }
 
-  // Xác nhận việc tạo mới hoặc cập nhật
-  const handleConfirm = async () => {
+
+  const handleConfirm = async (data: IProgramValidation) => {
+    console .log('Dữ liệu form:', data);
+
     const dataToSave:IPayloadSaveProgram = {
-      name: formValues.name, // Sẽ là chuỗi
-      store_id: Number(formValues.store_id), // Sẽ là chuỗi
-      group_id: 38, // Sẽ là số hoặc chuỗi
-      description: formValues.description || '', // Sẽ là chuỗi
-      active: formValues.active, // Sẽ là số
-      type: formValues.type, // Sẽ là chuỗi
-      level: formValues.level, // Sẽ là chuỗi
-      certificate_type: formValues.certificate_type, // Sẽ là chuỗi
+      ...data,
+      active: 1,
     };
     if(existingData?.id){
       dataToSave.id = existingData.id
     }
-    console.log('Data to save:', dataToSave);
+    console.log('Dữ liệu truyền đi:', dataToSave);
 
     // Gọi action để tạo mới hoặc cập nhật chương trình
     const result = await dispatch(saveProgramAction(dataToSave));
@@ -90,31 +77,35 @@ const ModalForm: React.FC<ModalFormProps> = ({ show, handleClose, existingData, 
     }
   };
 
-  const handleConfirmCancel = () => {
-    setShowConfirmModal(false);
-  }
  
   // Hủy xác nhận
   const handleCancel = () => {
-    setFormValues({
-      id: 0,
+    reset({
       name: '',
-      store_id: '',
+      store_id: 0,
       type: '',
-      certificate_type: '',
-      description: '',
-      active: 1,
       level: '',
-      group_id: '',
+      certificate_type: '',
+      group_id: 38,
+      description: '',
     });
     handleClose();
   };
-    // Khi mở modal trong chế độ cập nhật, thiết lập giá trị form
+
+  const handleConfirmCancel = () => {
+    setShowConfirmModal(false);
+  }
+
+
     useEffect(() => {
       if (show && existingData) {
-        setFormValues(existingData);
+        const dataToReset = {
+          ...existingData,
+          store_id: Number(existingData.store_id),
+        };
+        reset(dataToReset);
       }
-    }, [show, existingData]);
+    }, [show, existingData, reset]);
 
 
 
@@ -123,102 +114,99 @@ const ModalForm: React.FC<ModalFormProps> = ({ show, handleClose, existingData, 
       <Modal open={show} onClose={handleCancel}>
         <Box sx={{ padding: '20px', backgroundColor: '#fff', borderRadius: '8px', maxWidth: '500px', margin: '50px auto' }}>
           <h2>{existingData ? 'Cập nhật chương trình' : 'Tạo mới chương trình'}</h2>
-          <form onSubmit={(e) => { e.preventDefault(); handleOpenConfirmModal(); }}>
-            <FormControl fullWidth margin="normal">
+          <form onSubmit={handleSubmit(handleSubmitWithValidation)}>
+          <FormControl fullWidth margin="normal">
               <TextField
                 label="Tên chương trình"
-                name="name"
-                value={formValues.name}
-                onChange={handleTextFieldChange}
-                required
+                {...register('name')}
+                error={!!errors.name}
+                helperText={errors.name?.message}
               />
             </FormControl>
 
             <FormControl fullWidth margin="normal">
               <InputLabel>Chi nhánh</InputLabel>
               <Select
-                name="store_id"
-                value={formValues.store_id}
-                onChange={handleSelectChange}
-                required
+                {...register('store_id')}
+                error={!!errors.store_id}
+                defaultValue={existingData?.store_id || 0}
               >
-                <MenuItem value="">Chọn chi nhánh</MenuItem>
+                <MenuItem value={0}>Chọn chi nhánh</MenuItem>
                 {stores.map((store) => (
-                  <MenuItem key={store.id} value={store.id.toString()}>
+                  <MenuItem key={store.id} value={store.id}>
                     {store.name}
                   </MenuItem>
                 ))}
               </Select>
+              <p style={{ color: 'red' }}>{errors.store_id?.message}</p>
             </FormControl>
 
             <FormControl fullWidth margin="normal">
               <InputLabel>Loại chương trình</InputLabel>
               <Select
-                name="type"
-                value={formValues.type}
-                onChange={handleSelectChange}
-                required
+                {...register('type')}
+                error={!!errors.type}
+                defaultValue={existingData?.type}
               >
                 <MenuItem value="degree">Bằng cấp</MenuItem>
                 <MenuItem value="course">Khóa học</MenuItem>
               </Select>
+              <p style={{ color: 'red' }}>{errors.type?.message}</p>
             </FormControl>
 
             <FormControl fullWidth margin="normal">
               <InputLabel>Trình độ đào tạo</InputLabel>
               <Select
-                name="level"
-                value={formValues.level}
-                onChange={handleSelectChange}
-                required
+                {...register('level')}
+                error={!!errors.level}
+                defaultValue={existingData?.level}
               >
                 <MenuItem value="elementary">Sơ cấp</MenuItem>
                 <MenuItem value="secondary">Trung cấp</MenuItem>
               </Select>
+              <p style={{ color: 'red' }}>{errors.level?.message}</p>
             </FormControl>
 
             <FormControl fullWidth margin="normal">
               <InputLabel>Bằng cấp sau tốt nghiệp</InputLabel>
               <Select
-                name="certificate_type"
-                value={formValues.certificate_type}
-                onChange={handleSelectChange}
-                required
+                {...register('certificate_type')}
+                error={!!errors.certificate_type}
+                defaultValue={existingData?.certificate_type}
               >
                 <MenuItem value="elementary">Chứng chỉ sơ cấp</MenuItem>
                 <MenuItem value="secondary">Chứng chỉ trung cấp</MenuItem>
               </Select>
+              <p style={{ color: 'red' }}>{errors.certificate_type?.message}</p>
             </FormControl>
 
             <FormControl fullWidth margin="normal">
               <InputLabel>Nhóm ngành dạy</InputLabel>
               <Select
-                name="group_id"
-                value={formValues.group_id}
-                onChange={handleSelectChange}
-                required
+                {...register('group_id')}
+                error={!!errors.group_id}
+                defaultValue={existingData?.group_id || 38}
               >
                 <MenuItem value="38">group_id = 38</MenuItem>
-                {/* Thêm các lựa chọn khác ở đây nếu có */}
               </Select>
+              <p style={{ color: 'red' }}>{errors.group_id?.message}</p>
             </FormControl>
 
             <FormControl fullWidth margin="normal">
               <TextField
                 label="Mô tả"
-                name="description"
-                value={formValues.description || ''}
-                onChange={handleTextFieldChange}
+                {...register('description')}
                 multiline
                 rows={4}
+                error={!!errors.description}
+                helperText={errors.description?.message}
               />
             </FormControl>
-
             <Box display="flex" justifyContent="space-between" marginTop="20px">
               <Button variant="contained" color="secondary" onClick={handleCancel}>
                 Hủy
               </Button>
-              <Button variant="contained" color="primary" onClick={handleOpenConfirmModal}>
+              <Button variant="contained" color="primary" type="submit">
                 {existingData ? 'Cập nhật' : 'Tạo mới'}
               </Button>
             </Box>
@@ -231,7 +219,7 @@ const ModalForm: React.FC<ModalFormProps> = ({ show, handleClose, existingData, 
         show={showConfirmModal}
         title="Xác nhận"
         message={`Bạn có chắc chắn muốn ${existingData ? 'cập nhật' : 'tạo mới'} chương trình này?`}
-        onConfirm={handleConfirm}
+        onConfirm={handleSubmit(handleConfirm)}
         onClose={handleConfirmCancel}
       />
     </>

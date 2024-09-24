@@ -68,7 +68,15 @@ const TableData: React.FC<TableDataProps> = ({
               <TableCell>
                 {course.store_name} & {course.program_name}
               </TableCell>
-              <TableCell>{course.number_session}</TableCell>
+              <TableCell>
+                {/* <div
+                  style={{
+                    textAlign: 'center',
+                  }}
+                > */}
+                  {course.number_session}
+                {/* </div> */}
+              </TableCell>
               <TableCell>
                 <Switch 
                   checked={course.active === 1}  
@@ -77,9 +85,22 @@ const TableData: React.FC<TableDataProps> = ({
               </TableCell>
               <TableCell>
                 <Tooltip title={`ID: ${course.created_by} - ${course.created_name}`}>
-                  <Avatar alt={course.created_name} src={course.created_avatar} />
+                  <Avatar 
+                  alt={course.created_name} 
+                  src={course.created_avatar} 
+                  sx={{ width: 48, height: 48, margin: '0 auto' }} // Canh giữa Avatar
+                />
                 </Tooltip>
-                <div>{course.created_at}</div>
+                <div
+                  style={{
+                    textAlign: 'center', // Căn giữa text
+                    marginTop: '8px', // Khoảng cách giữa Avatar và ngày tạo
+                    fontSize: '16px', // Kích thước chữ nhỏ hơn
+                    color: 'gray', // Màu chữ nhạt hơn
+                  }}
+                >
+                  {course.created_at}
+                  </div>
               </TableCell>
               <TableCell>
                 <IconButton onClick={() => onEdit(course)}>

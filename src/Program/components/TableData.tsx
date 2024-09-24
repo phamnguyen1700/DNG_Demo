@@ -80,9 +80,22 @@ const TableData: React.FC<TableDataProps> = ({
               </TableCell>
               <TableCell>
                 <Tooltip title={`ID: ${program.created_by} - ${program.created_name}`}>
-                  <Avatar alt={program.created_name} src={program.created_avatar} />
+                  <Avatar
+                  alt={program.created_name}
+                  src={program.created_avatar}
+                  sx={{ width: 48, height: 48, margin: '0 auto' }} // Canh giữa Avatar
+                  />
                 </Tooltip>
-                <div>{program.created_at}</div>
+                <div
+                    style={{
+                      textAlign: 'center', // Căn giữa text
+                      marginTop: '8px', // Khoảng cách giữa Avatar và ngày tạo
+                      fontSize: '16px', // Kích thước chữ nhỏ hơn
+                      color: 'gray', // Màu chữ nhạt hơn
+                    }}
+                >
+                  {program.created_at}
+                </div>
               </TableCell>
               <TableCell>
                 <IconButton onClick={() => onEdit(program)}>

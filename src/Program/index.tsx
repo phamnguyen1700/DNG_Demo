@@ -152,7 +152,7 @@ const Program = () => {
             {/* Nút tạo mới chương trình */}
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
                 <Button variant="contained" color="primary" onClick={handleOpenModal}>
-                    Create
+                    Tạo Mới
                 </Button>
             </div>
             <FilterData 

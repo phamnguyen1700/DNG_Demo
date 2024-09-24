@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import  ResponsiveDrawer  from '../../layouts/Main/index';
 import { USER_KEY } from '../../constants/app';
 
 interface IUser {
@@ -22,7 +21,6 @@ const Profile: React.FC = () => {
     //lấy dữ liệu ra từ localstorage
     useEffect(() => {
         const userData = localStorage.getItem(USER_KEY);//lấy dựa theo key userData
-        console.log('lấy từ local:', userData);
         if (userData) {
             try {
             const parseUser = JSON.parse(userData); //chỉ lấy user từ iauth
@@ -45,7 +43,6 @@ const Profile: React.FC = () => {
     }
 
     return (
-        <ResponsiveDrawer>
         <div>
       <h1>Thông tin người dùng</h1>
       <div>
@@ -56,7 +53,6 @@ const Profile: React.FC = () => {
         <p><strong>Số điện thoại:</strong> {user.phone}</p>
       </div>
     </div>
-    </ResponsiveDrawer>
     );
 };
 export default Profile;

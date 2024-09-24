@@ -5,7 +5,7 @@ import { AppDispatch, RootState } from '../redux/store';
 import { fetchCourseListAction } from '../redux/actions/courseAction';
 import { fetchStoreAction } from '../redux/actions/storeActions'; // Nếu cần sử dụng danh sách chi nhánh
 import TableData from './components/TableData';
-import FilterData from './components/SelectFilter'; // Component lọc dữ liệu
+import FilterData from './components/FilterSelect'; // Component lọc dữ liệu
 import { ICourse as CourseType } from '../typing/courseType';
 import { Button } from '@mui/material';
 import { fetchProgramListAction } from '../redux/actions/programActions'; // Nếu cần sử dụng danh sách chương trình khóa học

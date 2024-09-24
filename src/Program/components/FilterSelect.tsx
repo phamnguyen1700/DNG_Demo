@@ -39,6 +39,7 @@ const FilterData: React.FC<IProps>= ({ curFilter, onUpdateFilter, onSearchData }
                 value={curFilter.storeId} 
                 onChange={(e) => onUpdateFilter({...curFilter, storeId: e.target.value})} 
                 displayEmpty
+                sx={{ flexBasis: '15%' }}
             >
                 <MenuItem value="">Tất cả Chi nhánh</MenuItem>
                 {curFilter.stores.map((store: IStore) => (
@@ -50,6 +51,7 @@ const FilterData: React.FC<IProps>= ({ curFilter, onUpdateFilter, onSearchData }
 
             <Select value={curFilter.active} onChange={(e) => onUpdateFilter({ ...curFilter, active: e.target.value})}
             displayEmpty
+            sx={{ flexBasis: '15%' }}
             >
                 <MenuItem value="">Tất cả Trạng thái</MenuItem>
                 <MenuItem value="1">Hoạt động</MenuItem>
@@ -61,9 +63,10 @@ const FilterData: React.FC<IProps>= ({ curFilter, onUpdateFilter, onSearchData }
                 variant="outlined" 
                 value={curFilter.searchText}
                 onChange={(e) => onUpdateFilter({ ...curFilter, searchText: e.target.value})} 
+                sx={{ flexBasis: '60%' }}
             />
 
-            <Button variant="contained" color="primary" onClick={applyFilters}>
+            <Button variant="contained" color="primary" onClick={applyFilters} sx={{ flexBasis: '10%' }}>
                 Tìm Kiếm
             </Button>
         </Box>

@@ -13,9 +13,9 @@ import {
   TablePagination,
 } from '@mui/material';
 import { Edit } from '@mui/icons-material';
-import { IProgram } from '../../typing/programsType';
+import { IProgram } from '../../../typing/programsType';
 import { useDispatch } from 'react-redux';
-import { AppDispatch } from '../../redux/store';
+import { AppDispatch } from '../../../redux/store';
 
 interface TableDataProps {
   programs: IProgram[];

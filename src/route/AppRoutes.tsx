@@ -7,8 +7,8 @@ import { paths } from './path';
 import Main from '../layouts/Main';
 import Student from '../pages/students';
 import Detail from '../pages/students/detail';
-import Program from '../Program/index'; // Import ProgramList component
-import Course from '../Course/index'; // Import CourseList component
+import Program from '../containers/Program/index'; // Import ProgramList component
+import Course from '../containers/Course/index'; // Import CourseList component
 import Profile from '../../src/containers/User/profile'; // Import UserList component
 const AppRoutes = () => {
   return (

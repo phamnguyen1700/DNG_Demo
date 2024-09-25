@@ -1,17 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '../redux/store';
-import { fetchProgramListAction } from '../redux/actions/programActions';
+import { AppDispatch, RootState } from '../../redux/store';
+import { fetchProgramListAction } from '../../redux/actions/programActions';
 import TableData from './components/TableData';
 import FilterData from './components/FilterSelect';
-import { IProgram, IProgram as ProgramType } from '../typing/programsType';
+import { IProgram, IProgram as ProgramType } from '../../typing/programsType';
 import { Button } from '@mui/material';
 import ModalSave from './components/ModalSave';
-import { IResponse } from '../typing/app';
-import { fetchStoreAction } from '../redux/actions/storeActions';
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';  // Import CSS của react-toastify
-
+import { IResponse } from '../../typing/app';
+import { fetchStoreAction } from '../../redux/actions/storeActions';
+import { ToastContainer } from 'react-toastify';
 
 const DEFAULT_LIST:IResponse<IProgram> = {
     list: [],
@@ -39,7 +37,6 @@ const Program = () => {
         storeId: '',
         active: '',
         searchText: '',
-        stores: [],
     });
 
 
@@ -86,7 +83,6 @@ const Program = () => {
         }));
         setFilter({
             ...curFilter,
-            stores: stores
         });
     }, [dispatch, page, rowsPerPage, stores.length]);
 
@@ -149,6 +145,7 @@ const Program = () => {
    //ông nội -> cha -> con -> cháu -> con -> cha -> nội -> con -> cha. => useContext
     return (
         <div>
+            <ToastContainer/>
             {/* Nút tạo mới chương trình */}
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
                 <Button variant="contained" color="primary" onClick={handleOpenModal}>

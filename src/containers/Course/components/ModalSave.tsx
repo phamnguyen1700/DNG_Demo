@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Box, TextField, MenuItem, Select, FormControl, InputLabel } from '@mui/material';
-import { ICourse, IPayloadSaveCourse, ICourseValidation } from '../../typing/courseType';
-import { AppDispatch } from '../../redux/store';
+import { ICourse, IPayloadSaveCourse, ICourseValidation } from '../../../typing/courseType';
+import { AppDispatch } from '../../../redux/store';
 import { useDispatch } from 'react-redux';
-import { saveCourseAction } from '../../redux/actions/courseAction';
-import ModalConfirm from '../../components/modal/modalComfirm'; // Import ModalConfirm
+import { saveCourseAction } from '../../../redux/actions/courseAction';
+import ModalConfirm from '../../../components/modal/modalComfirm'; // Import ModalConfirm
 import { useSelector } from 'react-redux';
-import { RootState } from '../../redux/store';
-import { fetchStoreAction } from '../../redux/actions/storeActions';
-import { fetchProgramListAction } from '../../redux/actions/programActions';
+import { RootState } from '../../../redux/store';
+import { fetchStoreAction } from '../../../redux/actions/storeActions';
+import { fetchProgramListAction } from '../../../redux/actions/programActions';
 import * as yup from 'yup';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -22,6 +22,16 @@ interface ModalSaveProps {
   onRefresh: () => void;   
 }
 
+const schema = yup.object().shape({
+  name: yup.string().required('Tên khóa học không được để trống'),
+  store_id: yup.number().required('Vui lòng chọn chi nhánh'),
+  program_id: yup.number().required('Vui lòng chọn chương trình đào tạo'),
+  price: yup.number().required('Học phí là bắt buộc').min(1, 'Học phí phải lớn hơn 0'),
+  number_session: yup.number().required('Số buổi học là bắt buộc').min(1, 'Số buổi học phải lớn hơn 0').max(365, 'Số buổi học không được lớn hơn 365'),
+  description: yup.string().max(300, 'Mô tả không được vượt quá 300 ký tự')
+});
+
+
 const ModalSave: React.FC<ModalSaveProps> = ({ show, handleClose, existingData, onRefresh }) => {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const dispatch = useDispatch<AppDispatch>();
@@ -34,14 +44,6 @@ const ModalSave: React.FC<ModalSaveProps> = ({ show, handleClose, existingData, 
   const stores = useSelector((state: RootState) => state.store.stores);
   const programs = useSelector((state: RootState) => state.program.programList);
 
-  const schema = yup.object().shape({
-    name: yup.string().required('Tên khóa học không được để trống'),
-    store_id: yup.number().required('Vui lòng chọn chi nhánh'),
-    program_id: yup.number().required('Vui lòng chọn chương trình đào tạo'),
-    price: yup.number().required('Học phí là bắt buộc').min(1, 'Học phí phải lớn hơn 0'),
-    number_session: yup.number().required('Số buổi học là bắt buộc').min(1, 'Số buổi học phải lớn hơn 0').max(365, 'Số buổi học không được lớn hơn 365'),
-    description: yup.string().max(300, 'Mô tả không được vượt quá 300 ký tự')
-  });
 
   const { register, handleSubmit, formState: { errors }, reset } = useForm<ICourseValidation>({
     resolver: yupResolver(schema),
@@ -72,6 +74,14 @@ const ModalSave: React.FC<ModalSaveProps> = ({ show, handleClose, existingData, 
     const result = await dispatch(saveCourseAction(dataToSave));
     if (result.meta.requestStatus === 'fulfilled') {
       toast.success(`${existingData ? 'Cập nhật' : 'Tạo mới'} khóa học thành công!`);
+      reset({
+        name: '',
+        program_id: 0,
+        store_id: 0,
+        price: 0,
+        number_session: 0,
+        description: '',
+      });
       setShowConfirmModal(false);
       onRefresh && onRefresh();
       handleClose(); 

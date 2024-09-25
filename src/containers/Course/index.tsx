@@ -1,19 +1,18 @@
 // src/course/Course.tsx
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '../redux/store';
-import { fetchCourseListAction } from '../redux/actions/courseAction';
-import { fetchStoreAction } from '../redux/actions/storeActions'; // Nếu cần sử dụng danh sách chi nhánh
+import { AppDispatch, RootState } from '../../redux/store';
+import { fetchCourseListAction } from '../../redux/actions/courseAction';
+import { fetchStoreAction } from '../../redux/actions/storeActions'; // Nếu cần sử dụng danh sách chi nhánh
 import TableData from './components/TableData';
 import FilterData from './components/FilterSelect'; // Component lọc dữ liệu
-import { ICourse as CourseType } from '../typing/courseType';
+import { ICourse as CourseType } from '../../typing/courseType';
 import { Button } from '@mui/material';
-import { fetchProgramListAction } from '../redux/actions/programActions'; // Nếu cần sử dụng danh sách chương trình khóa học
+import { fetchProgramListAction } from '../../redux/actions/programActions'; // Nếu cần sử dụng danh sách chương trình khóa học
 import ModalSave from './components/ModalSave'; // Component tạo mới hoặc cập nhật khóa học
-import { toggleCourseStatus } from '../../src/redux/actions/courseAction';
-import ModalConfirm from '../../src/components/modal/modalComfirm'; // Import ModalConfirm
+import { toggleCourseStatus } from '../../../src/redux/actions/courseAction';
+import ModalConfirm from '../../../src/components/modal/modalComfirm'; // Import ModalConfirm
 import { toast, ToastContainer } from 'react-toastify';  // Import toast
-import 'react-toastify/dist/ReactToastify.css';  // Import CSS của react-toastify
 
 const DEFAULT_LIST = {
     list: [],
@@ -42,8 +41,6 @@ const Course = () => {
         active: '',
         searchText: '',
         programId: '',
-        stores: [],
-        programs: []
     });
 
     const [page, setPage] = useState(0);
@@ -105,8 +102,7 @@ const Course = () => {
             storeId: '',
             active: '',
             searchText: '',
-            stores: stores,
-            programs: programs
+            programId: '',
         });
     }, [dispatch, page, rowsPerPage, stores.length, programs.length]);
 

@@ -1,6 +1,8 @@
 import React from 'react';
 import { TextField, Select, MenuItem, Box, Button } from '@mui/material';
-import { IStore } from '../../typing/storeType';
+import { IStore } from '../../../typing/storeType';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../../redux/store';
 interface IProps{
     curFilter: any;
     onUpdateFilter: (newFilter: any) => void;
@@ -32,6 +34,8 @@ const FilterData: React.FC<IProps>= ({ curFilter, onUpdateFilter, onSearchData }
         onSearchData(curFilter);
     };
 
+    const stores = useSelector((state: RootState) => state.store.stores); // Fetch danh sách chi nhánh
+
 
     return (
         <Box display="flex" gap={2} alignItems="center">
@@ -42,7 +46,7 @@ const FilterData: React.FC<IProps>= ({ curFilter, onUpdateFilter, onSearchData }
                 sx={{ flexBasis: '15%' }}
             >
                 <MenuItem value="">Tất cả Chi nhánh</MenuItem>
-                {curFilter.stores.map((store: IStore) => (
+                {stores.map((store: IStore) => (
                     <MenuItem key={store.id} value={store.id.toString()}>
                         {store.name}
                     </MenuItem>

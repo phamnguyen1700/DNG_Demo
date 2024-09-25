@@ -1,7 +1,9 @@
 import React from 'react';
 import { TextField, Select, MenuItem, Box, Button } from '@mui/material';
-import { IStore } from '../../typing/storeType';
-import { IProgram } from '../../typing/programsType'; // Giả sử bạn có type cho chương trình khóa học
+import { IStore } from '../../../typing/storeType';
+import { IProgram } from '../../../typing/programsType'; // Giả sử bạn có type cho chương trình khóa học
+import { RootState } from '../../../redux/store';
+import { useSelector } from 'react-redux';
 
 interface IProps {
   curFilter: any;
@@ -15,6 +17,10 @@ const FilterData: React.FC<IProps> = ({ curFilter, onUpdateFilter, onSearchData 
     onSearchData(curFilter);
   };
 
+  const stores = useSelector((state: RootState) => state.store.stores); // Fetch danh sách chi nhánh
+  const programs = useSelector((state: RootState) => state.program.programList); // Fetch danh sách chương trình khóa học
+
+
   return (
 <Box display="flex" gap={2} alignItems="center">
   {/* Select Chi nhánh */}
@@ -25,7 +31,7 @@ const FilterData: React.FC<IProps> = ({ curFilter, onUpdateFilter, onSearchData 
     sx={{ flexBasis: '10%' }}  // 20% cho select Chi nhánh
   >
     <MenuItem value="">Tất cả Chi nhánh</MenuItem>
-    {curFilter.stores.map((store: IStore) => (
+    {stores.map((store: IStore) => (
       <MenuItem key={store.id} value={store.id}>
         {store.name}
       </MenuItem>
@@ -40,7 +46,7 @@ const FilterData: React.FC<IProps> = ({ curFilter, onUpdateFilter, onSearchData 
     sx={{ flexBasis: '50%' }}  // 20% cho select Chương trình
   >
     <MenuItem value="">Tất cả Chương trình</MenuItem>
-    {curFilter.programs.map((program: IProgram) => (
+    {programs.map((program: IProgram) => (
       <MenuItem key={program.id} value={program.id}>
         {program.name}
       </MenuItem>

@@ -15,7 +15,7 @@ import {
   TablePagination,
 } from '@mui/material';
 import { Edit } from '@mui/icons-material';
-import { ICourse } from '../../typing/courseType';
+import { ICourse } from '../../../typing/courseType';
 
 
 interface TableDataProps {

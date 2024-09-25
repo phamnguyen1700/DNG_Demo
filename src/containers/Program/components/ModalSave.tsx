@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Modal, Button, Box, TextField, MenuItem, Select, FormControl, InputLabel } from '@mui/material';
 import { SelectChangeEvent } from '@mui/material/Select';
-import { IPayloadSaveProgram, IProgram, IProgramValidation } from '../../typing/programsType';
-import { AppDispatch, RootState } from '../../redux/store';
+import { IPayloadSaveProgram, IProgram, IProgramValidation } from '../../../typing/programsType';
+import { AppDispatch, RootState } from '../../../redux/store';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchStoreAction } from '../../redux/actions/storeActions';
-import { saveProgramAction } from '../../redux/actions/programActions';
-import ModalConfirm from '../../components/modal/modalComfirm'; // Import ModalConfirm
+import { fetchStoreAction } from '../../../redux/actions/storeActions';
+import { saveProgramAction } from '../../../redux/actions/programActions';
+import ModalConfirm from '../../../components/modal/modalComfirm'; // Import ModalConfirm
 import * as yup from 'yup';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -19,6 +19,17 @@ interface ModalFormProps {
   existingData?: IProgram;
   onRefresh: () => void;
 }
+
+const scheme = yup.object().shape({
+  name: yup.string().required('Tên chương trình không được để trống'),
+  store_id: yup.number().required('Vui lòng chọn chi nhánh').typeError('Vui lòng chọn chi nhánh hợp lệ'),
+  type: yup.string().required('Loại chương trình không được để trống'),
+  level: yup.string().required('Trình độ không được để trống'),
+  certificate_type: yup.string().required('Bằng cấp không được để trống'),
+  group_id: yup.number().required('Nhóm ngành không được để trống').typeError('Vui lòng chọn nhóm ngành hợp lệ'),
+  description: yup.string().max(300, 'Mô tả không được vượt quá 300 ký tự')
+
+});
 
 const ModalForm: React.FC<ModalFormProps> = ({ show, handleClose, existingData, onRefresh }) => {
   
@@ -34,17 +45,6 @@ const ModalForm: React.FC<ModalFormProps> = ({ show, handleClose, existingData, 
   },[dispatch]);
 
   const stores = useSelector((state: RootState) => state.store.stores);
-
-  const scheme = yup.object().shape({
-    name: yup.string().required('Tên chương trình không được để trống'),
-    store_id: yup.number().required('Vui lòng chọn chi nhánh').typeError('Vui lòng chọn chi nhánh hợp lệ'),
-    type: yup.string().required('Loại chương trình không được để trống'),
-    level: yup.string().required('Trình độ không được để trống'),
-    certificate_type: yup.string().required('Bằng cấp không được để trống'),
-    group_id: yup.number().required('Nhóm ngành không được để trống').typeError('Vui lòng chọn nhóm ngành hợp lệ'),
-    description: yup.string().max(300, 'Mô tả không được vượt quá 300 ký tự')
-  
-  });
   
   // State để lưu giá trị của form
   const { register, handleSubmit, formState: { errors }, reset } = useForm<IProgramValidation>({
@@ -73,6 +73,15 @@ const ModalForm: React.FC<ModalFormProps> = ({ show, handleClose, existingData, 
     const result = await dispatch(saveProgramAction(dataToSave));
     if(result.meta.requestStatus === 'fulfilled'){
       toast.success(`${existingData ? 'Cập nhật' : 'Tạo mới'} chương trình thành công!`);
+      reset({
+        name: '',
+        store_id: 0,
+        type: '',
+        level: '',
+        certificate_type: '',
+        group_id: 38,
+        description: '',
+      });
       setShowConfirmModal(false);
       onRefresh && onRefresh();
       handleClose();
@@ -114,7 +123,8 @@ const ModalForm: React.FC<ModalFormProps> = ({ show, handleClose, existingData, 
 
 
   return (
-    <>
+    <div>
+      <ToastContainer />
       <Modal open={show} onClose={handleCancel}>
         <Box sx={{ padding: '20px', backgroundColor: '#fff', borderRadius: '8px', maxWidth: '500px', margin: '50px auto' }}>
           <h2>{existingData ? 'Cập nhật chương trình' : 'Tạo mới chương trình'}</h2>
@@ -226,7 +236,7 @@ const ModalForm: React.FC<ModalFormProps> = ({ show, handleClose, existingData, 
         onConfirm={handleSubmit(handleConfirm)}
         onClose={handleConfirmCancel}
       />
-    </>
+    </div>
   );
 };
 

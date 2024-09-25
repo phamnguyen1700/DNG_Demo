@@ -39,7 +39,7 @@ const courseSlice = createSlice({
             .addCase(saveCourseAction.pending, (state) => {
                 state.status = 'loading';
             })
-            .addCase(saveCourseAction.fulfilled, (state, action) => {
+            .addCase(saveCourseAction.fulfilled, (state) => {
                 state.status = 'succeeded';
             })
             .addCase(saveCourseAction.rejected, (state, action) => {
@@ -51,8 +51,9 @@ const courseSlice = createSlice({
                 console.log('CAU TRUC DU LIEU TRA VE CUA TOGGLE', action.payload);
                 const course = state.courseList.find((course) => course.id === action.payload.id);
                 if (course) {
-                  course.active = action.payload.status; // Cập nhật trạng thái mới
+                  course.active = action.payload.active; // Cập nhật trạng thái mới
                 }
+                
                 state.status = 'succeeded'; // Đánh dấu là đã hoàn thành
             });
     },

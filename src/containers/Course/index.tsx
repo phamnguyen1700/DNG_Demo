@@ -6,56 +6,68 @@ import { fetchCourseListAction } from '../../redux/actions/courseAction';
 import { fetchStoreAction } from '../../redux/actions/storeActions'; // Nếu cần sử dụng danh sách chi nhánh
 import TableData from './components/TableData';
 import FilterData from './components/FilterSelect'; // Component lọc dữ liệu
-import { ICourse as CourseType } from '../../typing/courseType';
+import { ICourse as CourseType, ICourse } from '../../typing/courseType';
 import { Button } from '@mui/material';
 import { fetchProgramListAction } from '../../redux/actions/programActions'; // Nếu cần sử dụng danh sách chương trình khóa học
 import ModalSave from './components/ModalSave'; // Component tạo mới hoặc cập nhật khóa học
 import { toggleCourseStatus } from '../../../src/redux/actions/courseAction';
 import ModalConfirm from '../../../src/components/modal/modalComfirm'; // Import ModalConfirm
-import { toast, ToastContainer } from 'react-toastify';  // Import toast
+import { IResponse } from '../../typing/app';
 
 const DEFAULT_LIST = {
     list: [],
     total: 0
 };
-
-
+interface IPagination {
+    limit: number;
+    offset: number;
+}
+interface ICourseSearch extends IPagination {
+    store_id?: number;
+    active?: string;
+    key?: string;
+    program_id?: number;
+}
 interface INewFilter {
-    programId: string;
-    storeId: string;
+    programId: number;
+    storeId: number;
     active: string;
     searchText: string;
 }
 
+
 const Course = () => {
     const dispatch = useDispatch<AppDispatch>();
     const { filteredCourseList, total, status } = useSelector((state: RootState) => state.course);
-    
     const [showConfirmModal, setShowConfirmModal] = useState(false);
-    const [showModal, setShowModal] = useState(false); // State điều khiển Modal
-    const [selectedCourse, setSelectedCourse] = useState<CourseType | undefined>(undefined); // State lưu khóa học được chọn
-    const [courseToToggle, setCourseToToggle] = useState<CourseType | null>(null); // State lưu course cần toggle
-
-    const [curFilter, setFilter] = useState<any>({
-        storeId: '',
-        active: '',
-        searchText: '',
-        programId: '',
+    const [showModal, setShowModal] = useState(false); 
+    const [selectedCourse, setSelectedCourse] = useState<CourseType>(); 
+    const [courseToToggle, setCourseToToggle] = useState<CourseType>(); 
+    const [curFilter, setFilter] = useState<INewFilter>({
+        storeId: 0,
+        active: "",
+        searchText: "",
+        programId: 0,
     });
-
-    const [page, setPage] = useState(0);
-    const [rowsPerPage, setRowsPerPage] = useState(10);
+    const [pagination, setPagination] = useState<IPagination>({
+        limit: 10,
+        offset: 0,
+    });
+    const [courses, setCourses] = useState<IResponse<ICourse>>(DEFAULT_LIST);
 
 
     const onUpdateFilter = (newFilter: INewFilter) => {
         setFilter(newFilter);
     };
 
-    
     const onSearchData = (newFilter: INewFilter) => {
-        setPage(0); // Reset lại trang khi có thay đổi bộ lọc
-        const params: any = {
-            limit: rowsPerPage,
+        setPagination({
+            ...pagination,
+            offset: 0,
+        });
+
+        const params: ICourseSearch = {
+            limit: 10,
             offset: 0,
         };
 
@@ -71,47 +83,28 @@ const Course = () => {
         if (newFilter.programId) {
             params.program_id = newFilter.programId;
         }
-
-        getAPI(params); // Gọi API tìm kiếm với các filter
-        setFilter(newFilter);
+            if (params) {
+                getAPI(params);
+            }
+            setFilter(newFilter);
     };
-    
- 
 
-          
-    const programs = useSelector((state: RootState) => state.program.programList); // Lấy danh sách chương trình khóa học
-    const stores = useSelector((state: RootState) => state.store.stores); // Fetch danh sách chi nhánh
- 
-       
-    // Fetch danh sách khóa học khi có sự thay đổi về trang hoặc bộ lọc
+
     useEffect(() => {
-        if (stores.length === 0) {
-            dispatch(fetchStoreAction()); // Fetch danh sách chi nhánh nếu cần
-        }
-        if (programs.length === 0) {
-            dispatch(fetchProgramListAction({
-                limit: 100,
-                offset: 0,
-            })); // Fetch danh sách chương trình khóa học nếu cần
-        }
-        dispatch(fetchCourseListAction({
-            limit: rowsPerPage,
-            offset: page * rowsPerPage,
-        }));
+        const params: ICourseSearch = {
+            limit: pagination.limit,
+            offset: pagination.offset,
+        };
+        getAPI(params);
         setFilter({
-            storeId: '',
-            active: '',
-            searchText: '',
-            programId: '',
+            ...curFilter,
         });
-    }, [dispatch, page, rowsPerPage, stores.length, programs.length]);
-
-
-
+    }, [dispatch, pagination]);
 
 
     const handleOpenConfirmModal = (course: CourseType) => {
         setCourseToToggle(course); // Lưu khóa học vào state
+        console.log('Course to toggle:', course);
         setShowConfirmModal(true);
     }
 
@@ -120,21 +113,18 @@ const Course = () => {
     }
 
       // Hàm toggle status
-    const handleConfirmToggle = () => {
+    const handleConfirmToggle = async () => {
         if (courseToToggle) {
             const newStatus = courseToToggle.active === 1 ? 0 : 1;
-            dispatch(toggleCourseStatus({ id: courseToToggle.id, active: newStatus }));
-            dispatch(fetchCourseListAction({
-                limit: rowsPerPage,
-                offset: page * rowsPerPage,
-            }))
-            .then(() => {
-                toast.success('Trạng thái khóa học đã được thay đổi thành công!');  // Thông báo thành công
-                handleRefresh();
-            })
-            .catch(() => {
-                toast.error('Đã có lỗi xảy ra khi thay đổi trạng thái khóa học!');  // Thông báo lỗi
-            });
+            const result = await dispatch(toggleCourseStatus({ id: courseToToggle.id, active: newStatus }));
+            if (result.meta.requestStatus === 'fulfilled') {
+                // Sau khi toggle thành công, tải lại danh sách khóa học
+                const params: IPagination = {
+                    limit: 10,
+                    offset: 0,
+                };
+                getAPI(params);
+            }
             setShowConfirmModal(false);
           } 
   };
@@ -148,14 +138,13 @@ const Course = () => {
         console.log('Edit course:', course);
     };
 
-    const handlePageChange = (event: unknown, newPage: number) => {
-        setPage(newPage);
+    const handlePageChange = (newOffset: number) => {
+        setPagination({
+            ...pagination,
+            offset: newOffset,
+        });
     };
 
-    const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setRowsPerPage(parseInt(event.target.value, 10));
-        setPage(0); // Reset về trang đầu tiên
-    };
 
     const handleOpenModal = () => {
         setSelectedCourse(undefined); // Đặt undefined để tạo mới chương trình
@@ -167,24 +156,20 @@ const Course = () => {
     }
 
     const handleRefresh = () => {
-        //call api get
-        dispatch(fetchCourseListAction({ 
-            limit: rowsPerPage,
-            offset: page * rowsPerPage,
-        }));
-        // toast.success('Danh sách khóa học đã được cập nhật!');  // Thông báo thành công
+        const params: IPagination = {
+            limit: 10,
+            offset: 0,
+        };
+        getAPI(params);
     }
 
     const getAPI = (params:any) =>{
-        //call api get list
         return dispatch(fetchCourseListAction(params))
     }
 
 
- 
     return (
         <div>
-            {/* Nút tạo mới khóa học */}
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
                 <Button variant="contained" color="primary" onClick={handleOpenModal}>
                     Tạo mới
@@ -204,11 +189,10 @@ const Course = () => {
                 <TableData
                     courses={filteredCourseList}
                     total={total}
-                    page={page}
-                    rowsPerPage={rowsPerPage}
+                    limit={pagination.limit}
+                    offset={pagination.offset}     
                     onEdit={handleEdit} // Gọi hàm handleEdit khi nhấn nút "Edit"
                     onPageChange={handlePageChange}
-                    onRowsPerPageChange={handleRowsPerPageChange}
                     onToggleStatus={handleOpenConfirmModal} // Gọi hàm handleToggleStatus khi nhấn nút "Toggle"
                 />
             )}

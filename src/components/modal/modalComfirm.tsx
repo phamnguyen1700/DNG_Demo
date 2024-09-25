@@ -33,7 +33,8 @@ const ModalConfirm: React.FC<ModalConfirmProps> = ({ show, title, message, onCon
           <Button variant="contained" color="secondary" onClick={onClose} style={{ marginRight: '10px' }}>
             Hủy
           </Button>
-          <Button variant="contained" color="primary" onClick={onConfirm}>
+          <Button 
+          variant="contained" color="primary" onClick={onConfirm}>
             Xác nhận
           </Button>
         </Box>

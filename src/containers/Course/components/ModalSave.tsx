@@ -12,14 +12,13 @@ import { fetchProgramListAction } from '../../../redux/actions/programActions';
 import * as yup from 'yup';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { toast, ToastContainer } from 'react-toastify';  // Import toast
-import 'react-toastify/dist/ReactToastify.css';  // Import CSS của react-toastify
 
 interface ModalSaveProps {
   show: boolean;
   handleClose: () => void;
   existingData?: ICourse;
   onRefresh: () => void;   
+  
 }
 
 const schema = yup.object().shape({
@@ -73,7 +72,6 @@ const ModalSave: React.FC<ModalSaveProps> = ({ show, handleClose, existingData, 
 
     const result = await dispatch(saveCourseAction(dataToSave));
     if (result.meta.requestStatus === 'fulfilled') {
-      toast.success(`${existingData ? 'Cập nhật' : 'Tạo mới'} khóa học thành công!`);
       reset({
         name: '',
         program_id: 0,
@@ -85,8 +83,6 @@ const ModalSave: React.FC<ModalSaveProps> = ({ show, handleClose, existingData, 
       setShowConfirmModal(false);
       onRefresh && onRefresh();
       handleClose(); 
-    } else {
-      toast.error(`${existingData ? 'Cập nhật' : 'Tạo mới'} khóa học thất bại!`);
     }
   };
 

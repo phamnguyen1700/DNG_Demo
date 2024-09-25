@@ -9,53 +9,60 @@ import { Button } from '@mui/material';
 import ModalSave from './components/ModalSave';
 import { IResponse } from '../../typing/app';
 import { fetchStoreAction } from '../../redux/actions/storeActions';
-import { ToastContainer } from 'react-toastify';
 
 const DEFAULT_LIST:IResponse<IProgram> = {
     list: [],
     total: 0
 }
+interface IPagination {
+    limit: number,
+    offset: number,
+}
+interface IProgramSearch extends IPagination {
+    store_id?: number;
+    active?: string;
+    key?: string;
+}
 
 interface INewFilter {
-    storeId: string;
+    storeId: number;
     active: string;
     searchText: string;
 }
+
+
 const Program = () => {
     const dispatch = useDispatch<AppDispatch>();
     const { filteredProgramList, total, status } = useSelector((state: RootState) => state.program);
-    //lấy danh sách chi nhánh
-
-    const [page, setPage] = useState(0);
-    const [rowsPerPage, setRowsPerPage] = useState(10);
-
+    const [pagination, setPagination] = useState<IPagination>({
+        limit: 10,
+        offset: 0,
+    });
     const [showModal, setShowModal] = useState(false);
-    const [selectedProgram, setSelectedProgram] = useState<ProgramType | undefined>(undefined);
-
-        //ngậm giá trị truyền đi 
-    const [curFilter, setFilter] = useState<any>({
-        storeId: '',
-        active: '',
+    const [selectedProgram, setSelectedProgram] = useState<ProgramType>();
+    const [curFilter, setFilter] = useState<INewFilter>({
+        storeId: 0,
+        active: "",
         searchText: '',
     });
-
-
-    //danh sách default
     const [programs, setPrograms] = useState<IResponse<IProgram>>(DEFAULT_LIST);
 
-    //cập nhật filter
+
     const onUpdateFilter = (newFilter: INewFilter) => {
         setFilter(newFilter);
     }
 
-    //gọi api tìm kiếm
     const onSearchData = (newFilter: INewFilter) => {
-        setPage(0);
+        setPagination({
+            ...pagination,
+            offset: 0,
+        });
 
-        const params: any = {
-            limit: rowsPerPage,
+        const params: IProgramSearch = {
+            limit: 10,
             offset: 0,
         };
+
         if (newFilter.storeId) {
             params.store_id = newFilter.storeId;
         }
@@ -65,44 +72,36 @@ const Program = () => {
         if (newFilter.searchText) {
             params.key = newFilter.searchText;
         }
-    
-//sửa lại cái này
-        getAPI(params);
-        setFilter(newFilter);
+
+            getAPI(params);
+            setFilter(newFilter);
     }
 
-    const stores = useSelector((state: RootState) => state.store.stores);
 
     useEffect(() => {
-        if (stores.length === 0) {
-            dispatch(fetchStoreAction());
-        }
-        dispatch(fetchProgramListAction({ 
-            limit: rowsPerPage,
-            offset: page * rowsPerPage,
-        }));
+        const params = {
+            limit: pagination.limit,
+            offset: pagination.offset,
+        };
+        getAPI(params);
         setFilter({
             ...curFilter,
         });
-    }, [dispatch, page, rowsPerPage, stores.length]);
+    }, [dispatch, pagination]);
 
     
-
-
-    // Xử lý khi nhấn "Edit" chương trình
     const handleEdit = (program: ProgramType) => {
         setSelectedProgram(program); // Lưu chương trình được chọn để chỉnh sửa
         setShowModal(true); // Mở modal
     };
 
-    const handlePageChange = (event: unknown, newPage: number) => {
-        setPage(newPage);
+    const handlePageChange = (newOffset: number) => {
+        setPagination({
+            ...pagination,
+            offset: newOffset,
+        });
     };
 
-    const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setRowsPerPage(parseInt(event.target.value, 10));
-        setPage(0);
-    };
 
     const handleOpenModal = () => {
         setSelectedProgram(undefined); // Đặt undefined để tạo mới chương trình
@@ -115,14 +114,15 @@ const Program = () => {
 
     const handleRefresh = () => {
         //call api get
-        dispatch(fetchProgramListAction({ 
-            limit: rowsPerPage,
-            offset: page * rowsPerPage,
-        }));
-        // toast.success('Danh sách chương trình đã được cập nhật!');  // Thông báo thành công
+        const params: IPagination = {
+            limit: 10,
+            offset: 0,
+        };
+        getAPI(params);
     }
-    const getAPI = (params:any) =>{
-        //call api get list
+
+
+    const getAPI = (params: any) =>{
         dispatch(fetchProgramListAction(params))
     }
     /*
@@ -134,19 +134,17 @@ const Program = () => {
         }
 
     */
-   useEffect(() => {
-        // Gọi API lấy danh sách chương trình
-        return () => {
-            //reset store khi rời khỏi trang
-            //distpatch(resetCourseList());
-        }
-   }, []);
+//    useEffect(() => {
+//         // Gọi API lấy danh sách chương trình
+//         return () => {
+//             //reset store khi rời khỏi trang
+//             //distpatch(resetCourseList());
+//         }
+//    }, []);
 
    //ông nội -> cha -> con -> cháu -> con -> cha -> nội -> con -> cha. => useContext
     return (
         <div>
-            <ToastContainer/>
-            {/* Nút tạo mới chương trình */}
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
                 <Button variant="contained" color="primary" onClick={handleOpenModal}>
                     Tạo Mới
@@ -162,11 +160,10 @@ const Program = () => {
                 <TableData
                     programs={filteredProgramList}
                     total={total}
-                    page={page}
-                    rowsPerPage={rowsPerPage}
-                    onEdit={handleEdit} // Gọi hàm handleEdit khi nhấn nút "Edit"
-                    onPageChange={handlePageChange}
-                    onRowsPerPageChange={handleRowsPerPageChange}
+                    limit={pagination.limit}
+                    offset={pagination.offset}                    
+                    onEdit={handleEdit} 
+                    onPageChange={handlePageChange} 
                 />
             )}
             {status === 'failed' && <p>Failed to load programs</p>}

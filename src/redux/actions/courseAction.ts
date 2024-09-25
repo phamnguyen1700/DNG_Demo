@@ -2,7 +2,7 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { getCourseListService , saveCourseService, updateCourseStatus } from '../../services/courseService';
 import { IPayloadSaveCourse } from '../../typing/courseType';
-
+import { toast } from 'react-toastify';
 export const fetchCourseListAction = createAsyncThunk(
     'course/fetchCourseListAction',
     async (params: {
@@ -29,39 +29,43 @@ export const fetchCourseListAction = createAsyncThunk(
 // Action tạo mới hoặc cập nhật khóa học
 export const saveCourseAction = createAsyncThunk(
     'course/saveCourseActtion',
-    async (courseData: IPayloadSaveCourse, { rejectWithValue, fulfillWithValue }) => {
+    async (courseData: IPayloadSaveCourse, { 
+        rejectWithValue, 
+        fulfillWithValue 
+    }) => {
         try {
             const res = await saveCourseService(courseData);
             if ( res.status === 1 ) {
+                toast.success('Thành công');
                 return fulfillWithValue(res.data);
             } else {
                 return rejectWithValue(null);
             } 
         } catch ( error ) {
+            toast.error('Thất bại');
             return rejectWithValue(null);
         }
     }
 );
 
 
-
-
-
-
-
-// Action cập nhật trạng thái khóa học
 export const toggleCourseStatus = createAsyncThunk(
     'course/toggleCourseStatus',
-    async ({ id, active }: { id: number; active: number }, { rejectWithValue }) => {
-        try {
-            const response = await updateCourseStatus(id, active);
-            console.log('ACTION!!!', response);
-            return { id, status: response.status }; // Trả về `id` và `active` mới sau khi cập nhật
-        } catch (error: any) {
-            console.error('Error in toggleCourseStatus:', error);
-            return rejectWithValue(
-                error.response?.data || 'An unexpected error occurred'
-            );
-        }
-    }
-);
+    async ({ id, active }: { id: number; active: number }, 
+        {   rejectWithValue,
+            fulfillWithValue 
+        }) => {
+                try {
+                    const res = await updateCourseStatus(id, active);
+                    if (res.status === 1) {
+                        toast.success('Trạng thái khóa học đã được cập nhật');
+                        return fulfillWithValue({ id, active: res.status });
+                    } else {
+                        return rejectWithValue(null);
+                    }
+                } catch (error: any) {
+                        toast.error('Có lỗi xảy ra trong khi thay đổi trạng thái khóa học');
+                return rejectWithValue(null);
+            };
+        }   
+)

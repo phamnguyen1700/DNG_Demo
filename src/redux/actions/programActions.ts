@@ -2,7 +2,7 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { getProgramListService, saveProgramService } from '../../services/programService';
 import { IPayloadSaveProgram } from '../../typing/programsType';
-
+import { toast } from 'react-toastify';
 //lấy danh sách chương trình
 export const fetchProgramListAction = createAsyncThunk(
     'program/fetchProgramList',
@@ -31,15 +31,19 @@ export const fetchProgramListAction = createAsyncThunk(
 
 export const saveProgramAction = createAsyncThunk(
     'program/createOrUpdateProgram',
-    async (programData: IPayloadSaveProgram, { rejectWithValue,fulfillWithValue }) => {
+    async (programData: IPayloadSaveProgram, { 
+        rejectWithValue,
+        fulfillWithValue }) => {
         try {
             const res = await saveProgramService(programData);
             if(res.status === 1) {
+                toast.success('Thành công');
                 return fulfillWithValue(res.data);
             }else{
                 return rejectWithValue(null)
             }
         } catch (error) {
+            toast.error('Thất bại');
             return rejectWithValue(null)
         }
     }

@@ -36,23 +36,8 @@ const programSlice = createSlice({
       .addCase(saveProgramAction.pending, (state) => {
         state.status = 'loading';
       })
-      .addCase(saveProgramAction.fulfilled, (state, action) => {
+      .addCase(saveProgramAction.fulfilled, (state) => {
         state.status = 'succeeded';
-        // const existingProgramIndex = state.programList.findIndex(
-        //   (program) => program.id.toString() === action.payload.id
-        // );
-
-        // if (existingProgramIndex !== -1) {
-        //   // Nếu tìm thấy chương trình với id, cập nhật chương trình
-        //   state.programList[existingProgramIndex] = action.payload;
-        // } else {
-        //   // Nếu không tìm thấy, thêm chương trình mới
-        //   state.programList.push(action.payload);
-        //   state.total += 1;
-        // }
-        
-        // // Cập nhật filteredProgramList sau khi thêm hoặc cập nhật
-        // state.filteredProgramList = [...state.programList];
       })
       .addCase(saveProgramAction.rejected, (state, action) => {
         state.status = 'failed';

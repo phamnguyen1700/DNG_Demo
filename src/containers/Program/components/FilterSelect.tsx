@@ -3,11 +3,19 @@ import { TextField, Select, MenuItem, Box, Button } from '@mui/material';
 import { IStore } from '../../../typing/storeType';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../redux/store';
-interface IProps{
-    curFilter: any;
-    onUpdateFilter: (newFilter: any) => void;
-    onSearchData:(newFilter: any)=>void;
+
+interface INewFilter {
+    storeId: number;
+    active: string;
+    searchText: string;
 }
+
+interface IProps{
+    curFilter: INewFilter;
+    onUpdateFilter: (newFilter: INewFilter) => void;
+    onSearchData:(newFilter: INewFilter)=>void;
+}
+
 const FilterData: React.FC<IProps>= ({ curFilter, onUpdateFilter, onSearchData }) => {
     // const {curFilter,onSearchData,onUpdateFilter} = props;
     /**
@@ -40,8 +48,8 @@ const FilterData: React.FC<IProps>= ({ curFilter, onUpdateFilter, onSearchData }
     return (
         <Box display="flex" gap={2} alignItems="center">
             <Select 
-                value={curFilter.storeId} 
-                onChange={(e) => onUpdateFilter({...curFilter, storeId: e.target.value})} 
+                value={curFilter.storeId || ""} 
+                onChange={(e) => onUpdateFilter({...curFilter, storeId: Number(e.target.value)})} 
                 displayEmpty
                 sx={{ flexBasis: '15%' }}
             >
@@ -53,13 +61,16 @@ const FilterData: React.FC<IProps>= ({ curFilter, onUpdateFilter, onSearchData }
                 ))}
             </Select>
 
-            <Select value={curFilter.active} onChange={(e) => onUpdateFilter({ ...curFilter, active: e.target.value})}
+            <Select 
+            value={curFilter.active} onChange={(e) => onUpdateFilter({ ...curFilter, active: e.target.value.toString() })}
             displayEmpty
             sx={{ flexBasis: '15%' }}
             >
+
+                {/* KIỂM TRA LẠI TRẠNG THÁI */}
                 <MenuItem value="">Tất cả Trạng thái</MenuItem>
-                <MenuItem value="1">Hoạt động</MenuItem>
-                <MenuItem value="0">Không hoạt động</MenuItem>
+                <MenuItem value={1}>Hoạt động</MenuItem>
+                <MenuItem value={0}>Không hoạt động</MenuItem>
             </Select>
 
             <TextField 

@@ -14,36 +14,31 @@ import {
 } from '@mui/material';
 import { Edit } from '@mui/icons-material';
 import { IProgram } from '../../../typing/programsType';
-import { useDispatch } from 'react-redux';
-import { AppDispatch } from '../../../redux/store';
 
 interface TableDataProps {
   programs: IProgram[];
   total: number;
-  page: number;
-  rowsPerPage: number;
+  limit: number; 
+  offset: number;
   onEdit: (program: IProgram) => void;
-  onPageChange: (event: unknown, newPage: number) => void;
-  onRowsPerPageChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onPageChange: (newOffset: number) => void; 
 }
 
 const TableData: React.FC<TableDataProps> = ({
   programs,
   total,
-  page,
-  rowsPerPage,
+  limit,
+  offset,
   onEdit,
   onPageChange,
-  onRowsPerPageChange,
 }) => {
-  const dispatch = useDispatch<AppDispatch>();
 
-  // Function to handle toggle of the status (active/inactive)
-  const handleToggleStatus = (program: IProgram) => {
-    const newStatus = program.active === 1 ? '0' : '1';
-    // Dispatch action to toggle program status (currently commented out)
-    // dispatch(toggleProgramStatus({ id: program.id.toString(), status: newStatus }));
+  // Hàm xử lý thay đổi trang (khi người dùng chuyển trang)
+  const handlePageChange = (event: unknown, newPage: number) => {
+    const newOffset = newPage * limit; // Tính toán offset dựa trên trang mới
+    onPageChange(newOffset); // Cập nhật offset
   };
+
 
   return (
     <TableContainer>
@@ -75,7 +70,6 @@ const TableData: React.FC<TableDataProps> = ({
               <TableCell>
                 <Switch
                   checked={program.active === 1}
-                  onChange={() => handleToggleStatus(program)}
                 />
               </TableCell>
               <TableCell>
@@ -108,11 +102,10 @@ const TableData: React.FC<TableDataProps> = ({
       </Table>
       <TablePagination
         component="div"
-        count={total}
-        page={page}
-        onPageChange={onPageChange}
-        rowsPerPage={rowsPerPage}
-        onRowsPerPageChange={onRowsPerPageChange}
+        count={total} 
+        page={offset / limit} 
+        onPageChange={handlePageChange} 
+        rowsPerPage={limit}
       />
     </TableContainer>
   );

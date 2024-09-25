@@ -3,7 +3,7 @@
 export interface IProgram {
     id: number;
     name: string;
-    store_id?: string ;
+    store_id?: number ;
     program_group_name?: string; // Tên nhóm ngành
     type: string; // Cấp bậc (degree, course, etc.)
     certificate_type: string; // Loại bằng

@@ -1,6 +1,6 @@
 import { ACCESS_TOKEN_KEY, USER_KEY } from "../../constants/app";
-
-export const setUserLocalStore = (user: any) => {
+import { IUser } from "../../typing/Auth";
+export const setUserLocalStore = (user: IUser) => {
     localStorage.setItem(USER_KEY, JSON.stringify(user));
 }
 export const getUserLocalStore = () => {

@@ -36,6 +36,7 @@ export const saveCourseService = async (courseData: IPayloadSaveCourse) => await
 // src/services/courseService.ts
 export const updateCourseStatus = async (id: number, status: number) => {
     // Chuyển đổi "active" thành "status" để phù hợp với API
+    console.log('ID:', id, 'STATUS:', status);
     const response = await axiosInstance.post('/course/update-status', { id, status });
     console.log('SERVICE!!!', response);
     return response;

@@ -21,30 +21,27 @@ import { ICourse } from '../../../typing/courseType';
 interface TableDataProps {
   courses: ICourse[];
   total: number;
-  page: number;
-  rowsPerPage: number;
+  limit: number; 
+  offset: number;
   onEdit: (course: ICourse) => void;
-  onPageChange: (event: unknown, newPage: number) => void;
-  onRowsPerPageChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onPageChange: (newOffset: number) => void; 
   onToggleStatus: (course: ICourse) => void;
 }
 
 const TableData: React.FC<TableDataProps> = ({
   courses,
   total,
-  page,
-  rowsPerPage,
+  limit,
+  offset,
   onEdit,
   onPageChange,
-  onRowsPerPageChange,
   onToggleStatus,
 }) => {
-  // const dispatch = useDispatch<AppDispatch>();
-
-  // const handleToggleStatus = (course: ICourse) => {
-  //   const newStatus = course.active === 1 ? 0 : 1;
-  //   dispatch(toggleCourseStatus({ id: course.id, active: newStatus }));
-  // }
+    // Hàm xử lý thay đổi trang (khi người dùng chuyển trang)
+    const handlePageChange = (event: unknown, newPage: number) => {
+      const newOffset = newPage * limit; // Tính toán offset dựa trên trang mới
+      onPageChange(newOffset); // Cập nhật offset
+    };
 
   return (
     <TableContainer>
@@ -114,9 +111,9 @@ const TableData: React.FC<TableDataProps> = ({
       <TablePagination
         component="div"
         count={total}
-        page={page}
-        onPageChange={onPageChange}
-        rowsPerPage={rowsPerPage}
+        page={offset / limit}
+        onPageChange={handlePageChange}
+        rowsPerPage={limit}
       />
     </TableContainer>
   );

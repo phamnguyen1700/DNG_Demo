@@ -5,7 +5,7 @@ export const getProgramListService = async (params: {
     limit: number;
     offset: number;
     store_id?: number;
-    active?: string;
+    active?: number;
     key?: string;
 }) => {
     const url = '/program/list';

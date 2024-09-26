@@ -10,7 +10,7 @@ export const fetchProgramListAction = createAsyncThunk(
         limit: number;
         offset: number;
         store_id?: number;
-        active?: string;
+        active?: number;
         key?: string;
     }, { rejectWithValue }) => {
         try {

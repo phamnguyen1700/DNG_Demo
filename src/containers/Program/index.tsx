@@ -21,13 +21,13 @@ interface IPagination {
 }
 interface IProgramSearch extends IPagination {
     store_id?: number;
-    active?: string;
+    active?: number;
     key?: string;
 }
 
 interface INewFilter {
     storeId: number;
-    active: string;
+    active: number;
     searchText: string;
 }
 
@@ -35,7 +35,7 @@ interface IParams {
     limit: number;
     offset: number;
     store_id?: number;
-    active?: string;
+    active?: number;
     key?: string;
 }
 
@@ -44,15 +44,21 @@ const Program = () => {
     const dispatch = useDispatch<AppDispatch>();
     const { filteredProgramList, total, status } = useSelector((state: RootState) => state.program);
     const [pagination, setPagination] = useState<IPagination>({
-        page: 0,
+        page: 1,
         limit: 10,
         offset: 0,
     });
+    const defaultParams: IPagination = {
+        page: 1,
+        limit: 10,
+        offset: 0,
+    };
+    const [flag, setFlag] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [selectedProgram, setSelectedProgram] = useState<ProgramType>();
     const [curFilter, setFilter] = useState<INewFilter>({
         storeId: 0,
-        active: "",
+        active: -1,
         searchText: '',
     });
     const [programs, setPrograms] = useState<IResponse<IProgram>>(DEFAULT_LIST);
@@ -62,35 +68,55 @@ const Program = () => {
         setFilter(newFilter);
     }
 
+    
+    const getAPI = (params: IParams) =>{
+        dispatch(fetchProgramListAction(params))
+    }
+    debugger;
+
     const onSearchData = (newFilter: INewFilter) => {
 
         const params: IProgramSearch = {
-            limit: 10,
+            limit: pagination.limit,
             offset: 0,
         };
 
         if (newFilter.storeId) {
             params.store_id = newFilter.storeId;
         }
-        if (newFilter.active) {
+        if (newFilter.active != -1) {
             params.active = newFilter.active;
         }
         if (newFilter.searchText) {
             params.key = newFilter.searchText;
         }
-
-            getAPI(params);
-            setFilter(newFilter);
+        setPagination(defaultParams)
+        getAPI(params);
+        setFilter(newFilter);
     }
 
-
+/*
+effect dưới vừa dùng để render list lần đầu vào trang vừa để
+render lại list khi có thay đổi từ các action khác
+nên khi đẩy danh sách render đổi trang vào hàm dưới bị mất list ban đầu
+nên em mới thêm flag
+*/
     useEffect(() => {
-        const params = {
-            limit: pagination.limit,
-            offset: pagination.offset,
-        };
-        getAPI(params);
-    }, [dispatch, pagination]);
+        if (flag === true) {
+            const params = {
+                limit: pagination.limit,
+                offset: pagination.offset,
+            };
+            getAPI(params);
+            setFlag(false);
+        } else {
+            const renderParams = {
+                limit: pagination.limit,
+                offset: pagination.offset,
+            };
+            getAPI(renderParams);
+        }
+    }, [flag]);
 
     
     const handleEdit = (program: ProgramType) => {
@@ -98,12 +124,13 @@ const Program = () => {
         setShowModal(true); // Mở modal
     };
 
-    const handlePageChange = (newPage: number) => {
+    const  handlePageChange = (newPage: number) => {
         setPagination({
             ...pagination,
-            page: newPage,
+            page: newPage + 1,
             offset: newPage * pagination.limit,
         });
+        setFlag(true);
     };
 
 
@@ -126,9 +153,6 @@ const Program = () => {
     }
 
 
-    const getAPI = (params: IParams) =>{
-        dispatch(fetchProgramListAction(params))
-    }
     /*
         onUpdateFilter = (newFilter)=> setFilter(newFilter);
         onSearchData = (newFilter?:any) => {

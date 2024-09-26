@@ -8,7 +8,7 @@ import { useSelector } from 'react-redux';
 interface INewFilter {
   storeId: number;
   programId: number;
-  active: string;
+  active: number;
   searchText: string;
 }
 
@@ -63,11 +63,11 @@ const FilterData: React.FC<IProps> = ({ curFilter, onUpdateFilter, onSearchData 
   {/* Select Trạng thái */}
   <Select
     value={curFilter.active}
-    onChange={(e) => onUpdateFilter({ ...curFilter, active: e.target.value.toString() })}
+    onChange={(e) => onUpdateFilter({ ...curFilter, active: Number(e.target.value) })}
     displayEmpty
     sx={{ flexBasis: '10%' }}  // 20% cho select Trạng thái
   >
-    <MenuItem value="">Tất cả Trạng thái</MenuItem>
+    <MenuItem value={-1}>Tất cả Trạng thái</MenuItem>
     <MenuItem value={1}>Hoạt động</MenuItem>
     <MenuItem value={0}>Không hoạt động</MenuItem>
   </Select>

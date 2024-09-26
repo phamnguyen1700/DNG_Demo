@@ -6,7 +6,7 @@ import { RootState } from '../../../redux/store';
 
 interface INewFilter {
     storeId: number;
-    active: string;
+    active: number;
     searchText: string;
 }
 
@@ -62,13 +62,13 @@ const FilterData: React.FC<IProps>= ({ curFilter, onUpdateFilter, onSearchData }
             </Select>
 
             <Select 
-            value={curFilter.active} onChange={(e) => onUpdateFilter({ ...curFilter, active: e.target.value.toString() })}
+            value={curFilter.active} onChange={(e) => onUpdateFilter({ ...curFilter, active: Number(e.target.value) })}
             displayEmpty
             sx={{ flexBasis: '15%' }}
             >
 
                 {/* KIỂM TRA LẠI TRẠNG THÁI */}
-                <MenuItem value="">Tất cả Trạng thái</MenuItem>
+                <MenuItem value={-1}>Tất cả Trạng thái</MenuItem>
                 <MenuItem value={1}>Hoạt động</MenuItem>
                 <MenuItem value={0}>Không hoạt động</MenuItem>
             </Select>

@@ -7,7 +7,7 @@ export const getCourseListService = async (params: {
     offset: number;
     store_id?: number;
     program_id?: number;
-    active?: string;
+    active?: number;
     key?: string;
 }) => {
     const url = '/course/list';

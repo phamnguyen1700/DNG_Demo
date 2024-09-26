@@ -25,14 +25,14 @@ interface IPagination {
 }
 interface ICourseSearch extends IPagination {
     store_id?: number;
-    active?: string;
+    active?: number;
     key?: string;
     program_id?: number;
 }
 interface INewFilter {
     programId: number;
     storeId: number;
-    active: string;
+    active: number;
     searchText: string;
 }
 
@@ -40,7 +40,7 @@ interface IParams {
     limit: number;
     offset: number;
     store_id?: number;
-    active?: string;
+    active?: number;
     key?: string;
 }
 
@@ -51,17 +51,23 @@ const Course = () => {
     const [showModal, setShowModal] = useState(false); 
     const [selectedCourse, setSelectedCourse] = useState<CourseType>(); 
     const [courseToToggle, setCourseToToggle] = useState<CourseType>(); 
+    const [flag, setFlag] = useState(false);
     const [curFilter, setFilter] = useState<INewFilter>({
         storeId: 0,
-        active: "",
+        active: -1,
         searchText: "",
         programId: 0,
     });
     const [pagination, setPagination] = useState<IPagination>({
-        page: 0,
+        page: 1,
         limit: 10,
         offset: 0,
     });
+    const defaultParams: IPagination = {
+        limit: 10,
+        page: 1,
+        offset: 0,
+    };
     const [courses, setCourses] = useState<IResponse<ICourse>>(DEFAULT_LIST);
 
 
@@ -69,17 +75,23 @@ const Course = () => {
         setFilter(newFilter);
     };
 
+    
+    const getAPI = (params: IParams) =>{
+        return dispatch(fetchCourseListAction(params))
+    }
+
+    
     const onSearchData = (newFilter: INewFilter) => {
 
         const params: ICourseSearch = {
-            limit: 10,
+            limit: pagination.limit,
             offset: 0,
         };
 
         if (newFilter.storeId) {
             params.store_id = newFilter.storeId;
         }
-        if (newFilter.active) {
+        if (newFilter.active != -1) {
             params.active = newFilter.active;
         }
         if (newFilter.searchText) {
@@ -88,21 +100,33 @@ const Course = () => {
         if (newFilter.programId) {
             params.program_id = newFilter.programId;
         }
-            if (params) {
-                getAPI(params);
-            }
-            setFilter(newFilter);
+        setPagination(defaultParams)
+        getAPI(params);
+        setFilter(newFilter);
+
     };
-
-
+/*
+effect dưới vừa dùng để render list lần đầu vào trang vừa để
+render lại list khi có thay đổi từ các action khác
+nên khi đẩy danh sách render đổi trang vào hàm dưới bị mất list ban đầu
+nên em mới thêm flag
+*/
     useEffect(() => {
-        const params: ICourseSearch = {
+        if (flag === true) {
+            const params: ICourseSearch = {
+                limit: pagination.limit,
+                offset: pagination.offset,
+            };
+            getAPI(params);
+            setFlag(false);
+        } else {
+        const renderParams = {
             limit: pagination.limit,
             offset: pagination.offset,
         };
-        getAPI(params);
-
-    }, [dispatch, pagination]);
+        getAPI(renderParams);
+        }
+    }, [flag]); // Chạy một lần khi component được mount
 
 
     const handleOpenConfirmModal = (course: CourseType) => {
@@ -132,7 +156,8 @@ const Course = () => {
           } 
   };
   
-    
+
+
 
     const handleEdit = (course: CourseType) => {
         // Handle course edit logic
@@ -144,9 +169,10 @@ const Course = () => {
     const handlePageChange = (newPage: number) => {
         setPagination({
             ...pagination,
-            page: newPage,
+            page: newPage + 1,
             offset: newPage * pagination.limit,
         });
+        setFlag(true);
     };
 
 
@@ -165,10 +191,6 @@ const Course = () => {
             offset: 0,
         };
         getAPI(params);
-    }
-
-    const getAPI = (params: IParams) =>{
-        return dispatch(fetchCourseListAction(params))
     }
 
 

@@ -31,6 +31,14 @@ interface INewFilter {
     searchText: string;
 }
 
+interface IParams {
+    limit: number;
+    offset: number;
+    store_id?: number;
+    active?: string;
+    key?: string;
+}
+
 
 const Program = () => {
     const dispatch = useDispatch<AppDispatch>();
@@ -82,9 +90,6 @@ const Program = () => {
             offset: pagination.offset,
         };
         getAPI(params);
-        setFilter({
-            ...curFilter,
-        });
     }, [dispatch, pagination]);
 
     
@@ -121,7 +126,7 @@ const Program = () => {
     }
 
 
-    const getAPI = (params: any) =>{
+    const getAPI = (params: IParams) =>{
         dispatch(fetchProgramListAction(params))
     }
     /*

@@ -4,7 +4,7 @@ import { IPayloadSaveProgram } from '../typing/programsType';
 export const getProgramListService = async (params: {
     limit: number;
     offset: number;
-    store_id?: string;
+    store_id?: number;
     active?: string;
     key?: string;
 }) => {

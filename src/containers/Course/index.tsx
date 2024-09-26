@@ -36,6 +36,13 @@ interface INewFilter {
     searchText: string;
 }
 
+interface IParams {
+    limit: number;
+    offset: number;
+    store_id?: number;
+    active?: string;
+    key?: string;
+}
 
 const Course = () => {
     const dispatch = useDispatch<AppDispatch>();
@@ -94,9 +101,7 @@ const Course = () => {
             offset: pagination.offset,
         };
         getAPI(params);
-        setFilter({
-            ...curFilter,
-        });
+
     }, [dispatch, pagination]);
 
 
@@ -162,7 +167,7 @@ const Course = () => {
         getAPI(params);
     }
 
-    const getAPI = (params:any) =>{
+    const getAPI = (params: IParams) =>{
         return dispatch(fetchCourseListAction(params))
     }
 

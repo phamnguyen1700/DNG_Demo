@@ -5,8 +5,8 @@ import { IPayloadSaveCourse } from '../typing/courseType';
 export const getCourseListService = async (params: {
     limit: number;
     offset: number;
-    store_id?: string;
-    program_id?: string;
+    store_id?: number;
+    program_id?: number;
     active?: string;
     key?: string;
 }) => {

@@ -8,8 +8,8 @@ export const fetchCourseListAction = createAsyncThunk(
     async (params: {
         limit: number;
         offset: number;
-        store_id?: string;
-        program_id?: string;
+        store_id?: number;
+        program_id?: number;
         active?: string;
         key?: string;
     }, { rejectWithValue }) => {

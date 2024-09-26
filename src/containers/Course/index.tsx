@@ -19,8 +19,9 @@ const DEFAULT_LIST = {
     total: 0
 };
 interface IPagination {
-    limit: number;
-    offset: number;
+    page?: number,
+    limit: number,
+    offset: number
 }
 interface ICourseSearch extends IPagination {
     store_id?: number;
@@ -50,6 +51,7 @@ const Course = () => {
         programId: 0,
     });
     const [pagination, setPagination] = useState<IPagination>({
+        page: 0,
         limit: 10,
         offset: 0,
     });
@@ -134,10 +136,11 @@ const Course = () => {
         console.log('Edit course:', course);
     };
 
-    const handlePageChange = (newOffset: number) => {
+    const handlePageChange = (newPage: number) => {
         setPagination({
             ...pagination,
-            offset: newOffset,
+            page: newPage,
+            offset: newPage * pagination.limit,
         });
     };
 

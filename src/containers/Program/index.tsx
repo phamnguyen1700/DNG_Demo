@@ -15,6 +15,7 @@ const DEFAULT_LIST:IResponse<IProgram> = {
     total: 0
 }
 interface IPagination {
+    page?: number,
     limit: number,
     offset: number,
 }
@@ -35,6 +36,7 @@ const Program = () => {
     const dispatch = useDispatch<AppDispatch>();
     const { filteredProgramList, total, status } = useSelector((state: RootState) => state.program);
     const [pagination, setPagination] = useState<IPagination>({
+        page: 0,
         limit: 10,
         offset: 0,
     });
@@ -91,10 +93,11 @@ const Program = () => {
         setShowModal(true); // Mở modal
     };
 
-    const handlePageChange = (newOffset: number) => {
+    const handlePageChange = (newPage: number) => {
         setPagination({
             ...pagination,
-            offset: newOffset,
+            page: newPage,
+            offset: newPage * pagination.limit,
         });
     };
 

@@ -24,7 +24,7 @@ interface TableDataProps {
   limit: number; 
   offset: number;
   onEdit: (course: ICourse) => void;
-  onPageChange: (newOffset: number) => void; 
+  onPageChange: (newPage: number) => void; 
   onToggleStatus: (course: ICourse) => void;
 }
 
@@ -39,8 +39,7 @@ const TableData: React.FC<TableDataProps> = ({
 }) => {
     // Hàm xử lý thay đổi trang (khi người dùng chuyển trang)
     const handlePageChange = (event: unknown, newPage: number) => {
-      const newOffset = newPage * limit; // Tính toán offset dựa trên trang mới
-      onPageChange(newOffset); // Cập nhật offset
+      onPageChange(newPage); // Cập nhật offset
     };
 
   return (
@@ -111,7 +110,7 @@ const TableData: React.FC<TableDataProps> = ({
       <TablePagination
         component="div"
         count={total}
-        page={offset / limit}
+        page={offset / limit} //trả về newPage
         onPageChange={handlePageChange}
         rowsPerPage={limit}
       />

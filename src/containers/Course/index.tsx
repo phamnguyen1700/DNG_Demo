@@ -61,10 +61,6 @@ const Course = () => {
     };
 
     const onSearchData = (newFilter: INewFilter) => {
-        setPagination({
-            ...pagination,
-            offset: 0,
-        });
 
         const params: ICourseSearch = {
             limit: 10,

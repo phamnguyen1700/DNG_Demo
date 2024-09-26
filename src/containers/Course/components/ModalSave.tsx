@@ -23,8 +23,8 @@ interface ModalSaveProps {
 
 const schema = yup.object().shape({
   name: yup.string().required('Tên khóa học không được để trống'),
-  store_id: yup.number().required('Vui lòng chọn chi nhánh'),
-  program_id: yup.number().required('Vui lòng chọn chương trình đào tạo'),
+  store_id: yup.number().moreThan(0, 'Vui lòng chọn chi nhánh').required('Vui lòng chọn chi nhánh'),
+  program_id: yup.number().moreThan(0, 'Vui lòng chọn chương trình đào tạo').required('Vui lòng chọn chương trình đào tạo'),
   price: yup.number().required('Học phí là bắt buộc').min(1, 'Học phí phải lớn hơn 0'),
   number_session: yup.number().required('Số buổi học là bắt buộc').min(1, 'Số buổi học phải lớn hơn 0').max(365, 'Số buổi học không được lớn hơn 365'),
   description: yup.string().max(300, 'Mô tả không được vượt quá 300 ký tự')
@@ -50,14 +50,11 @@ const ModalSave: React.FC<ModalSaveProps> = ({ show, handleClose, existingData, 
 
   // Xử lý khi dữ liệu đã được validate thành công
   const handleSubmitWithValidation = (data: ICourseValidation) => {
-    console.log('Dữ liệu đã được xác thực:', data);
     setShowConfirmModal(true);  // Mở modal xác nhận sau khi validate thành công
   };
 
   // Xác nhận việc tạo mới hoặc cập nhật sau khi người dùng xác nhận trong modal
   const handleConfirm = async (data: ICourseValidation) => {
-    console.log('Dữ liệu form:', data);
-
     const dataToSave: IPayloadSaveCourse = {
       ...data,
       active: 1,
@@ -110,6 +107,15 @@ const ModalSave: React.FC<ModalSaveProps> = ({ show, handleClose, existingData, 
         program_id: Number(existingData.program_id),
       };
       reset(dataToReset);
+    } else {
+      reset({
+        name: '',
+        program_id: 0,
+        store_id: 0,
+        price: 0,
+        number_session: 0,
+        description: '',
+      });
     }
   }, [show, existingData, reset]);
 
@@ -132,10 +138,9 @@ const ModalSave: React.FC<ModalSaveProps> = ({ show, handleClose, existingData, 
               <InputLabel>Chi nhánh</InputLabel>
               <Select
                 {...register('store_id')}
-                defaultValue={existingData?.store_id || 0}  // Đảm bảo giá trị mặc định
+                defaultValue={existingData?.store_id}  
                 error={!!errors.store_id}
               >
-                <MenuItem value={0}>Chọn chi nhánh</MenuItem>
                 {stores.map((store) => (
                   <MenuItem key={store.id} value={store.id}>
                     {store.name}
@@ -149,10 +154,9 @@ const ModalSave: React.FC<ModalSaveProps> = ({ show, handleClose, existingData, 
               <InputLabel>Chương trình đào tạo</InputLabel>
               <Select
                 {...register('program_id')}
-                defaultValue={existingData?.program_id || 0}  // Đảm bảo giá trị mặc định
+                defaultValue={existingData?.program_id}  // Đảm bảo giá trị mặc định
                 error={!!errors.program_id}
               >
-                <MenuItem value={0}>Chọn chương trình</MenuItem>
                 {programs.map((program) => (
                   <MenuItem key={program.id} value={program.id}>
                     {program.name}
@@ -166,7 +170,7 @@ const ModalSave: React.FC<ModalSaveProps> = ({ show, handleClose, existingData, 
               <TextField
                 label="Học phí"
                 type="number"
-                {...register('price')}
+                {...register('price', { valueAsNumber: true })}
                 error={!!errors.price}
                 helperText={errors.price?.message}
               />
@@ -176,7 +180,7 @@ const ModalSave: React.FC<ModalSaveProps> = ({ show, handleClose, existingData, 
               <TextField
                 label="Số buổi học"
                 type="number"
-                {...register('number_session')}
+                {...register('number_session', { valueAsNumber: true })}
                 error={!!errors.number_session}
                 helperText={errors.number_session?.message}
               />

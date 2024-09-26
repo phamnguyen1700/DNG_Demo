@@ -53,10 +53,6 @@ const Program = () => {
     }
 
     const onSearchData = (newFilter: INewFilter) => {
-        setPagination({
-            ...pagination,
-            offset: 0,
-        });
 
         const params: IProgramSearch = {
             limit: 10,

@@ -20,7 +20,7 @@ interface ModalFormProps {
 
 const scheme = yup.object().shape({
   name: yup.string().required('Tên chương trình không được để trống'),
-  store_id: yup.number().required('Vui lòng chọn chi nhánh').typeError('Vui lòng chọn chi nhánh hợp lệ'),
+  store_id: yup.number().moreThan(0, 'Vui lòng chọn chi nhánh').required('Vui lòng chọn chi nhánh'),
   type: yup.string().required('Loại chương trình không được để trống'),
   level: yup.string().required('Trình độ không được để trống'),
   certificate_type: yup.string().required('Bằng cấp không được để trống'),
@@ -112,6 +112,16 @@ const ModalForm: React.FC<ModalFormProps> = ({ show, handleClose, existingData, 
           store_id: Number(existingData.store_id),
         };
         reset(dataToReset);
+      } else {
+        reset({
+          name: '',
+          store_id: 0,
+          type: '',
+          level: '',
+          certificate_type: '',
+          group_id: 38,
+          description: '',
+        })
       }
     }, [show, existingData, reset]);
 

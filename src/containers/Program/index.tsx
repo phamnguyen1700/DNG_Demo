@@ -53,7 +53,6 @@ const Program = () => {
         limit: 10,
         offset: 0,
     };
-    const [flag, setFlag] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [selectedProgram, setSelectedProgram] = useState<ProgramType>();
     const [curFilter, setFilter] = useState<INewFilter>({
@@ -63,16 +62,13 @@ const Program = () => {
     });
     const [programs, setPrograms] = useState<IResponse<IProgram>>(DEFAULT_LIST);
 
-
     const onUpdateFilter = (newFilter: INewFilter) => {
         setFilter(newFilter);
     }
-
-    
+   
     const getAPI = (params: IParams) =>{
-        dispatch(fetchProgramListAction(params))
+        return dispatch(fetchProgramListAction(params))
     }
-    debugger;
 
     const onSearchData = (newFilter: INewFilter) => {
 
@@ -102,21 +98,13 @@ nên khi đẩy danh sách render đổi trang vào hàm dưới bị mất list
 nên em mới thêm flag
 */
     useEffect(() => {
-        if (flag === true) {
-            const params = {
-                limit: pagination.limit,
-                offset: pagination.offset,
-            };
-            getAPI(params);
-            setFlag(false);
-        } else {
             const renderParams = {
                 limit: pagination.limit,
                 offset: pagination.offset,
             };
             getAPI(renderParams);
-        }
-    }, [flag]);
+        
+    },[]);
 
     
     const handleEdit = (program: ProgramType) => {
@@ -125,12 +113,18 @@ nên em mới thêm flag
     };
 
     const  handlePageChange = (newPage: number) => {
-        setPagination({
-            ...pagination,
-            page: newPage + 1,
-            offset: newPage * pagination.limit,
+        setPagination((prevPagination) => {
+            const newPagination = {
+                ...prevPagination,
+                page: newPage + 1,
+                offset: newPage * prevPagination.limit,
+            };
+            getAPI({
+                limit: newPagination.limit,
+                offset: newPagination.offset,
+            });
+            return newPagination;
         });
-        setFlag(true);
     };
 
 

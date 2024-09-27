@@ -110,7 +110,7 @@ const TableData: React.FC<TableDataProps> = ({
       <TablePagination
         component="div"
         count={total}
-        page={offset / limit} //trả về newPage
+        page={Math.floor(offset / limit)} //trả về newPage
         onPageChange={handlePageChange}
         rowsPerPage={limit}
       />

@@ -51,7 +51,6 @@ const Course = () => {
     const [showModal, setShowModal] = useState(false); 
     const [selectedCourse, setSelectedCourse] = useState<CourseType>(); 
     const [courseToToggle, setCourseToToggle] = useState<CourseType>(); 
-    const [flag, setFlag] = useState(false);
     const [curFilter, setFilter] = useState<INewFilter>({
         storeId: 0,
         active: -1,
@@ -64,8 +63,8 @@ const Course = () => {
         offset: 0,
     });
     const defaultParams: IPagination = {
-        limit: 10,
         page: 1,
+        limit: 10,
         offset: 0,
     };
     const [courses, setCourses] = useState<IResponse<ICourse>>(DEFAULT_LIST);
@@ -75,11 +74,9 @@ const Course = () => {
         setFilter(newFilter);
     };
 
-    
     const getAPI = (params: IParams) =>{
         return dispatch(fetchCourseListAction(params))
     }
-
     
     const onSearchData = (newFilter: INewFilter) => {
 
@@ -112,21 +109,12 @@ nên khi đẩy danh sách render đổi trang vào hàm dưới bị mất list
 nên em mới thêm flag
 */
     useEffect(() => {
-        if (flag === true) {
-            const params: ICourseSearch = {
-                limit: pagination.limit,
-                offset: pagination.offset,
-            };
-            getAPI(params);
-            setFlag(false);
-        } else {
         const renderParams = {
             limit: pagination.limit,
             offset: pagination.offset,
         };
         getAPI(renderParams);
-        }
-    }, [flag]); // Chạy một lần khi component được mount
+    }, []); // Chạy một lần khi component được mount
 
 
     const handleOpenConfirmModal = (course: CourseType) => {
@@ -167,12 +155,18 @@ nên em mới thêm flag
     };
 
     const handlePageChange = (newPage: number) => {
-        setPagination({
-            ...pagination,
-            page: newPage + 1,
-            offset: newPage * pagination.limit,
+        setPagination((prevPagination) => {
+            const newPagination = {
+                ...prevPagination,
+                page: newPage + 1,
+                offset: newPage * prevPagination.limit,
+            };
+            getAPI({
+                limit: newPagination.limit,
+                offset: newPagination.offset,
+            });
+            return newPagination;
         });
-        setFlag(true);
     };
 
 

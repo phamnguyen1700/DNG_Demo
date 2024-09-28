@@ -10,7 +10,7 @@
     "@mui/material": "^6.0.2",
     "@mui/toolpad-core": "^0.1.51",
     "@reduxjs/toolkit": "^2.2.7",
-    "@testing-library/jest-dom": "^5.17.0",
+    "@testing-library/jest-dom": "^6.5.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "@toolpad/core": "^0.5.2",
@@ -58,5 +58,15 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@types/babel__core": "^7.20.5",
+    "@types/babel__generator": "^7.6.8",
+    "@types/babel__template": "^7.4.4",
+    "@types/babel__traverse": "^7.20.6",
+    "@types/bonjour": "^3.5.13",
+    "@types/cookie": "^0.6.0",
+    "@types/estree": "^1.0.6",
+    "@types/trusted-types": "^2.0.7"
   }
 }

@@ -7,7 +7,7 @@ import { login } from '../../redux/actions/auth';
 import { RootState, AppDispatch } from '../../redux/store';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate để điều hướng
-import loginAuth from '../../common/HOC/auth';
+import { toast } from "react-toastify";
 import { paths } from '../../route/path';
 // import { fetchMenuList } from '../../redux/actions/menuAction';
 interface IFormInput {
@@ -55,7 +55,15 @@ const LoginForm: React.FC = () => {
     } 
     };
 
-    
+    useEffect(() => {
+    // Kiểm tra xem có cần hiển thị toast hay không
+    if (localStorage.getItem("showLoginToast") === "true") {
+      toast.error("Phiên đăng nhập hết hạn, vui lòng đăng nhập lại");
+      
+      // Xóa thông báo sau khi đã hiển thị
+      localStorage.removeItem("showLoginToast");
+    }
+  }, []);
 
     // useEffect(() => {
     //     if (data) {

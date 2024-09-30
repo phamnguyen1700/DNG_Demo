@@ -38,7 +38,7 @@ const FilterData: React.FC<IProps> = ({ curFilter, onUpdateFilter, onSearchData 
     sx={{ flexBasis: '10%' }}  // 20% cho select Chi nhánh
   >
     <MenuItem value="">Tất cả Chi nhánh</MenuItem>
-    {stores.map((store: IStore) => (
+    {stores?.map((store: IStore) => (
       <MenuItem key={store.id} value={store.id}>
         {store.name}
       </MenuItem>
@@ -53,7 +53,7 @@ const FilterData: React.FC<IProps> = ({ curFilter, onUpdateFilter, onSearchData 
     sx={{ flexBasis: '50%' }}  // 20% cho select Chương trình
   >
     <MenuItem value="">Tất cả Chương trình</MenuItem>
-    {programs.map((program: IProgram) => (
+    {programs?.map((program: IProgram) => (
       <MenuItem key={program.id} value={program.id}>
         {program.name}
       </MenuItem>

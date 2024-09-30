@@ -1,6 +1,5 @@
 import axios from "axios";
-import { ACCESS_TOKEN_KEY } from "../../constants/app";
-
+import { ACCESS_TOKEN_KEY, USER_KEY } from "../../constants/app";
 const axiosInstance = axios.create({
   baseURL: "https://api-dev.seoulacademy.edu.vn/api",
   headers: {
@@ -15,34 +14,37 @@ const axiosInstance = axios.create({
       if (token) {
         config.headers["token"] = token;
       }
-
       return config;
-    },
+    },  
     (error) => {
       if (error.response && (error.response.status === 401 || error.response.status === 403)) {
         localStorage.clear();
-        window.location.href = "/login";
+        window.location.href = "/auth/login";
+        localStorage.setItem("showLoginToast", "true");
       }
     }
   );
 
   // Add a response interceptor
-  axiosInstance.interceptors.response.use(function (response) {
-  // Any status code that lie within the range of 2xx cause this function to trigger
-  // Chỉ trả về data trong response thay vì trả về cả response
-
-
-  /*response trả về
-    data:{
-      data: [
-          data],}
-          
-  */
-  return response.data;
+  axiosInstance.interceptors.response.use(
+    function (response) {
+      const data = response.data;
+      console.log("Data:", data);
+      if (data.status === 403 || data.status === 401) {
+          localStorage.clear();
+          window.location.href = "/auth/login";
+          localStorage.setItem("showLoginToast", "true");
+      }
+      if (localStorage.getItem(ACCESS_TOKEN_KEY) === undefined) {
+          localStorage.clear();
+          window.location.href = "/auth/login";
+      }
+        return response.data;
 }, function (error) {
   if (error.response && (error.response.status === 401 || error.response.status === 403)) {
     localStorage.clear();
-    window.location.href = "/login";
+    window.location.href = "/auth/login"; 
+    localStorage.setItem("showLoginToast", "true");
   }
   return Promise.reject(error);
 });

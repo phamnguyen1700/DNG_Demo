@@ -1,13 +1,7 @@
 import React from 'react'
-import { Root } from 'react-dom/client';
-import { useSelector } from 'react-redux';
 import { Navigate } from 'react-router-dom';
-import { AppDispatch, RootState } from '../../redux/store';
-import { syncAuthState } from '../../redux/actions/auth';
-import { useDispatch } from 'react-redux';
-import { getUserLocalStore, isAuth } from '../actions/stores';
+import { isAuth } from '../actions/stores';
 import { paths } from '../../route/path';
-
 interface IAuthProps {
     WrappedComponent: React.FC;
 }
@@ -20,8 +14,8 @@ const Auth = (authProps:IAuthProps) =>{
         }
         //NEU KHONG DIEU HUONG
         return <WrappedComponent {...props} />
-    };
+    };  
     return AuthWrapper
-}
+}   
 
 export default Auth;

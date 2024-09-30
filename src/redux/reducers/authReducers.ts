@@ -46,7 +46,7 @@ const authSlice = createSlice({
         state.loading = false;
         state.user = action.payload.user;
         //lưu token vào local storage
-        setTokenLocalStore(action.payload.token)
+        setTokenLocalStore(action.payload.token);
         setUserLocalStore(action.payload.user);
       });
   },

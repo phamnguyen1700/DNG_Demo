@@ -141,7 +141,7 @@ const ModalSave: React.FC<ModalSaveProps> = ({ show, handleClose, existingData, 
                 defaultValue={existingData?.store_id}  
                 error={!!errors.store_id}
               >
-                {stores.map((store) => (
+                {stores?.map((store) => (
                   <MenuItem key={store.id} value={store.id}>
                     {store.name}
                   </MenuItem>
@@ -157,7 +157,7 @@ const ModalSave: React.FC<ModalSaveProps> = ({ show, handleClose, existingData, 
                 defaultValue={existingData?.program_id}  // Đảm bảo giá trị mặc định
                 error={!!errors.program_id}
               >
-                {programs.map((program) => (
+                {programs?.map((program) => (
                   <MenuItem key={program.id} value={program.id}>
                     {program.name}
                   </MenuItem>

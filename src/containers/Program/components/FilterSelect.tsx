@@ -54,7 +54,7 @@ const FilterData: React.FC<IProps>= ({ curFilter, onUpdateFilter, onSearchData }
                 sx={{ flexBasis: '15%' }}
             >
                 <MenuItem value="">Tất cả Chi nhánh</MenuItem>
-                {stores.map((store: IStore) => (
+                {stores?.map((store: IStore) => (
                     <MenuItem key={store.id} value={store.id.toString()}>
                         {store.name}
                     </MenuItem>

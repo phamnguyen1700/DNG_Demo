@@ -149,7 +149,7 @@ const ModalForm: React.FC<ModalFormProps> = ({ show, handleClose, existingData, 
                 error={!!errors.store_id}
                 defaultValue={existingData?.store_id}
               >
-                {stores.map((store) => (
+                {stores?.map((store) => (
                   <MenuItem key={store.id} value={store.id}>
                     {store.name}
                   </MenuItem>

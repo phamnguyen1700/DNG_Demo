@@ -39,7 +39,7 @@ const axiosInstance = axios.create({
           localStorage.clear();
           window.location.href = "/auth/login";
       }
-        return response.data;
+        return data;
 }, function (error) {
   if (error.response && (error.response.status === 401 || error.response.status === 403)) {
     localStorage.clear();

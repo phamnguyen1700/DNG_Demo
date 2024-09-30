@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Button, Box, TextField, MenuItem, Select, FormControl, InputLabel } from '@mui/material';
+import { Modal, Button, Box, TextField, MenuItem, Select, FormControl, InputLabel, FormHelperText, IconButton } from '@mui/material';
 import { ICourse, IPayloadSaveCourse, ICourseValidation } from '../../../typing/courseType';
 import { AppDispatch } from '../../../redux/store';
 import { useDispatch } from 'react-redux';
@@ -9,9 +9,8 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../../../redux/store';
 import { fetchStoreAction } from '../../../redux/actions/storeActions';
 import { fetchProgramListAction } from '../../../redux/actions/programActions';
-import * as yup from 'yup';
-import { useForm } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
+import { Controller, useForm } from 'react-hook-form';
+import CloseIcon from '@mui/icons-material/Close';
 
 interface ModalSaveProps {
   show: boolean;
@@ -21,17 +20,16 @@ interface ModalSaveProps {
   
 }
 
-const schema = yup.object().shape({
-  name: yup.string().required('Tên khóa học không được để trống'),
-  store_id: yup.number().moreThan(0, 'Vui lòng chọn chi nhánh').required('Vui lòng chọn chi nhánh'),
-  program_id: yup.number().moreThan(0, 'Vui lòng chọn chương trình đào tạo').required('Vui lòng chọn chương trình đào tạo'),
-  price: yup.number().required('Học phí là bắt buộc').min(1, 'Học phí phải lớn hơn 0'),
-  number_session: yup.number().required('Số buổi học là bắt buộc').min(1, 'Số buổi học phải lớn hơn 0').max(365, 'Số buổi học không được lớn hơn 365'),
-  description: yup.string().max(300, 'Mô tả không được vượt quá 300 ký tự')
-});
-
-
 const ModalSave: React.FC<ModalSaveProps> = ({ show, handleClose, existingData, onRefresh }) => {
+  const defaultValues = {
+    name: '',
+    program_id: 0,
+    store_id: 0,
+    price: 0,
+    number_session: 0,
+    description: '',
+    ...existingData,
+  };
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const dispatch = useDispatch<AppDispatch>();
 
@@ -44,16 +42,26 @@ const ModalSave: React.FC<ModalSaveProps> = ({ show, handleClose, existingData, 
   const programs = useSelector((state: RootState) => state.program.programList);
 
 
-  const { register, handleSubmit, formState: { errors }, reset } = useForm<ICourseValidation>({
-    resolver: yupResolver(schema),
+  const { control, handleSubmit, formState: { errors }, reset } = useForm<ICourseValidation>({
+    defaultValues,
   });
 
-  // Xử lý khi dữ liệu đã được validate thành công
-  const handleSubmitWithValidation = (data: ICourseValidation) => {
-    setShowConfirmModal(true);  // Mở modal xác nhận sau khi validate thành công
-  };
+  useEffect(() => {
+    if (show) {
+      if (existingData) {
+        const dataToReset = {
+          ...defaultValues,
+          ...existingData,
+          store_id: Number(existingData.store_id),
+          program_id: Number(existingData.program_id),
+        };
+        reset(dataToReset);
+      } else {
+        reset(defaultValues);
+      }
+    }
+  }, [show, existingData]);
 
-  // Xác nhận việc tạo mới hoặc cập nhật sau khi người dùng xác nhận trong modal
   const handleConfirm = async (data: ICourseValidation) => {
     const dataToSave: IPayloadSaveCourse = {
       ...data,
@@ -65,18 +73,10 @@ const ModalSave: React.FC<ModalSaveProps> = ({ show, handleClose, existingData, 
     if (existingData?.id) {
       dataToSave.id = existingData.id;
     }
-    console.log('DATA TRUYỀN ĐI', dataToSave);
 
     const result = await dispatch(saveCourseAction(dataToSave));
     if (result.meta.requestStatus === 'fulfilled') {
-      reset({
-        name: '',
-        program_id: 0,
-        store_id: 0,
-        price: 0,
-        number_session: 0,
-        description: '',
-      });
+      reset(defaultValues);
       setShowConfirmModal(false);
       onRefresh && onRefresh();
       handleClose(); 
@@ -84,14 +84,7 @@ const ModalSave: React.FC<ModalSaveProps> = ({ show, handleClose, existingData, 
   };
 
   const handleCancel = () => {
-    reset({
-      name: '',
-      program_id: 0,
-      store_id: 0,
-      price: 0,
-      number_session: 0,
-      description: '',
-    });
+    reset(defaultValues);
     handleClose();
   };
 
@@ -99,100 +92,141 @@ const ModalSave: React.FC<ModalSaveProps> = ({ show, handleClose, existingData, 
     setShowConfirmModal(false);
   }
 
-  useEffect(() => {
-    if (show && existingData) {
-      const dataToReset = {
-        ...existingData,
-        store_id: Number(existingData.store_id),
-        program_id: Number(existingData.program_id),
-      };
-      reset(dataToReset);
-    } else {
-      reset({
-        name: '',
-        program_id: 0,
-        store_id: 0,
-        price: 0,
-        number_session: 0,
-        description: '',
-      });
-    }
-  }, [show, existingData, reset]);
-
   return (
     <>
       <Modal open={show} onClose={handleCancel}>
-        <Box sx={{ padding: '20px', backgroundColor: '#fff', borderRadius: '8px', maxWidth: '500px', margin: '50px auto' }}>
+        <Box sx={{ padding: '20px', backgroundColor: '#fff', borderRadius: '8px', maxWidth: '500px', margin: '50px auto', position: 'relative' }}>
+          <IconButton
+            aria-label="close"
+            onClick={handleCancel}
+            sx={{ position: 'absolute', right: 8, top: 8 }}
+          >
+            <CloseIcon />
+          </IconButton>
           <h2>{existingData ? 'Cập nhật khóa học' : 'Tạo mới khóa học'}</h2>
-          <form onSubmit={handleSubmit(handleSubmitWithValidation)}>
+          <form onSubmit={handleSubmit( () => setShowConfirmModal(true))}>
             <FormControl fullWidth margin="normal">
-              <TextField
-                label="Tên khóa học"
-                {...register('name')}
-                error={!!errors.name}
-                helperText={errors.name?.message}
-              />
+              <Controller
+                name="name"
+                control={control}
+                rules={{ required: 'Tên khóa học không được để trống' }}
+                render={({ field }) => (
+                  <TextField
+                    label="Tên khóa học"
+                    {...field}
+                    error={!!errors.name}
+                  />
+                )}
+                />
+              <FormHelperText style={{ color: 'red'}}>{errors.name?.message}</FormHelperText>
             </FormControl>
 
             <FormControl fullWidth margin="normal">
               <InputLabel>Chi nhánh</InputLabel>
-              <Select
-                {...register('store_id')}
-                defaultValue={existingData?.store_id}  
-                error={!!errors.store_id}
-              >
-                {stores?.map((store) => (
-                  <MenuItem key={store.id} value={store.id}>
-                    {store.name}
-                  </MenuItem>
-                ))}
-              </Select>
-              <p style={{ color: 'red' }}>{errors.store_id?.message}</p>
+              <Controller
+                name="store_id"
+                control={control}
+                rules={{ 
+                  required: 'Chi nhánh không được để trống',
+                  validate: value => value > 0 || 'Chi nhánh không được để trống'
+                 }}
+                render={({ field }) => (
+                  <Select
+                    label="Chi nhánh"
+                    {...field}
+                    error={!!errors.store_id}
+                  >
+                    {stores?.map((store) => (
+                      <MenuItem key={store.id} value={store.id}>
+                        {store.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                )}
+              />
+              <FormHelperText style={{ color: 'red'}}>{errors.store_id?.message}</FormHelperText>
             </FormControl>
 
             <FormControl fullWidth margin="normal">
               <InputLabel>Chương trình đào tạo</InputLabel>
-              <Select
-                {...register('program_id')}
-                defaultValue={existingData?.program_id}  // Đảm bảo giá trị mặc định
-                error={!!errors.program_id}
-              >
-                {programs?.map((program) => (
-                  <MenuItem key={program.id} value={program.id}>
-                    {program.name}
-                  </MenuItem>
-                ))}
-              </Select>
-              <p style={{ color: 'red' }}>{errors.program_id?.message}</p>
+                <Controller
+                  name="program_id"
+                  control={control}
+                  rules={{ 
+                    required: 'Chương trình đào tạo không được để trống',
+                    validate: value => value > 0 || 'Chương trình đào tạo không được để trống'
+                  }}
+                  render={({ field }) => (
+                    <Select
+                      label="Chương trình đào tạo"
+                      {...field}
+                      error={!!errors.program_id}
+                    >
+                      {programs?.map((program) => (
+                        <MenuItem key={program.id} value={program.id}>
+                          {program.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  )}
+                />
+              <FormHelperText style={{ color: 'red'}}>{errors.program_id?.message}</FormHelperText>
             </FormControl>
 
             <FormControl fullWidth margin="normal">
-              <TextField
-                label="Học phí"
-                type="number"
-                {...register('price', { valueAsNumber: true })}
-                error={!!errors.price}
-                helperText={errors.price?.message}
+              <Controller
+                name="price"
+                control={control}
+                rules={{
+                  required: 'Giá không được để trống',
+                  validate: value => value > 0 || 'Giá lớn hơn 0'}}
+                render={({ field }) => (
+                  <TextField
+                    label="Giá"
+                    type="number"
+                    {...field}
+                    error={!!errors.price}
+                  />
+                )}
               />
+              <FormHelperText style={{ color: 'red'}}>{errors.price?.message}</FormHelperText>
             </FormControl>
 
             <FormControl fullWidth margin="normal">
-              <TextField
-                label="Số buổi học"
-                type="number"
-                {...register('number_session', { valueAsNumber: true })}
-                error={!!errors.number_session}
-                helperText={errors.number_session?.message}
+              <Controller
+                name="number_session"
+                control={control}
+                rules={{
+                  required: 'Số buổi không được để trống',
+                  validate: value => value < 365 || 'Số buổi không được lớn hơn 365'}}
+                render={({ field }) => (
+                  <TextField
+                    label="Số buổi"
+                    type="number"
+                    {...field}
+                    error={!!errors.number_session}
+                  />
+                )}
               />
+              <FormHelperText style={{ color: 'red'}}>{errors.number_session?.message}</FormHelperText>
             </FormControl>
 
             <FormControl fullWidth margin="normal">
-              <TextField
-                label="Mô tả"
-                multiline
-                rows={4}
-                {...register('description')}
+              <Controller
+                name="description"
+                control={control}
+                rules={{ maxLength: { value: 300, message: 'Mô tả không được vượt quá 300 ký tự' } }}
+                render={({ field }) => (
+                  <TextField
+                    label="Mô tả"
+                    {...field}
+                    multiline
+                    rows={4}
+                    error={!!errors.description}
+                  />
+                )}
               />
+              <FormHelperText style={{ color: 'red'}}>{errors.description?.message}</FormHelperText>
             </FormControl>
             <Box display="flex" justifyContent="space-between" marginTop="20px">
               <Button variant="contained" color="secondary" onClick={handleCancel}>

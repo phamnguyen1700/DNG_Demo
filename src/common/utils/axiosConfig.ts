@@ -1,7 +1,6 @@
 import axios from "axios";
 import { ACCESS_TOKEN_KEY } from "../../constants/app";
 
-//tạo ĩnstance axios
 const axiosInstance = axios.create({
   baseURL: "https://api-dev.seoulacademy.edu.vn/api",
   headers: {
@@ -41,8 +40,10 @@ const axiosInstance = axios.create({
   */
   return response.data;
 }, function (error) {
-  // Any status codes that falls outside the range of 2xx cause this function to trigger
-  // Do something with response error
+  if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+    localStorage.clear();
+    window.location.href = "/login";
+  }
   return Promise.reject(error);
 });
 

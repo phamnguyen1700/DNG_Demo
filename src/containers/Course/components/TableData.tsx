@@ -57,7 +57,7 @@ const TableData: React.FC<TableDataProps> = ({
           </TableRow>
         </TableHead>
         <TableBody>
-          {courses.map((course) => (
+          {courses?.map((course) => (
             <TableRow key={course.id}>
               <TableCell>{course.id}</TableCell>
               <TableCell>{course.name}</TableCell>

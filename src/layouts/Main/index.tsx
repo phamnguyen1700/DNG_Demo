@@ -29,7 +29,7 @@ import useLogout from '../../common/hooks/logout';
 import Auth from '../../common/HOC/auth';
 import { menuConfig } from '../../Menu/menuConfig';
 import { paths } from '../../route/path';
-
+import StoreMenu from '../../components/modal/storesMenu';
 interface MenuItem {
   id: number;
   name: string;
@@ -123,7 +123,8 @@ const ResponsiveDrawer: React.FC = () => {
           ml: { sm: `${drawerWidth}px` },
         }}
       >
-        <Toolbar>
+        <Toolbar
+        >
           <IconButton
             color="inherit"
             aria-label="open drawer"
@@ -134,9 +135,10 @@ const ResponsiveDrawer: React.FC = () => {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-            <Link to={paths.overview} style={{ textDecoration: 'none', color: 'white' }}>
+            {/* <Link to={paths.overview} style={{ textDecoration: 'none', color: 'white' }}>
               My Logo
-            </Link>
+            </Link> */}
+            <StoreMenu />
           </Typography>
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">

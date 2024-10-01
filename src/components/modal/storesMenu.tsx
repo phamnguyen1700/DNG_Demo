@@ -15,19 +15,30 @@ const StoresMenu: React.FC = () => {
         const storedStore = localStorage.getItem('selectedStore');
         return storedStore ? JSON.parse(storedStore) : null;
     });
-    const stores = useSelector((state: RootState) => state.store.stores);
+    const [stores, setStores] = useState<IStore[]>(() => {
+        const storedList = localStorage.getItem('storeList');
+        return storedList ? JSON.parse(storedList) : [];
+    });
 
 
+    const storeListAPI = useSelector((state: RootState) => state.store.stores);
+    const isLoading = useSelector((state: RootState) => state.store.status === 'loading'); 
 
     useEffect(() => {
-        if (stores.length === 0) {
+        if (stores.length === 0 && !isLoading) {
             dispatch(fetchStoreAction());
         }
+
+        if (stores.length !== storeListAPI.length) {
+            setStores(storeListAPI);
+            localStorage.setItem('storeList', JSON.stringify(storeListAPI));
+        }
+
         if (!selectedStore) {
             setSelectedStore(stores[0]);
             localStorage.setItem('selectedStore', JSON.stringify(stores[0]));
         }
-    }, [stores.length, selectedStore]);
+    }, [stores.length,storeListAPI.length, selectedStore, isLoading]);
 
 
     const handleClick = (event: React.MouseEvent<HTMLElement>) => {

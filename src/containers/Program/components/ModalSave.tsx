@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Modal, Button, Box, TextField, MenuItem, Select, FormControl, InputLabel, FormHelperText, IconButton } from '@mui/material';
 import { IPayloadSaveProgram, IProgram, IProgramValidation } from '../../../typing/programsType';
-import { AppDispatch, RootState } from '../../../redux/store';
+import { AppDispatch, IRootState } from '../../../redux/store';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchStoreAction } from '../../../redux/actions/storeActions';
 import { saveProgramAction } from '../../../redux/actions/programActions';
@@ -30,7 +30,7 @@ const ModalForm: React.FC<ModalFormProps> = ({ show, handleClose, existingData, 
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const dispatch = useDispatch<AppDispatch>();
 
-  const stores = useSelector((state: RootState) => state.store.stores);
+  const stores = useSelector((state: IRootState) => state.store.stores);
 
   useEffect(() => {
     dispatch(fetchStoreAction());

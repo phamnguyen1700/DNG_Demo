@@ -2,7 +2,7 @@ import React from 'react';
 import { TextField, Select, MenuItem, Box, Button } from '@mui/material';
 import { IStore } from '../../../typing/storeType';
 import { useSelector } from 'react-redux';
-import { RootState } from '../../../redux/store';
+import { IRootState } from '../../../redux/store';
 
 interface INewFilter {
     storeId: number;
@@ -42,7 +42,7 @@ const FilterData: React.FC<IProps>= ({ curFilter, onUpdateFilter, onSearchData }
         onSearchData(curFilter);
     };
 
-    const stores = useSelector((state: RootState) => state.store.stores); // Fetch danh sách chi nhánh
+    const stores = useSelector((state: IRootState) => state.store.stores); // Fetch danh sách chi nhánh
 
 
     return (

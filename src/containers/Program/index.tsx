@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "../../redux/store";
+import { AppDispatch, IRootState } from "../../redux/store";
 import { fetchProgramListAction } from "../../redux/actions/programActions";
 import TableData from "./components/TableData";
 import FilterData from "./components/FilterSelect";
@@ -8,7 +8,6 @@ import { IProgram, IProgram as ProgramType } from "../../typing/programsType";
 import { Button } from "@mui/material";
 import ModalSave from "./components/ModalSave";
 import { IResponse } from "../../typing/app";
-import { fetchStoreAction } from "../../redux/actions/storeActions";
 
 const DEFAULT_LIST: IResponse<IProgram> = {
   list: [],
@@ -42,9 +41,10 @@ interface IParams {
 const Program = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { filteredProgramList, total, status } = useSelector(
-    (state: RootState) => state.program
+    (state: IRootState) => state.program
   );
-  const { storeSelected } = useSelector((state: RootState) => state.store);
+  const { storeSelected } = useSelector((state: IRootState) => state.store);
+  const [flag , setFlag] = useState(false);
   const [pagination, setPagination] = useState<IPagination>({
     page: 1,
     limit: 10,
@@ -87,9 +87,11 @@ const Program = () => {
     if (newFilter.searchText) {
       params.key = newFilter.searchText;
     }
+    setFlag(false);
     setPagination(defaultParams);
     getAPI(params);
     setFilter(newFilter);
+
   };
 
   /*
@@ -99,12 +101,23 @@ nên khi đẩy danh sách render đổi trang vào hàm dưới bị mất list
 nên em mới thêm flag
 */
   useEffect(() => {
+
+    setPagination(defaultParams);
+
+    setFilter({
+      storeId: storeSelected?.id || 0,
+      active: -1,
+      searchText: "",
+    });
+    setFlag(true); 
+    console.log("flag", flag);
     const renderParams = {
-      limit: pagination.limit,
-      offset: pagination.offset,
+      limit: defaultParams.limit,
+      offset: defaultParams.offset,
+      store_id: storeSelected?.id,
     };
     getAPI(renderParams);
-  }, []);
+  }, [storeSelected]);
 
   const handleEdit = (program: ProgramType) => {
     setSelectedProgram(program); // Lưu chương trình được chọn để chỉnh sửa
@@ -117,11 +130,20 @@ nên em mới thêm flag
         ...prevPagination,
         page: newPage + 1,
         offset: newPage * prevPagination.limit,
-      };
-      getAPI({
-        limit: newPagination.limit,
-        offset: newPagination.offset,
-      });
+      }; 
+      if (flag === true) {
+        getAPI({
+          limit: newPagination.limit,
+          offset: newPagination.offset,
+          store_id: storeSelected?.id,
+        });
+      } else {
+        getAPI({
+          limit: newPagination.limit,
+          offset: newPagination.offset,
+          ...(curFilter.storeId !== 0 && { store_id: curFilter.storeId }),
+        });
+    }
       return newPagination;
     });
   };

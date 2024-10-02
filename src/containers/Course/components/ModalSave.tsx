@@ -6,7 +6,7 @@ import { useDispatch } from 'react-redux';
 import { saveCourseAction } from '../../../redux/actions/courseAction';
 import ModalConfirm from '../../../components/modal/modalComfirm'; // Import ModalConfirm
 import { useSelector } from 'react-redux';
-import { RootState } from '../../../redux/store';
+import { IRootState } from '../../../redux/store';
 import { fetchStoreAction } from '../../../redux/actions/storeActions';
 import { fetchProgramListAction } from '../../../redux/actions/programActions';
 import { Controller, useForm } from 'react-hook-form';
@@ -38,8 +38,8 @@ const ModalSave: React.FC<ModalSaveProps> = ({ show, handleClose, existingData, 
     dispatch(fetchProgramListAction({ limit: 100, offset: 0 }));
   }, [dispatch]);
 
-  const stores = useSelector((state: RootState) => state.store.stores);
-  const programs = useSelector((state: RootState) => state.program.programList);
+  const stores = useSelector((state: IRootState) => state.store.stores);
+  const programs = useSelector((state: IRootState) => state.program.programList);
 
 
   const { control, handleSubmit, formState: { errors }, reset } = useForm<ICourseValidation>({

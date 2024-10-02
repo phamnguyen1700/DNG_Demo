@@ -1,8 +1,8 @@
 import React from "react";
 import { useSelector } from "react-redux";
-import { RootState } from "../../redux/store";
+import { IRootState } from "../../redux/store";
 const Home: React.FC = () => {
-  const { storeSelected } = useSelector((state: RootState) => state.store);
+  const { storeSelected } = useSelector((state: IRootState) => state.store);
 
   return (
     <div>

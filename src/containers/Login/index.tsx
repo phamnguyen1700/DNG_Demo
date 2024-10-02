@@ -4,7 +4,7 @@ import { TextField, Button, Box, Typography, FormControlLabel, Switch } from '@m
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { login } from '../../redux/actions/auth';
-import { RootState, AppDispatch } from '../../redux/store';
+import { IRootState, AppDispatch } from '../../redux/store';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate để điều hướng
 import { toast } from "react-toastify";
@@ -32,7 +32,7 @@ const schema = yup.object().shape({
 //dispatch xử lý login
 const LoginForm: React.FC = () => {
     const dispatch: AppDispatch = useDispatch();// sử dụng app dispatch vì có nhiều yều cầu cần xử lý
-    const { loading, error, user: data } = useSelector((state: RootState) => state.auth);
+    const { loading, error, user: data } = useSelector((state: IRootState) => state.auth);
     const navigate = useNavigate(); // Khởi tạo hook điều hướng
 
 

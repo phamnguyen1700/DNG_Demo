@@ -21,7 +21,7 @@ import Tooltip from '@mui/material/Tooltip';
 import MenuIcon from '@mui/icons-material/Menu';
 import { Link, Outlet } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { RootState, AppDispatch } from '../../redux/store';
+import { IRootState, AppDispatch } from '../../redux/store';
 // import { fetchMenuList } from '../../redux/actions/menuAction';
 import { getUserLocalStore } from '../../common/actions/stores';
 import { setUserInStore } from '../../redux/reducers/authReducers';
@@ -45,7 +45,7 @@ const ResponsiveDrawer: React.FC = () => {
   const [open, setOpen] = useState<{ [key: number]: boolean }>({});
   const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
-  const { user } = useSelector((state: RootState) => state.auth);
+  const { user } = useSelector((state: IRootState) => state.auth);
 
   useEffect(() => {
     if (!user) {

@@ -1,14 +1,13 @@
 // src/course/Course.tsx
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '../../redux/store';
+import store, { AppDispatch, IRootState } from '../../redux/store';
 import { fetchCourseListAction } from '../../redux/actions/courseAction';
 import { fetchStoreAction } from '../../redux/actions/storeActions'; // Nếu cần sử dụng danh sách chi nhánh
 import TableData from './components/TableData';
 import FilterData from './components/FilterSelect'; // Component lọc dữ liệu
 import { ICourse as CourseType, ICourse } from '../../typing/courseType';
 import { Button } from '@mui/material';
-import { fetchProgramListAction } from '../../redux/actions/programActions'; // Nếu cần sử dụng danh sách chương trình khóa học
 import ModalSave from './components/ModalSave'; // Component tạo mới hoặc cập nhật khóa học
 import { toggleCourseStatus } from '../../../src/redux/actions/courseAction';
 import ModalConfirm from '../../../src/components/modal/modalComfirm'; // Import ModalConfirm
@@ -46,7 +45,9 @@ interface IParams {
 
 const Course = () => {
     const dispatch = useDispatch<AppDispatch>();
-    const { filteredCourseList, total, status } = useSelector((state: RootState) => state.course);
+    const { filteredCourseList, total, status } = useSelector((state: IRootState) => state.course);
+    const [flag , setFlag] = useState(false);
+    const { storeSelected } = useSelector((state: IRootState) => state.store);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [showModal, setShowModal] = useState(false); 
     const [selectedCourse, setSelectedCourse] = useState<CourseType>(); 
@@ -97,6 +98,7 @@ const Course = () => {
         if (newFilter.programId) {
             params.program_id = newFilter.programId;
         }
+        setFlag(false);
         setPagination(defaultParams)
         getAPI(params);
         setFilter(newFilter);
@@ -109,12 +111,23 @@ nên khi đẩy danh sách render đổi trang vào hàm dưới bị mất list
 nên em mới thêm flag
 */
     useEffect(() => {
+
+        setPagination(defaultParams);
+
+        setFilter({
+            storeId: storeSelected?.id || 0,    
+            active: -1,
+            searchText: "",
+            programId: 0,
+        });
+        setFlag(true);
         const renderParams = {
             limit: pagination.limit,
             offset: pagination.offset,
+            store_id: storeSelected?.id,
         };
         getAPI(renderParams);
-    }, []); // Chạy một lần khi component được mount
+    }, [storeSelected]); // Chạy một lần khi component được mount
 
 
     const handleOpenConfirmModal = (course: CourseType) => {
@@ -161,10 +174,20 @@ nên em mới thêm flag
                 page: newPage + 1,
                 offset: newPage * prevPagination.limit,
             };
+            if (flag === true) {
+                getAPI({
+                    limit: newPagination.limit,
+                    offset: newPagination.offset,
+                    store_id: storeSelected?.id,
+                });
+            } else {
+                
             getAPI({
                 limit: newPagination.limit,
                 offset: newPagination.offset,
+                ...(curFilter.storeId !== 0 && { store_id: curFilter.storeId }),
             });
+            }
             return newPagination;
         });
     };

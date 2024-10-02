@@ -2,7 +2,7 @@ import React from 'react';
 import { TextField, Select, MenuItem, Box, Button } from '@mui/material';
 import { IStore } from '../../../typing/storeType';
 import { IProgram } from '../../../typing/programsType'; // Giả sử bạn có type cho chương trình khóa học
-import { RootState } from '../../../redux/store';
+import { IRootState } from '../../../redux/store';
 import { useSelector } from 'react-redux';
 
 interface INewFilter {
@@ -24,8 +24,8 @@ const FilterData: React.FC<IProps> = ({ curFilter, onUpdateFilter, onSearchData 
     onSearchData(curFilter);
   };
 
-  const stores = useSelector((state: RootState) => state.store.stores); // Fetch danh sách chi nhánh
-  const programs = useSelector((state: RootState) => state.program.programList); // Fetch danh sách chương trình khóa học
+  const stores = useSelector((state: IRootState) => state.store.stores); // Fetch danh sách chi nhánh
+  const programs = useSelector((state: IRootState) => state.program.programList); // Fetch danh sách chương trình khóa học
 
 
   return (

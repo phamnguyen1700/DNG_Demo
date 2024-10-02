@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Button, Menu, MenuItem, Typography } from "@mui/material";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "../../../redux/store";
+import { AppDispatch, IRootState } from "../../../redux/store";
 import { fetchStoreAction } from "../../../redux/actions/storeActions";
 import { IStore } from "../../../typing/storeType";
 import AddLocationOutlinedIcon from "@mui/icons-material/AddLocationOutlined";
@@ -12,7 +12,7 @@ const StoresMenu: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const [curStore, setCurStore] = useState<null | HTMLElement>();
   const { stores: storeListAPI, storeSelected } = useSelector(
-    (state: RootState) => state.store
+    (state: IRootState) => state.store
   );
   const getAPIStore = async () => {
     const storeList = await dispatch(fetchStoreAction()).unwrap();

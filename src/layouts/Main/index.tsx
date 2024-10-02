@@ -29,7 +29,7 @@ import useLogout from '../../common/hooks/logout';
 import Auth from '../../common/HOC/auth';
 import { menuConfig } from '../../Menu/menuConfig';
 import { paths } from '../../route/path';
-import StoreMenu from '../../components/modal/storesMenu';
+import StoreMenu from './components/storesMenu';
 interface MenuItem {
   id: number;
   name: string;

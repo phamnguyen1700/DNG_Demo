@@ -2,11 +2,11 @@ import React, { useEffect, useState } from "react";
 import { Button, Menu, MenuItem, Typography } from "@mui/material";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "../../redux/store";
-import { fetchStoreAction } from "../../redux/actions/storeActions";
-import { IStore } from "../../typing/storeType";
+import { AppDispatch, RootState } from "../../../redux/store";
+import { fetchStoreAction } from "../../../redux/actions/storeActions";
+import { IStore } from "../../../typing/storeType";
 import AddLocationOutlinedIcon from "@mui/icons-material/AddLocationOutlined";
-import { setStoreDefault } from "../../redux/reducers/storeReducer";
+import { setStoreDefault } from "../../../redux/reducers/storeReducer";
 
 const StoresMenu: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();

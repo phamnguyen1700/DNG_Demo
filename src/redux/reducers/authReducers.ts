@@ -2,7 +2,6 @@ import { createSlice } from "@reduxjs/toolkit";
 import { login } from "../actions/auth";
 import { IAuthState } from "../../typing/Auth";
 import { syncAuthState } from "../actions/auth";
-import { USER_KEY } from "../../constants/app";
 import { setTokenLocalStore, setUserLocalStore } from "../../common/actions/stores";
 const initialState: IAuthState = {
   loading: false,

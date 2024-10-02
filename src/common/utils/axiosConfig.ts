@@ -1,5 +1,6 @@
 import axios from "axios";
 import { ACCESS_TOKEN_KEY, USER_KEY } from "../../constants/app";
+import { toast } from "react-toastify";
 const axiosInstance = axios.create({
   baseURL: "https://api-dev.seoulacademy.edu.vn/api",
   headers: {
@@ -8,45 +9,55 @@ const axiosInstance = axios.create({
 });
 
 //thêm interceptor
-  axiosInstance.interceptors.request.use(
-    (config) => {
-      const token = localStorage.getItem(ACCESS_TOKEN_KEY);
-      if (token) {
-        config.headers["token"] = token;
-      }
-      return config;
-    },  
-    (error) => {
-      if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+axiosInstance.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem(ACCESS_TOKEN_KEY);
+    if (token) {
+      config.headers["token"] = token;
+    }
+    return config;
+  },
+  (error) => {
+    if (
+      error.response &&
+      (error.response.status === 401 || error.response.status === 403)
+    ) {
+      localStorage.clear();
+      window.location.href = "/auth/login";
+      localStorage.setItem("showLoginToast", "true");
+    }
+  }
+);
+
+// Add a response interceptor
+axiosInstance.interceptors.response.use(
+  function (response) {
+    const data = response.data;
+    if (data.status === 403 || data.status === 401) {
+      toast.error("Phiên đăng nhập hết hạn !");
+      setTimeout(() => {
         localStorage.clear();
         window.location.href = "/auth/login";
-        localStorage.setItem("showLoginToast", "true");
-      }
+        // localStorage.setItem("showLoginToast", "true");
+      }, 3000);
     }
-  );
-
-  // Add a response interceptor
-  axiosInstance.interceptors.response.use(
-    function (response) {
-      const data = response.data;
-      console.log("Data:", data);
-      if (data.status === 403 || data.status === 401) {
-          localStorage.clear();
-          window.location.href = "/auth/login";
-          localStorage.setItem("showLoginToast", "true");
-      }
-      if (localStorage.getItem(ACCESS_TOKEN_KEY) === undefined) {
-          localStorage.clear();
-          window.location.href = "/auth/login";
-      }
-        return data;
-}, function (error) {
-  if (error.response && (error.response.status === 401 || error.response.status === 403)) {
-    localStorage.clear();
-    window.location.href = "/auth/login"; 
-    localStorage.setItem("showLoginToast", "true");
+    if (data.status === 0) {
+      toast.error(data.message); //data.message BE trả về
+    }
+    return data;
+  },
+  function (error) {
+    toast.error(error.message);
+    if (
+      error.response &&
+      (error.response.status === 401 || error.response.status === 403)
+    ) {
+      localStorage.clear();
+      window.location.href = "/auth/login";
+      localStorage.setItem("showLoginToast", "true");
+    }
+    return Promise.reject(error);
   }
-  return Promise.reject(error);
-});
+);
 
-  export default axiosInstance;
+export default axiosInstance;

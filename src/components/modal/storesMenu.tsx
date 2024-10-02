@@ -1,103 +1,118 @@
 import React, { useEffect, useState } from "react";
-import { Button, Menu, MenuItem, Typography } from '@mui/material';
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import { Button, Menu, MenuItem, Typography } from "@mui/material";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../redux/store";
 import { fetchStoreAction } from "../../redux/actions/storeActions";
-import { IStore } from "../../typing/storeType"; 
-import AddLocationOutlinedIcon from '@mui/icons-material/AddLocationOutlined';
-
+import { IStore } from "../../typing/storeType";
+import AddLocationOutlinedIcon from "@mui/icons-material/AddLocationOutlined";
+import { setStoreDefault } from "../../redux/reducers/storeReducer";
 
 const StoresMenu: React.FC = () => {
-    const dispatch = useDispatch<AppDispatch>();
-    const [curStore, setCurStore] = useState<null | HTMLElement>();
-    const [selectedStore, setSelectedStore] = useState<IStore | null>(() => {
-        const storedStore = localStorage.getItem('selectedStore');
-        return storedStore ? JSON.parse(storedStore) : null;
-    });
-    const [stores, setStores] = useState<IStore[]>(() => {
-        const storedList = localStorage.getItem('storeList');
-        return storedList ? JSON.parse(storedList) : [];
-    });
+  const dispatch = useDispatch<AppDispatch>();
+  const [curStore, setCurStore] = useState<null | HTMLElement>();
+  const { stores: storeListAPI, storeSelected } = useSelector(
+    (state: RootState) => state.store
+  );
+  const getAPIStore = async () => {
+    const storeList = await dispatch(fetchStoreAction()).unwrap();
+    const storeStr = localStorage.getItem("selectedStore");
 
-
-    const storeListAPI = useSelector((state: RootState) => state.store.stores);
-    const isLoading = useSelector((state: RootState) => state.store.status === 'loading'); 
-
-    useEffect(() => {
-        if (stores.length === 0 && !isLoading) {
-            dispatch(fetchStoreAction());
-        }
-
-        if (stores.length !== storeListAPI.length) {
-            setStores(storeListAPI);
-            localStorage.setItem('storeList', JSON.stringify(storeListAPI));
-        }
-
-        if (!selectedStore) {
-            setSelectedStore(stores[0]);
-            localStorage.setItem('selectedStore', JSON.stringify(stores[0]));
-        }
-    }, [stores.length,storeListAPI.length, selectedStore, isLoading]);
-
-
-    const handleClick = (event: React.MouseEvent<HTMLElement>) => {
-        setCurStore(event.currentTarget);
+    let storeDefault = null;
+    const storeLocalSelected: IStore | null = storeStr
+      ? JSON.parse(storeStr)
+      : null;
+    if (storeLocalSelected) {
+      //có mặc định
+      const defaultStore = storeList.find(
+        (i) => i.id === storeLocalSelected.id
+      );
+      if (defaultStore) {
+        //set default lại
+        storeDefault = defaultStore;
+      } else {
+        storeDefault = storeList[0];
+      }
+    } else {
+      storeDefault = storeList[0];
     }
-//note
-    const handleClose = () => {
-        setCurStore(null);
+    localStorage.setItem("selectedStore", JSON.stringify(storeDefault));
+    dispatch(setStoreDefault(storeDefault));
+  };
+  useEffect(() => {
+    if (storeListAPI.length === 0) {
+      getAPIStore();
     }
+  }, [storeListAPI]);
 
-    const handleSelectStore = (store: IStore) => {
-        setSelectedStore(store);
-        localStorage.setItem('selectedStore',  JSON.stringify(store));
-        handleClose();
-    }
+  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+    setCurStore(event.currentTarget);
+  };
+  //note
+  const handleClose = () => {
+    setCurStore(null);
+  };
 
-    return (
-        <div>
-        <Button
-            aria-controls="location-menu"
-            aria-haspopup="true"
-            onClick={handleClick}
-            endIcon={<ArrowDropDownIcon style={{ color: 'white'}}/>}
-            style={{ display: 'flex', alignItems: 'center' }}     
-            >
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', marginRight: '8px' }}>
-                <Typography style={{ color: 'white'}} variant="subtitle1">Seoul Academy</Typography>
-                <Typography style={{ color: 'white'}} variant="body2">{selectedStore?.name}</Typography>
+  const handleSelectStore = (store: IStore) => {
+    handleClose();
+    localStorage.setItem("selectedStore", JSON.stringify(store));
+    dispatch(setStoreDefault(store));
+  };
+
+  return (
+    <div>
+      <Button
+        aria-controls="location-menu"
+        aria-haspopup="true"
+        onClick={handleClick}
+        endIcon={<ArrowDropDownIcon style={{ color: "white" }} />}
+        style={{ display: "flex", alignItems: "center" }}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "flex-start",
+            marginRight: "8px",
+          }}>
+          <Typography style={{ color: "white" }} variant="subtitle1">
+            Seoul Academy
+          </Typography>
+          <Typography style={{ color: "white" }} variant="body2">
+            {storeSelected?.name}
+          </Typography>
+        </div>
+      </Button>
+      <Menu
+        id="location-menu"
+        anchorEl={curStore}
+        keepMounted
+        open={Boolean(curStore)}
+        onClose={handleClose}
+        PaperProps={{
+          style: {
+            width: "200px",
+          },
+        }}>
+        {storeListAPI?.map((store) => (
+          <MenuItem key={store.id} onClick={() => handleSelectStore(store)}>
+            <div
+              style={{ display: "flex", alignItems: "center", width: "100%" }}>
+              {store.name}
+              {storeSelected?.id === store.id && (
+                <AddLocationOutlinedIcon
+                  style={{
+                    color: "black",
+                    textAlign: "right",
+                    marginLeft: "auto",
+                  }}
+                />
+              )}
             </div>
-
-        </Button>
-        <Menu
-            id="location-menu"
-            anchorEl={curStore}
-            keepMounted
-            open={Boolean(curStore)}
-            onClose={handleClose}
-            PaperProps={{
-                style: {
-                    width: '200px'
-                },
-            }}
-        >
-            {stores?.map((store) => (
-                <MenuItem key={store.id} onClick={() => handleSelectStore(store)}>
-                    <div style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
-                        {store.name}
-                        {selectedStore?.id === store.id && 
-                        <AddLocationOutlinedIcon 
-                        style={{ color: 'black', textAlign: 'right', marginLeft: 'auto' }}
-                        />}
-                    </div>
-                </MenuItem>
-            ))}
-        </Menu>
+          </MenuItem>
+        ))}
+      </Menu>
     </div>
-    );
-
-
-}
+  );
+};
 
 export default StoresMenu;

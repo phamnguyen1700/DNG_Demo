@@ -1,13 +1,28 @@
-import React, { useEffect, useState } from 'react';
-import { Modal, Button, Box, TextField, MenuItem, Select, FormControl, InputLabel, FormHelperText, IconButton } from '@mui/material';
-import { IPayloadSaveProgram, IProgram, IProgramValidation } from '../../../typing/programsType';
-import { AppDispatch, IRootState } from '../../../redux/store';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchStoreAction } from '../../../redux/actions/storeActions';
-import { saveProgramAction } from '../../../redux/actions/programActions';
-import ModalConfirm from '../../../components/modal/modalComfirm';
-import { useForm, Controller } from 'react-hook-form';
-import CloseIcon from '@mui/icons-material/Close';
+import React, { useEffect, useState } from "react";
+import {
+  Modal,
+  Button,
+  Box,
+  TextField,
+  MenuItem,
+  Select,
+  FormControl,
+  InputLabel,
+  FormHelperText,
+  IconButton,
+} from "@mui/material";
+import {
+  IPayloadSaveProgram,
+  IProgram,
+  IProgramValidation,
+} from "../../../typing/programsType";
+import { AppDispatch, IRootState } from "../../../redux/store";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchStoreAction } from "../../../redux/actions/storeActions";
+import { saveProgramAction } from "../../../redux/actions/programActions";
+import ModalConfirm from "../../../components/modal/modalComfirm";
+import { useForm, Controller } from "react-hook-form";
+import CloseIcon from "@mui/icons-material/Close";
 
 interface ModalFormProps {
   show: boolean;
@@ -16,15 +31,20 @@ interface ModalFormProps {
   onRefresh: () => void;
 }
 
-const ModalForm: React.FC<ModalFormProps> = ({ show, handleClose, existingData, onRefresh }) => {
+const ModalForm: React.FC<ModalFormProps> = ({
+  show,
+  handleClose,
+  existingData,
+  onRefresh,
+}) => {
   const defaultValues = {
-    name: '',
+    name: "",
     store_id: 0,
-    type: '',
-    level: '',
-    certificate_type: '',
+    type: "",
+    level: "",
+    certificate_type: "",
     group_id: 38,
-    description: '',
+    description: "",
     ...existingData, // Sử dụng lại dữ liệu từ existingData nếu có
   };
   const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -33,10 +53,21 @@ const ModalForm: React.FC<ModalFormProps> = ({ show, handleClose, existingData, 
   const stores = useSelector((state: IRootState) => state.store.stores);
 
   useEffect(() => {
+    /**REVIEW_CODE
+     *
+     * - Kiểm tra xem chổ này có cần thiết gọi lại API ds chi nhánh không khi đã có rồi
+     *
+     *
+     * * */
     dispatch(fetchStoreAction());
   }, [dispatch]);
 
-  const { control, handleSubmit, formState: { errors }, reset } = useForm<IProgramValidation>({
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<IProgramValidation>({
     defaultValues,
   });
 
@@ -45,7 +76,7 @@ const ModalForm: React.FC<ModalFormProps> = ({ show, handleClose, existingData, 
     if (existingData?.id) dataToSave.id = existingData.id;
 
     const result = await dispatch(saveProgramAction(dataToSave));
-    if (result.meta.requestStatus === 'fulfilled') {
+    if (result.meta.requestStatus === "fulfilled") {
       reset();
       setShowConfirmModal(false);
       onRefresh && onRefresh();
@@ -62,32 +93,40 @@ const ModalForm: React.FC<ModalFormProps> = ({ show, handleClose, existingData, 
     if (show) {
       if (existingData) {
         reset({ ...defaultValues, ...existingData });
-    } else {
-      reset(defaultValues);
+      } else {
+        reset(defaultValues);
+      }
     }
-  }
   }, [show, existingData]);
 
-  return  (
+  return (
     <div>
       <Modal open={show} onClose={handleCancel}>
-        <Box sx={{ padding: '20px', backgroundColor: '#fff', borderRadius: '8px', maxWidth: '500px', margin: '50px auto', position: 'relative' }}>
-          
+        <Box
+          sx={{
+            padding: "20px",
+            backgroundColor: "#fff",
+            borderRadius: "8px",
+            maxWidth: "500px",
+            margin: "50px auto",
+            position: "relative",
+          }}>
           <IconButton
             aria-label="close"
             onClick={handleCancel}
-            sx={{ position: 'absolute', right: 8, top: 8 }}
-          >
+            sx={{ position: "absolute", right: 8, top: 8 }}>
             <CloseIcon />
           </IconButton>
-          <h2>{existingData ? 'Cập nhật chương trình' : 'Tạo mới chương trình'}</h2>
+          <h2>
+            {existingData ? "Cập nhật chương trình" : "Tạo mới chương trình"}
+          </h2>
 
           <form onSubmit={handleSubmit(() => setShowConfirmModal(true))}>
             <FormControl fullWidth margin="normal">
               <Controller
                 name="name"
                 control={control}
-                rules={{ required: 'Tên chương trình không được để trống' }}
+                rules={{ required: "Tên chương trình không được để trống" }}
                 render={({ field }) => (
                   <TextField
                     label="Tên chương trình"
@@ -96,7 +135,9 @@ const ModalForm: React.FC<ModalFormProps> = ({ show, handleClose, existingData, 
                   />
                 )}
               />
-              <FormHelperText style={{ color: 'red'}}>{errors.name?.message}</FormHelperText>
+              <FormHelperText style={{ color: "red" }}>
+                {errors.name?.message}
+              </FormHelperText>
             </FormControl>
 
             <FormControl fullWidth margin="normal">
@@ -104,16 +145,16 @@ const ModalForm: React.FC<ModalFormProps> = ({ show, handleClose, existingData, 
               <Controller
                 name="store_id"
                 control={control}
-                rules={{ 
-                  required: 'Vui lòng chọn chi nhánh',
-                  validate: value => value > 0 || 'Vui lòng chọn chi nhánh hợp lệ'
+                rules={{
+                  required: "Vui lòng chọn chi nhánh",
+                  validate: (value) =>
+                    value > 0 || "Vui lòng chọn chi nhánh hợp lệ",
                 }}
                 render={({ field }) => (
                   <Select
                     label="Chi nhánh"
                     {...field}
-                    error={!!errors.store_id}
-                  >
+                    error={!!errors.store_id}>
                     {stores?.map((store) => (
                       <MenuItem key={store.id} value={store.id}>
                         {store.name}
@@ -122,7 +163,9 @@ const ModalForm: React.FC<ModalFormProps> = ({ show, handleClose, existingData, 
                   </Select>
                 )}
               />
-              <FormHelperText style={{ color: 'red'}}>{errors.store_id?.message}</FormHelperText>
+              <FormHelperText style={{ color: "red" }}>
+                {errors.store_id?.message}
+              </FormHelperText>
             </FormControl>
 
             <FormControl fullWidth margin="normal">
@@ -130,19 +173,20 @@ const ModalForm: React.FC<ModalFormProps> = ({ show, handleClose, existingData, 
               <Controller
                 name="type"
                 control={control}
-                rules={{ required: 'Loại chương trình không được để trống' }}
+                rules={{ required: "Loại chương trình không được để trống" }}
                 render={({ field }) => (
                   <Select
-                  label="Loại chương trình"
+                    label="Loại chương trình"
                     {...field}
-                    error={!!errors.type}
-                  >
+                    error={!!errors.type}>
                     <MenuItem value="degree">Bằng cấp</MenuItem>
                     <MenuItem value="course">Khóa học</MenuItem>
                   </Select>
                 )}
               />
-              <FormHelperText style={{ color: 'red'}}>{errors.type?.message}</FormHelperText>
+              <FormHelperText style={{ color: "red" }}>
+                {errors.type?.message}
+              </FormHelperText>
             </FormControl>
 
             <FormControl fullWidth margin="normal">
@@ -150,19 +194,20 @@ const ModalForm: React.FC<ModalFormProps> = ({ show, handleClose, existingData, 
               <Controller
                 name="level"
                 control={control}
-                rules={{ required: 'Trình độ không được để trống' }}
+                rules={{ required: "Trình độ không được để trống" }}
                 render={({ field }) => (
                   <Select
                     label="Trình độ đào tạo"
                     {...field}
-                    error={!!errors.level}
-                  >
+                    error={!!errors.level}>
                     <MenuItem value="elementary">Sơ cấp</MenuItem>
                     <MenuItem value="secondary">Trung cấp</MenuItem>
                   </Select>
                 )}
               />
-              <FormHelperText style={{ color: 'red'}}>{errors.level?.message}</FormHelperText>
+              <FormHelperText style={{ color: "red" }}>
+                {errors.level?.message}
+              </FormHelperText>
             </FormControl>
 
             <FormControl fullWidth margin="normal">
@@ -170,19 +215,20 @@ const ModalForm: React.FC<ModalFormProps> = ({ show, handleClose, existingData, 
               <Controller
                 name="certificate_type"
                 control={control}
-                rules={{ required: 'Bằng cấp không được để trống' }}
+                rules={{ required: "Bằng cấp không được để trống" }}
                 render={({ field }) => (
                   <Select
                     label="Bằng cấp sau tốt nghiệp"
                     {...field}
-                    error={!!errors.certificate_type}
-                  >
+                    error={!!errors.certificate_type}>
                     <MenuItem value="elementary">Chứng chỉ sơ cấp</MenuItem>
                     <MenuItem value="secondary">Chứng chỉ trung cấp</MenuItem>
                   </Select>
                 )}
               />
-              <FormHelperText style={{ color: 'red'}}>{errors.certificate_type?.message}</FormHelperText>
+              <FormHelperText style={{ color: "red" }}>
+                {errors.certificate_type?.message}
+              </FormHelperText>
             </FormControl>
 
             <FormControl fullWidth margin="normal">
@@ -190,28 +236,35 @@ const ModalForm: React.FC<ModalFormProps> = ({ show, handleClose, existingData, 
               <Controller
                 name="group_id"
                 control={control}
-                rules={{ 
-                  required: 'Nhóm ngành không được để trống',
-                  validate: value => value !== 0 || 'Vui lòng chọn nhóm ngành hợp lệ'
+                rules={{
+                  required: "Nhóm ngành không được để trống",
+                  validate: (value) =>
+                    value !== 0 || "Vui lòng chọn nhóm ngành hợp lệ",
                 }}
                 render={({ field }) => (
                   <Select
                     label="Nhóm ngành dạy"
                     {...field}
-                    error={!!errors.group_id}
-                  >
+                    error={!!errors.group_id}>
                     <MenuItem value={38}>group_id = 38</MenuItem>
                   </Select>
                 )}
               />
-              <FormHelperText style={{ color: 'red'}}>{errors.group_id?.message}</FormHelperText>
+              <FormHelperText style={{ color: "red" }}>
+                {errors.group_id?.message}
+              </FormHelperText>
             </FormControl>
 
             <FormControl fullWidth margin="normal">
               <Controller
                 name="description"
                 control={control}
-                rules={{ maxLength: { value: 300, message: 'Mô tả không được vượt quá 300 ký tự' } }}
+                rules={{
+                  maxLength: {
+                    value: 300,
+                    message: "Mô tả không được vượt quá 300 ký tự",
+                  },
+                }}
                 render={({ field }) => (
                   <TextField
                     label="Mô tả"
@@ -225,11 +278,14 @@ const ModalForm: React.FC<ModalFormProps> = ({ show, handleClose, existingData, 
             </FormControl>
 
             <Box display="flex" justifyContent="space-between" marginTop="20px">
-              <Button variant="contained" color="secondary" onClick={handleCancel}>
+              <Button
+                variant="contained"
+                color="secondary"
+                onClick={handleCancel}>
                 Hủy
               </Button>
               <Button variant="contained" color="primary" type="submit">
-                {existingData ? 'Cập nhật' : 'Tạo mới'}
+                {existingData ? "Cập nhật" : "Tạo mới"}
               </Button>
             </Box>
           </form>
@@ -240,7 +296,7 @@ const ModalForm: React.FC<ModalFormProps> = ({ show, handleClose, existingData, 
       <ModalConfirm
         show={showConfirmModal}
         title="Xác nhận"
-        message={`Bạn có chắc chắn muốn ${existingData ? 'cập nhật' : 'tạo mới'} chương trình này?`}
+        message={`Bạn có chắc chắn muốn ${existingData ? "cập nhật" : "tạo mới"} chương trình này?`}
         onConfirm={handleSubmit(handleConfirm)}
         onClose={() => setShowConfirmModal(false)}
       />

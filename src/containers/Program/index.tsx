@@ -44,17 +44,12 @@ const Program = () => {
     (state: IRootState) => state.program
   );
   const { storeSelected } = useSelector((state: IRootState) => state.store);
-  const [flag , setFlag] = useState(false);
-  const [pagination, setPagination] = useState<IPagination>({
-    page: 1,
-    limit: 10,
-    offset: 0,
-  });
   const defaultParams: IPagination = {
     page: 1,
     limit: 10,
     offset: 0,
   };
+  const [pagination, setPagination] = useState<IPagination>(defaultParams);
   const [showModal, setShowModal] = useState(false);
   const [selectedProgram, setSelectedProgram] = useState<ProgramType>();
   const [curFilter, setFilter] = useState<INewFilter>({
@@ -87,7 +82,6 @@ const Program = () => {
     if (newFilter.searchText) {
       params.key = newFilter.searchText;
     }
-    setFlag(false);
     setPagination(defaultParams);
     getAPI(params);
     setFilter(newFilter);
@@ -101,22 +95,21 @@ nên khi đẩy danh sách render đổi trang vào hàm dưới bị mất list
 nên em mới thêm flag
 */
   useEffect(() => {
-
-    setPagination(defaultParams);
-
-    setFilter({
-      storeId: storeSelected?.id || 0,
-      active: -1,
-      searchText: "",
-    });
-    setFlag(true); 
-    console.log("flag", flag);
-    const renderParams = {
-      limit: defaultParams.limit,
-      offset: defaultParams.offset,
-      store_id: storeSelected?.id,
-    };
-    getAPI(renderParams);
+    if(storeSelected){
+      setPagination(defaultParams);
+      setFilter({
+        storeId: storeSelected?.id,
+        active: -1,
+        searchText: "",
+      });
+      const renderParams = {
+        limit: defaultParams.limit,
+        offset: defaultParams.offset,
+        store_id: storeSelected?.id,
+      };
+      console.log("de", defaultParams);
+      getAPI(renderParams);
+    }
   }, [storeSelected]);
 
   const handleEdit = (program: ProgramType) => {
@@ -131,19 +124,11 @@ nên em mới thêm flag
         page: newPage + 1,
         offset: newPage * prevPagination.limit,
       }; 
-      if (flag === true) {
-        getAPI({
-          limit: newPagination.limit,
-          offset: newPagination.offset,
-          store_id: storeSelected?.id,
-        });
-      } else {
-        getAPI({
-          limit: newPagination.limit,
-          offset: newPagination.offset,
-          ...(curFilter.storeId !== 0 && { store_id: curFilter.storeId }),
-        });
-    }
+      getAPI({
+        limit: newPagination.limit,
+        offset: newPagination.offset,
+        ...(curFilter.storeId !== 0 && { store_id: curFilter.storeId }),
+      });
       return newPagination;
     });
   };

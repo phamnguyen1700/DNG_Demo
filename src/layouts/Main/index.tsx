@@ -104,7 +104,9 @@ const ResponsiveDrawer: React.FC = () => {
 
   const drawer = (
     <div>
-      <Toolbar />
+      <Toolbar>
+        <Link to={paths.overview} style={{ textDecoration: 'none', color: 'inherit' }}><p> HOME </p></Link>
+      </Toolbar>
       <Divider />
       <List>
         {renderMenuItems(menuConfig)}
@@ -124,7 +126,7 @@ const ResponsiveDrawer: React.FC = () => {
         }}
       >
         <Toolbar
-        >
+        >       
           <IconButton
             color="inherit"
             aria-label="open drawer"

@@ -16,6 +16,8 @@ import {
 } from '@mui/material';
 import { Edit } from '@mui/icons-material';
 import { ICourse } from '../../../typing/courseType';
+import { useSelector } from 'react-redux';
+import { IRootState } from '../../../redux/store';
 
 
 interface TableDataProps {
@@ -37,6 +39,7 @@ const TableData: React.FC<TableDataProps> = ({
   onPageChange,
   onToggleStatus,
 }) => {
+  const { stores } = useSelector((state: IRootState) => state.store);
     // Hàm xử lý thay đổi trang (khi người dùng chuyển trang)
     const handlePageChange = (event: unknown, newPage: number) => {
       onPageChange(newPage); // Cập nhật offset
@@ -57,54 +60,57 @@ const TableData: React.FC<TableDataProps> = ({
           </TableRow>
         </TableHead>
         <TableBody>
-          {courses?.map((course) => (
-            <TableRow key={course.id}>
-              <TableCell>{course.id}</TableCell>
-              <TableCell>{course.name}</TableCell>
-              <TableCell>
-                {course.store_name} & {course.program_name}
-              </TableCell>
-              <TableCell>
-                {/* <div
-                  style={{
-                    textAlign: 'center',
-                  }}
-                > */}
-                  {course.number_session}
-                {/* </div> */}
-              </TableCell>
-              <TableCell>
-                <Switch 
-                  checked={course.active === 1}  
-                  onChange={() => onToggleStatus(course)}                
-                />
-              </TableCell>
-              <TableCell>
-                <Tooltip title={`ID: ${course.created_by} - ${course.created_name}`}>
-                  <Avatar 
-                  alt={course.created_name} 
-                  src={course.created_avatar} 
-                  sx={{ width: 48, height: 48, margin: '0 auto' }} // Canh giữa Avatar
-                />
-                </Tooltip>
-                <div
-                  style={{
-                    textAlign: 'center', // Căn giữa text
-                    marginTop: '8px', // Khoảng cách giữa Avatar và ngày tạo
-                    fontSize: '16px', // Kích thước chữ nhỏ hơn
-                    color: 'gray', // Màu chữ nhạt hơn
-                  }}
-                >
-                  {course.created_at}
-                  </div>
-              </TableCell>
-              <TableCell>
-                <IconButton onClick={() => onEdit(course)}>
-                  <Edit />
-                </IconButton>
-              </TableCell>
-            </TableRow>
-          ))}
+          {courses?.map((course) => {
+            const store = stores?.find((i)=> i.id === course.store_id);
+            return (
+              <TableRow key={course.id}>
+                <TableCell>{course.id}</TableCell>
+                <TableCell>{course.name}</TableCell>
+                <TableCell>
+                  {course.store_name} & {course.program_name}
+                </TableCell>
+                <TableCell>
+                  {/* <div
+                    style={{
+                      textAlign: 'center',
+                    }}
+                  > */}
+                    {course.number_session}
+                  {/* </div> */}
+                </TableCell>
+                <TableCell>
+                  <Switch 
+                    checked={course.active === 1}  
+                    onChange={() => onToggleStatus(course)}                
+                  />
+                </TableCell>
+                <TableCell>
+                  <Tooltip title={`ID: ${course.created_by} - ${course.created_name}`}>
+                    <Avatar 
+                    alt={course.created_name} 
+                    src={course.created_avatar} 
+                    sx={{ width: 48, height: 48, margin: '0 auto' }} // Canh giữa Avatar
+                  />
+                  </Tooltip>
+                  <div
+                    style={{
+                      textAlign: 'center', // Căn giữa text
+                      marginTop: '8px', // Khoảng cách giữa Avatar và ngày tạo
+                      fontSize: '16px', // Kích thước chữ nhỏ hơn
+                      color: 'gray', // Màu chữ nhạt hơn
+                    }}
+                  >
+                    {course.created_at}
+                    </div>
+                </TableCell>
+                <TableCell>
+                  <IconButton onClick={() => onEdit(course)}>
+                    <Edit />
+                  </IconButton>
+                </TableCell>
+              </TableRow>
+            )
+          })}
         </TableBody>
       </Table>
       <TablePagination

@@ -14,6 +14,8 @@ import {
 } from '@mui/material';
 import { Edit } from '@mui/icons-material';
 import { IProgram } from '../../../typing/programsType';
+import { useSelector } from 'react-redux';
+import { IRootState } from '../../../redux/store';
 
 interface TableDataProps {
   programs: IProgram[];
@@ -32,6 +34,9 @@ const TableData: React.FC<TableDataProps> = ({
   onEdit,
   onPageChange,
 }) => {
+
+  const { stores } = useSelector((state: IRootState) => state.store);
+
 
   // Hàm xử lý thay đổi trang (khi người dùng chuyển trang)
   const handlePageChange = (event: unknown, newPage: number) => {
@@ -57,11 +62,13 @@ const TableData: React.FC<TableDataProps> = ({
           </TableRow>
         </TableHead>
         <TableBody>
-          {programs?.map((program) => (
+          {programs?.map((program) => {
+            const store = stores?.find((i)=> i.id === program.store_id);
+            return (
             <TableRow key={program.id}>
               <TableCell>{program.id}</TableCell>
               <TableCell>{program.name}</TableCell>
-              <TableCell>{program.store_id}</TableCell>
+              <TableCell>{store?.name}</TableCell>
               <TableCell>{program.program_group_name}</TableCell>
               <TableCell>{program.type}</TableCell>
               <TableCell>{program.certificate_type}</TableCell>
@@ -96,7 +103,8 @@ const TableData: React.FC<TableDataProps> = ({
                 </IconButton>
               </TableCell>
             </TableRow>
-          ))}
+            )
+        })}
         </TableBody>
       </Table>
       <TablePagination

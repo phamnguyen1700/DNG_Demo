@@ -46,7 +46,6 @@ interface IParams {
 const Course = () => {
     const dispatch = useDispatch<AppDispatch>();
     const { filteredCourseList, total, status } = useSelector((state: IRootState) => state.course);
-    const [flag , setFlag] = useState(false);
     const { storeSelected } = useSelector((state: IRootState) => state.store);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [showModal, setShowModal] = useState(false); 
@@ -58,16 +57,12 @@ const Course = () => {
         searchText: "",
         programId: 0,
     });
-    const [pagination, setPagination] = useState<IPagination>({
-        page: 1,
-        limit: 10,
-        offset: 0,
-    });
     const defaultParams: IPagination = {
         page: 1,
         limit: 10,
         offset: 0,
     };
+    const [pagination, setPagination] = useState<IPagination>(defaultParams);
     const [courses, setCourses] = useState<IResponse<ICourse>>(DEFAULT_LIST);
 
 
@@ -98,7 +93,6 @@ const Course = () => {
         if (newFilter.programId) {
             params.program_id = newFilter.programId;
         }
-        setFlag(false);
         setPagination(defaultParams)
         getAPI(params);
         setFilter(newFilter);
@@ -111,22 +105,21 @@ nên khi đẩy danh sách render đổi trang vào hàm dưới bị mất list
 nên em mới thêm flag
 */
     useEffect(() => {
-
         setPagination(defaultParams);
-
-        setFilter({
-            storeId: storeSelected?.id || 0,    
-            active: -1,
-            searchText: "",
-            programId: 0,
-        });
-        setFlag(true);
-        const renderParams = {
-            limit: pagination.limit,
-            offset: pagination.offset,
-            store_id: storeSelected?.id,
-        };
-        getAPI(renderParams);
+        if(storeSelected){
+            setFilter({
+                storeId: storeSelected?.id,    
+                active: -1,
+                searchText: "",
+                programId: 0,
+            });
+            const renderParams = {
+                limit: defaultParams.limit,
+                offset: defaultParams.offset,
+                store_id: storeSelected?.id,
+            };
+            getAPI(renderParams);
+        }
     }, [storeSelected]); // Chạy một lần khi component được mount
 
 
@@ -173,21 +166,12 @@ nên em mới thêm flag
                 ...prevPagination,
                 page: newPage + 1,
                 offset: newPage * prevPagination.limit,
-            };
-            if (flag === true) {
-                getAPI({
-                    limit: newPagination.limit,
-                    offset: newPagination.offset,
-                    store_id: storeSelected?.id,
-                });
-            } else {
-                
+            };             
             getAPI({
                 limit: newPagination.limit,
                 offset: newPagination.offset,
                 ...(curFilter.storeId !== 0 && { store_id: curFilter.storeId }),
             });
-            }
             return newPagination;
         });
     };

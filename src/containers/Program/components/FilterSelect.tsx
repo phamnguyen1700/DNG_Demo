@@ -45,12 +45,18 @@ const FilterData: React.FC<IProps> = ({
     onSearchData(curFilter);
   };
 
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    applyFilters();
+  }
+
   const stores = useSelector((state: IRootState) => state.store.stores); // Fetch danh sách chi nhánh
 
   /**REVIEW_CODE
    *  - Đối với bộ lọc có nhập dữ liệu key để tìm nên bỏ trong form để khi người dùng nhập tìm kiếm xong sẽ có thói quen nhấn Enter thay vì click nút Tìm kiếm
    * * */
   return (
+    <form onSubmit={handleSubmit}>
     <Box display="flex" gap={2} alignItems="center">
       <Select
         value={curFilter.storeId || ""}
@@ -91,13 +97,14 @@ const FilterData: React.FC<IProps> = ({
       />
 
       <Button
+        type="submit"
         variant="contained"
         color="primary"
-        onClick={applyFilters}
         sx={{ flexBasis: "10%" }}>
         Tìm Kiếm
       </Button>
     </Box>
+    </form>
   );
 };
 

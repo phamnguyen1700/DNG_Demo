@@ -3,6 +3,7 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import { getCourseListService , saveCourseService, updateCourseStatus } from '../../services/courseService';
 import { IPayloadSaveCourse } from '../../typing/courseType';
 import { toast } from 'react-toastify';
+import { error } from 'console';
 export const fetchCourseListAction = createAsyncThunk(
     'course/fetchCourseListAction',
     async (params: {
@@ -39,11 +40,12 @@ export const saveCourseAction = createAsyncThunk(
                 toast.success('Thành công');
                 return fulfillWithValue(res.data);
             } else {
-                return rejectWithValue(null);
+                toast.error('Lưu khóa học thất bại');
+                return rejectWithValue({ message: 'Lưu khóa học thất bại' });
             } 
         } catch ( error ) {
-            toast.error('Thất bại');
-            return rejectWithValue(null);
+            toast.error('Lưu khóa học thất bại');
+            return rejectWithValue({message: 'Lưu khóa học thất bại'});
         }
     }
 );

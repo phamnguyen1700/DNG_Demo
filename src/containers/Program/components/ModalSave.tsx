@@ -52,15 +52,15 @@ const ModalForm: React.FC<ModalFormProps> = ({
 
   const stores = useSelector((state: IRootState) => state.store.stores);
 
-  useEffect(() => {
-    /**REVIEW_CODE
-     *
-     * - Kiểm tra xem chổ này có cần thiết gọi lại API ds chi nhánh không khi đã có rồi
-     *
-     *
-     * * */
-    dispatch(fetchStoreAction());
-  }, [dispatch]);
+  // useEffect(() => {
+  //   /**REVIEW_CODE
+  //    *
+  //    * - Kiểm tra xem chổ này có cần thiết gọi lại API ds chi nhánh không khi đã có rồi
+  //    *
+  //    *
+  //    * * */
+  //   dispatch(fetchStoreAction());
+  // }, [dispatch]);
 
   const {
     control,
@@ -154,7 +154,11 @@ const ModalForm: React.FC<ModalFormProps> = ({
                   <Select
                     label="Chi nhánh"
                     {...field}
-                    error={!!errors.store_id}>
+                    error={!!errors.store_id}
+                    >
+                      <MenuItem value={0} style={{ color: 'GrayText'}}>
+                        <em style={{ color: 'GrayText', fontStyle: 'normal'}}>Chọn chi nhánh</em>
+                      </MenuItem>
                     {stores?.map((store) => (
                       <MenuItem key={store.id} value={store.id}>
                         {store.name}
@@ -162,7 +166,7 @@ const ModalForm: React.FC<ModalFormProps> = ({
                     ))}
                   </Select>
                 )}
-              />
+              />  
               <FormHelperText style={{ color: "red" }}>
                 {errors.store_id?.message}
               </FormHelperText>

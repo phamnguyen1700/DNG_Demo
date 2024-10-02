@@ -30,6 +30,8 @@ import Auth from '../../common/HOC/auth';
 import { menuConfig } from '../../Menu/menuConfig';
 import { paths } from '../../route/path';
 import StoreMenu from './components/storesMenu';
+import HomeIcon from '@mui/icons-material/Home';
+import { Button } from '@mui/material';
 interface MenuItem {
   id: number;
   name: string;
@@ -105,7 +107,13 @@ const ResponsiveDrawer: React.FC = () => {
   const drawer = (
     <div>
       <Toolbar>
-        <Link to={paths.overview} style={{ textDecoration: 'none', color: 'inherit' }}><p> HOME </p></Link>
+        <Button style={{ width: '200px', padding: '0px 24px'}}>
+        <Link to={paths.overview} style={{ textDecoration: 'none', color: 'inherit' }}>
+        <p style={{ fontWeight: 'bolder'}}>
+        <HomeIcon/>
+        </p>
+        </Link>
+        </Button>
       </Toolbar>
       <Divider />
       <List>

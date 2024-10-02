@@ -38,9 +38,9 @@ const TableData: React.FC<TableDataProps> = ({
   const { stores } = useSelector((state: IRootState) => state.store);
 
 
-  // Hàm xử lý thay đổi trang (khi người dùng chuyển trang)
+  
   const handlePageChange = (event: unknown, newPage: number) => {
-    onPageChange(newPage); // Cập nhật offset
+    onPageChange(newPage); 
   };
 
 
@@ -83,15 +83,15 @@ const TableData: React.FC<TableDataProps> = ({
                   <Avatar
                   alt={program.created_name}
                   src={program.created_avatar}
-                  sx={{ width: 48, height: 48, margin: '0 auto' }} // Canh giữa Avatar
+                  sx={{ width: 48, height: 48, margin: '0 auto' }} 
                   />
                 </Tooltip>
                 <div
                     style={{
-                      textAlign: 'center', // Căn giữa text
-                      marginTop: '8px', // Khoảng cách giữa Avatar và ngày tạo
-                      fontSize: '16px', // Kích thước chữ nhỏ hơn
-                      color: 'gray', // Màu chữ nhạt hơn
+                      textAlign: 'center', 
+                      marginTop: '8px', 
+                      fontSize: '16px', 
+                      color: 'gray', 
                     }}
                 >
                   {program.created_at}

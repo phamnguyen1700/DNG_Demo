@@ -39,7 +39,7 @@ const courseSlice = createSlice({
             .addCase(saveCourseAction.pending, (state) => {
                 state.status = 'loading';
             })
-            .addCase(saveCourseAction.fulfilled, (state) => {
+            .addCase(saveCourseAction.fulfilled, (state, action) => {
                 state.status = 'succeeded';
             })
             .addCase(saveCourseAction.rejected, (state, action) => {
@@ -48,7 +48,6 @@ const courseSlice = createSlice({
                 state.error = (action.payload as { message: string }).message;
             })
             .addCase(toggleCourseStatus.fulfilled, (state, action) => {
-                console.log('CAU TRUC DU LIEU TRA VE CUA TOGGLE', action.payload);
                 const course = state.courseList.find((course) => course.id === action.payload.id);
                 if (course) {
                   course.active = action.payload.active; // Cập nhật trạng thái mới

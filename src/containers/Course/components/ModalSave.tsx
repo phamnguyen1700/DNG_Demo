@@ -11,6 +11,7 @@ import { fetchStoreAction } from '../../../redux/actions/storeActions';
 import { fetchProgramListAction } from '../../../redux/actions/programActions';
 import { Controller, useForm } from 'react-hook-form';
 import CloseIcon from '@mui/icons-material/Close';
+import { NumericFormat, NumericFormatProps } from 'react-number-format';
 
 interface ModalSaveProps {
   show: boolean;
@@ -18,6 +19,11 @@ interface ModalSaveProps {
   existingData?: ICourse;
   onRefresh: () => void;   
   
+}
+
+interface CustomProps {
+  onChange: (event: { target: { name: string; value: string } }) => void;
+  name: string;
 }
 
 const ModalSave: React.FC<ModalSaveProps> = ({ show, handleClose, existingData, onRefresh }) => {
@@ -92,6 +98,43 @@ const ModalSave: React.FC<ModalSaveProps> = ({ show, handleClose, existingData, 
     setShowConfirmModal(false);
   }
 
+//===============================================================================
+
+
+const NumericFormatCustom = React.forwardRef<NumericFormatProps, CustomProps>(
+  function NumericFormatCustom(props, ref) {
+    const { onChange, ...other } = props;
+
+    return (
+      <NumericFormat
+        {...other}
+        getInputRef={ref}
+        onValueChange={(values) => {
+          onChange({
+            target: {
+              name: props.name,
+              value: values.value,
+            },
+          });
+        }}
+        thousandSeparator
+        valueIsNumericString
+        suffix='VNĐ'
+      />
+    );
+  }
+);
+
+
+
+//===============================================================================
+
+
+
+
+
+
+
   return (
     <>
       <Modal open={show} onClose={handleCancel}>
@@ -134,8 +177,12 @@ const ModalSave: React.FC<ModalSaveProps> = ({ show, handleClose, existingData, 
                   <Select
                     label="Chi nhánh"
                     {...field}
+                    value={field.value || ''}
                     error={!!errors.store_id}
                   >
+                     {/* <MenuItem value={0} style={{ color: 'GrayText'}}>
+                        <em style={{ color: 'GrayText', fontStyle: 'normal'}}>Chọn chi nhánh</em>
+                      </MenuItem> */}
                     {stores?.map((store) => (
                       <MenuItem key={store.id} value={store.id}>
                         {store.name}
@@ -160,8 +207,12 @@ const ModalSave: React.FC<ModalSaveProps> = ({ show, handleClose, existingData, 
                     <Select
                       label="Chương trình đào tạo"
                       {...field}
+                      value={field.value || ''}
                       error={!!errors.program_id}
                     >
+                      {/* <MenuItem value={0} style={{ color: 'GrayText'}}>
+                        <em style={{ color: 'GrayText', fontStyle: 'normal'}}>Chọn chương trình</em>
+                      </MenuItem> */}
                       {programs?.map((program) => (
                         <MenuItem key={program.id} value={program.id}>
                           {program.name}
@@ -182,9 +233,14 @@ const ModalSave: React.FC<ModalSaveProps> = ({ show, handleClose, existingData, 
                   validate: value => value > 0 || 'Giá lớn hơn 0'}}
                 render={({ field }) => (
                   <TextField
-                    label="Giá"
-                    type="number"
+                    label="Giá"          
                     {...field}
+                    value={field.value || ''} 
+                    slotProps={{
+                      input: {
+                        inputComponent: NumericFormatCustom as any,
+                      },
+                    }}
                     error={!!errors.price}
                   />
                 )}
@@ -198,12 +254,13 @@ const ModalSave: React.FC<ModalSaveProps> = ({ show, handleClose, existingData, 
                 control={control}
                 rules={{
                   required: 'Số buổi không được để trống',
-                  validate: value => value < 365 || 'Số buổi không được lớn hơn 365'}}
+                  validate: value => value > 0 && value < 365 || 'Số buổi không được nhỏ hơn 0 và lớn hơn 365'}}
                 render={({ field }) => (
                   <TextField
                     label="Số buổi"
                     type="number"
                     {...field}
+                    value={field.value || ''}
                     error={!!errors.number_session}
                   />
                 )}

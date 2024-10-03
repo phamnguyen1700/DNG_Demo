@@ -1,8 +1,9 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { TextField, Select, MenuItem, Box, Button } from "@mui/material";
 import { IStore } from "../../../typing/storeType";
 import { useSelector } from "react-redux";
 import { IRootState } from "../../../redux/store";
+import debounce from "lodash/debounce"; 
 interface INewFilter {
   storeId: number;
   active: number;
@@ -15,11 +16,36 @@ interface IProps {
   onSearchData: (newFilter: INewFilter) => void;
 }
 
+
 const FilterData: React.FC<IProps> = ({
   curFilter,
   onUpdateFilter,
   onSearchData,
 }) => {
+
+  const [searchValue, setSearchValue] = useState<string>(curFilter.searchText || "");
+
+  const debouncedUpdateFilter = useMemo(() => { 
+    return debounce((value: string) => {
+      console.log("Giá trị sau khi ngưng nhập 1s:", value);
+      onUpdateFilter({ ...curFilter, searchText: value });
+  }, 1000);
+}, [onUpdateFilter, curFilter])
+
+  const handleInputSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchValue(value);
+    // Gọi hàm debounce để chỉ cập nhật sau khi người dùng ngừng nhập
+    debouncedUpdateFilter(value);
+  }
+  // Cleanup function để hủy bỏ debounce khi component unmount
+  useEffect(() => {
+    return () => {
+      debouncedUpdateFilter.cancel();
+    };
+  }, [debouncedUpdateFilter]);
+
+
   // const {curFilter,onSearchData,onUpdateFilter} = props;
   /**
    * curFilter -> Thay đổi giá trị của các bộ lọc, update giá trị mới dựa vô curFilter (cũ): VD: onUpdateFilter({...curFilter, storeId: '1'})
@@ -51,15 +77,6 @@ const FilterData: React.FC<IProps> = ({
 
   const stores = useSelector((state: IRootState) => state.store.stores); // Fetch danh sách chi nhánh
 
-  useEffect(() => {
-    const callApi = setTimeout(() => {
-      applyFilters();
-    }, 1000);
-
-    return () => {
-      clearTimeout(callApi);
-    };
-  },[ curFilter.searchText ]);
 
   /**REVIEW_CODE
    *  - Đối với bộ lọc có nhập dữ liệu key để tìm nên bỏ trong form để khi người dùng nhập tìm kiếm xong sẽ có thói quen nhấn Enter thay vì click nút Tìm kiếm
@@ -98,10 +115,8 @@ const FilterData: React.FC<IProps> = ({
       <TextField
         label="Tìm kiếm"
         variant="outlined"
-        value={curFilter.searchText}
-        onChange={(e) =>
-          onUpdateFilter({ ...curFilter, searchText: e.target.value })
-        }
+        value={searchValue}
+        onChange={handleInputSearch}
         sx={{ flexBasis: "60%" }}
       />
 

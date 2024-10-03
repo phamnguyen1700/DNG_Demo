@@ -12,15 +12,13 @@ export const fetchProgramListAction = createAsyncThunk(
         store_id?: number;
         active?: number;
         key?: string;
-    }, { rejectWithValue }) => {
-        try {
+    }, { fulfillWithValue, rejectWithValue }) => {
             const response = await getProgramListService(params);
-            return response.data;
-        } catch (error: any) {
-            console.error('Error in fetchProgramList:', error);
-            return rejectWithValue(
-                error.response?.data || 'An unexpected error occurred'
-            );
+            if (response.data && response.data.list) {
+                return fulfillWithValue(response.data);
+            } else {
+                // Xử lý khi danh sách trả về là null hoặc không hợp lệ
+                return rejectWithValue('Danh sách trả về null hoặc không hợp lệ.');
         }
     }
 );

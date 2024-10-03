@@ -1,9 +1,8 @@
-import React from "react";
+import React, { useCallback, useEffect } from "react";
 import { TextField, Select, MenuItem, Box, Button } from "@mui/material";
 import { IStore } from "../../../typing/storeType";
 import { useSelector } from "react-redux";
 import { IRootState } from "../../../redux/store";
-
 interface INewFilter {
   storeId: number;
   active: number;
@@ -51,6 +50,16 @@ const FilterData: React.FC<IProps> = ({
   }
 
   const stores = useSelector((state: IRootState) => state.store.stores); // Fetch danh sách chi nhánh
+
+  useEffect(() => {
+    const callApi = setTimeout(() => {
+      applyFilters();
+    }, 1000);
+
+    return () => {
+      clearTimeout(callApi);
+    };
+  },[ curFilter.searchText ]);
 
   /**REVIEW_CODE
    *  - Đối với bộ lọc có nhập dữ liệu key để tìm nên bỏ trong form để khi người dùng nhập tìm kiếm xong sẽ có thói quen nhấn Enter thay vì click nút Tìm kiếm

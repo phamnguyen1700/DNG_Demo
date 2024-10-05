@@ -18,5 +18,11 @@ export const menuConfig: MenuItem[] = [
           { id: 2, name: 'Chương trình đào tạo', url: paths.program.list },
           { id: 3, name: 'Khóa học', url: paths.course.list },
       ],
+      
+  },
+  {
+    id: 2,
+    name: 'Học viên',
+    url: paths.student.list,
   },
 ];

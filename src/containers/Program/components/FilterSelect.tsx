@@ -78,6 +78,20 @@ const FilterData: React.FC<IProps> = ({
   const stores = useSelector((state: IRootState) => state.store.stores); // Fetch danh sách chi nhánh
 
 
+  // // Sử dụng useMemo để tạo và ghi nhớ phiên bản debounced của handleInputSearch
+  // const debouncedHandleInputSearch = useMemo(() => {
+  //   return debounce((value: string) => {
+  //     onUpdateFilter({ ...curFilter, searchText: value });
+  //   }, 1000); // 1000ms = 1s
+  // }, [onUpdateFilter, curFilter]);
+
+  // const handleInputSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const value = e.target.value;
+  //   setSearchValue(value);
+  //   // Sử dụng phiên bản đã debounce của handleInputSearch
+  //   debouncedHandleInputSearch(value);
+  // };
+
   /**REVIEW_CODE
    *  - Đối với bộ lọc có nhập dữ liệu key để tìm nên bỏ trong form để khi người dùng nhập tìm kiếm xong sẽ có thói quen nhấn Enter thay vì click nút Tìm kiếm
    * * */

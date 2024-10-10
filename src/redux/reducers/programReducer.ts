@@ -1,4 +1,3 @@
-import React from 'react'
 import { IProgramState } from '../../typing/programsType'
 import { createSlice } from '@reduxjs/toolkit'
 import { fetchProgramListAction, saveProgramAction } from '../actions/programActions'

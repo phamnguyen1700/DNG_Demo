@@ -10,7 +10,6 @@ export const getProgramListService = async (params: {
 }) => {
     const url = '/program/list';
     const fullUrl = `${axiosInstance.defaults.baseURL}${url}`;
-    console.log('URL gọi API:', fullUrl, 'Với các tham số:', params);
 
     const response = await axiosInstance.get('/program/list', { params });
     return response;

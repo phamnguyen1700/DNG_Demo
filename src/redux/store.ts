@@ -4,6 +4,9 @@ import authReducer from './reducers/authReducers';
 import programReducer from './reducers/programReducer';
 import courseReducer from './reducers/courseReducer';
 import storeReducer from './reducers/storeReducer';
+import studentReducer from './reducers/studentReducers';
+import provinceReducer from './reducers/provinceReducer';
+import uploadFileReducer from './reducers/uploadFileReducer';
 const store = configureStore({
     reducer: {
         auth: authReducer, // Xác thực
@@ -11,6 +14,9 @@ const store = configureStore({
         program: programReducer, // Chương trình đào tạo
         course: courseReducer, // Khóa học
         store: storeReducer, // Chi nhánh
+        student: studentReducer, //
+        province: provinceReducer, // Tỉnh thành
+        uploadFile: uploadFileReducer, // Upload file
     },
     devTools: process.env.NODE_ENV !== 'production', // Chỉ bật DevTools khi không phải production
 });

@@ -10,7 +10,7 @@ export const paths = {
     profile: '/profile',
     student:{
         list: "/students",
-        detail: "/students/:id",
+        detail: (id: number) =>  `/student/detail/${id}`,
     },
     program: {
         list: '/programs',

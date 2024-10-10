@@ -1,4 +1,6 @@
 import React from 'react';
+import { useSelector } from 'react-redux';
+import { IRootState } from '../../../../redux/store';
 
 const studyData = [
   {
@@ -12,6 +14,7 @@ const studyData = [
 ];
 
 export default function StudyHistory() {
+  const student = useSelector((state: IRootState) => state.student.studentDetail);
   return (
     <div className='shadow-md bg-white rounded-lg overflow-hidden'>
       <table className='min-w-full'>

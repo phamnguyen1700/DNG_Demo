@@ -20,7 +20,7 @@ const AppRoutes = () => {
         <Route path={paths.overview} element={<Home />} />
         <Route path={paths.profile} element={<Profile />} />
         <Route path={paths.student.list} element={<Student />} />
-        <Route path={paths.student.detail} element={<Detail />} />
+        <Route path="student/detail/:id" element={<Detail />} />
         <Route path={paths.program.list} element={<Program />} /> {/* Thêm route cho Program */}
         <Route path={paths.course.list} element={<Course />} />
       </Route>

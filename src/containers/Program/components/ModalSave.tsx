@@ -110,11 +110,13 @@ const ModalForm: React.FC<ModalFormProps> = ({
             maxWidth: "500px",
             margin: "50px auto",
             position: "relative",
-          }}>
+          }}
+        >
           <IconButton
             aria-label="close"
             onClick={handleCancel}
-            sx={{ position: "absolute", right: 8, top: 8 }}>
+            sx={{ position: "absolute", right: 8, top: 8 }}
+          >
             <CloseIcon />
           </IconButton>
           <h2>
@@ -155,10 +157,12 @@ const ModalForm: React.FC<ModalFormProps> = ({
                     label="Chi nhánh"
                     {...field}
                     error={!!errors.store_id}
-                    >
-                      <MenuItem value={0} style={{ color: 'GrayText'}}>
-                        <em style={{ color: 'GrayText', fontStyle: 'normal'}}>Chọn chi nhánh</em>
-                      </MenuItem>
+                  >
+                    <MenuItem value={0} style={{ color: "GrayText" }}>
+                      <em style={{ color: "GrayText", fontStyle: "normal" }}>
+                        Chọn chi nhánh
+                      </em>
+                    </MenuItem>
                     {stores?.map((store) => (
                       <MenuItem key={store.id} value={store.id}>
                         {store.name}
@@ -166,7 +170,7 @@ const ModalForm: React.FC<ModalFormProps> = ({
                     ))}
                   </Select>
                 )}
-              />  
+              />
               <FormHelperText style={{ color: "red" }}>
                 {errors.store_id?.message}
               </FormHelperText>
@@ -182,7 +186,8 @@ const ModalForm: React.FC<ModalFormProps> = ({
                   <Select
                     label="Loại chương trình"
                     {...field}
-                    error={!!errors.type}>
+                    error={!!errors.type}
+                  >
                     <MenuItem value="degree">Bằng cấp</MenuItem>
                     <MenuItem value="course">Khóa học</MenuItem>
                   </Select>
@@ -203,7 +208,8 @@ const ModalForm: React.FC<ModalFormProps> = ({
                   <Select
                     label="Trình độ đào tạo"
                     {...field}
-                    error={!!errors.level}>
+                    error={!!errors.level}
+                  >
                     <MenuItem value="elementary">Sơ cấp</MenuItem>
                     <MenuItem value="secondary">Trung cấp</MenuItem>
                   </Select>
@@ -224,7 +230,8 @@ const ModalForm: React.FC<ModalFormProps> = ({
                   <Select
                     label="Bằng cấp sau tốt nghiệp"
                     {...field}
-                    error={!!errors.certificate_type}>
+                    error={!!errors.certificate_type}
+                  >
                     <MenuItem value="elementary">Chứng chỉ sơ cấp</MenuItem>
                     <MenuItem value="secondary">Chứng chỉ trung cấp</MenuItem>
                   </Select>
@@ -249,7 +256,8 @@ const ModalForm: React.FC<ModalFormProps> = ({
                   <Select
                     label="Nhóm ngành dạy"
                     {...field}
-                    error={!!errors.group_id}>
+                    error={!!errors.group_id}
+                  >
                     <MenuItem value={38}>group_id = 38</MenuItem>
                   </Select>
                 )}
@@ -285,7 +293,8 @@ const ModalForm: React.FC<ModalFormProps> = ({
               <Button
                 variant="contained"
                 color="secondary"
-                onClick={handleCancel}>
+                onClick={handleCancel}
+              >
                 Hủy
               </Button>
               <Button variant="contained" color="primary" type="submit">

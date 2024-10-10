@@ -1,4 +1,3 @@
-// src/typing/programTypes.ts
 
 export interface IProgram {
     id: number;

@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice } from "@reduxjs/toolkit";
 import { IStore } from "../../typing/storeType";
 import { fetchStoreAction } from "../actions/storeActions";
 

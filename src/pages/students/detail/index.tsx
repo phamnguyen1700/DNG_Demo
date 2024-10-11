@@ -105,7 +105,8 @@ const Detail: React.FC = () => {
             <div className="avt w-24 flex justify-center">
               <img
                 className="rounded-full"
-                src={student?.avatar}
+                src={student?.avatar ? student.avatar : "https://cdn.sforum.vn/sforum/wp-content/uploads/2023/10/avatar-trang-4.jpg"}
+                alt="student.avatar"
               ></img>
             </div>
             <div className="background-detail text-sm w-3/4 pt-3">

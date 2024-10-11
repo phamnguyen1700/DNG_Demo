@@ -72,6 +72,7 @@ const SelfModal: React.FC<SelfModalProps> = ({
       }
     }
   }, [isOpen, existingData, provinces.length]);
+  console.log("formData:", formData); // Kiểm tra formData khi thay đổi
 
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -181,9 +182,9 @@ const handleRemoveAvatar = () => {
               style={{ display: "none" }} 
               id="file-upload"
             />
-            {fileUrl ? (
+            {formData.info.avatar ? (
               <div className="relative flex flex-col items-center">
-                <img src={fileUrl} alt="Uploaded" className="w-full h-32 object-cover rounded-md" />
+                <img src={formData.info.avatar} alt="Uploaded" className="w-full h-32 object-cover rounded-md" />
                 <button 
                   onClick={handleRemoveAvatar} 
                   className="absolute top-0 right-0 mt-2 mr-2 text-gray-500" 

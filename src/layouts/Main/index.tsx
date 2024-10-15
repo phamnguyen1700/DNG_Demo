@@ -1,37 +1,38 @@
-import React, { useState, useEffect } from 'react';
-import AppBar from '@mui/material/AppBar';
-import Box from '@mui/material/Box';
-import CssBaseline from '@mui/material/CssBaseline';
-import Divider from '@mui/material/Divider';
-import Drawer from '@mui/material/Drawer';
-import IconButton from '@mui/material/IconButton';
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemText from '@mui/material/ListItemText';
-import Collapse from '@mui/material/Collapse';
-import ExpandLessIcon from '@mui/icons-material/ExpandLess';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
-import Avatar from '@mui/material/Avatar';
-import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
-import Tooltip from '@mui/material/Tooltip';
-import MenuIcon from '@mui/icons-material/Menu';
-import { Link, Outlet } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
-import { IRootState, AppDispatch } from '../../redux/store';
+import React, { useState, useEffect } from "react";
+import AppBar from "@mui/material/AppBar";
+import Box from "@mui/material/Box";
+import CssBaseline from "@mui/material/CssBaseline";
+import Divider from "@mui/material/Divider";
+import Drawer from "@mui/material/Drawer";
+import IconButton from "@mui/material/IconButton";
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import ListItemButton from "@mui/material/ListItemButton";
+import ListItemText from "@mui/material/ListItemText";
+import Collapse from "@mui/material/Collapse";
+import ExpandLessIcon from "@mui/icons-material/ExpandLess";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import Toolbar from "@mui/material/Toolbar";
+import Typography from "@mui/material/Typography";
+import Avatar from "@mui/material/Avatar";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import Tooltip from "@mui/material/Tooltip";
+import MenuIcon from "@mui/icons-material/Menu";
+import { Link, Outlet } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { IRootState, AppDispatch } from "../../redux/store";
 // import { fetchMenuList } from '../../redux/actions/menuAction';
-import { getUserLocalStore } from '../../common/actions/stores';
-import { setUserInStore } from '../../redux/reducers/authReducers';
-import useLogout from '../../common/hooks/logout';
-import Auth from '../../common/HOC/auth';
-import { menuConfig } from '../../Menu/menuConfig';
-import { paths } from '../../route/path';
-import StoreMenu from './components/storesMenu';
-import HomeIcon from '@mui/icons-material/Home';
-import { Button } from '@mui/material';
+import { getUserLocalStore } from "../../common/actions/stores";
+import { setUserInStore } from "../../redux/reducers/authReducers";
+import useLogout from "../../common/hooks/logout";
+import Auth from "../../common/HOC/auth";
+import { menuConfig } from "../../Menu/menuConfig";
+import { paths } from "../../route/path";
+import StoreMenu from "./components/storesMenu";
+import HomeIcon from "@mui/icons-material/Home";
+import { Button } from "@mui/material";
+import BreadCrumbs from "../../common/hooks/Breadcrumbs";
 interface MenuItem {
   id: number;
   name: string;
@@ -73,11 +74,17 @@ const ResponsiveDrawer: React.FC = () => {
                 handleToggle(item.id);
               }
             }}
-            component={item.children ? 'button' : Link}
-            to={item.children ? '#' : item.url || '#'}
+            component={item.children ? "button" : Link}
+            to={item.children ? "#" : item.url || "#"}
           >
             <ListItemText primary={item.name} />
-            {item.children ? (open[item.id] ? <ExpandLessIcon /> : <ExpandMoreIcon />) : null}
+            {item.children ? (
+              open[item.id] ? (
+                <ExpandLessIcon />
+              ) : (
+                <ExpandMoreIcon />
+              )
+            ) : null}
           </ListItemButton>
         </ListItem>
         {item.children && (
@@ -90,7 +97,6 @@ const ResponsiveDrawer: React.FC = () => {
       </div>
     ));
   };
-  
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -106,25 +112,27 @@ const ResponsiveDrawer: React.FC = () => {
 
   const drawer = (
     <div>
-      <Toolbar>
-        <Button style={{ width: '200px', padding: '0px 24px'}}>
-        <Link to={paths.overview} style={{ textDecoration: 'none', color: 'inherit' }}>
-        <p style={{ fontWeight: 'bolder'}}>
-        <HomeIcon/>
-        </p>
-        </Link>
+      <Toolbar
+      >
+        <Button style={{ width: "200px", padding: "0px 24px" }}>
+          <Link
+            to={paths.overview}
+            style={{ textDecoration: "none", color: "inherit" }}
+          >
+            <p style={{ fontWeight: "bolder" }}>
+              <HomeIcon />
+            </p>
+          </Link>
         </Button>
       </Toolbar>
       <Divider />
-      <List>
-        {renderMenuItems(menuConfig)}
-      </List>
+      <List>{renderMenuItems(menuConfig)}</List>
       <Divider />
     </div>
   );
 
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box sx={{ display: "flex" }}>
       <CssBaseline />
       <AppBar
         position="fixed"
@@ -133,21 +141,20 @@ const ResponsiveDrawer: React.FC = () => {
           ml: { sm: `${drawerWidth}px` },
         }}
       >
-        <Toolbar
-        >       
+        <Toolbar>
           <IconButton
             color="inherit"
             aria-label="open drawer"
             edge="start"
             onClick={handleDrawerToggle}
-            sx={{ mr: 2, display: { sm: 'none' } }}
+            sx={{ mr: 2, display: { sm: "none" } }}
           >
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
             {/* <Link to={paths.overview} style={{ textDecoration: 'none', color: 'white' }}>
               My Logo
-            </Link> */}
+              </Link> */}
             <StoreMenu />
           </Typography>
           <Box sx={{ flexGrow: 0 }}>
@@ -157,37 +164,54 @@ const ResponsiveDrawer: React.FC = () => {
               </IconButton>
             </Tooltip>
             <Menu
-              sx={{ mt: '45px' }}
+              sx={{ mt: "45px" }}
               anchorEl={anchorElUser}
               anchorOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
+                vertical: "top",
+                horizontal: "right",
               }}
               keepMounted
               transformOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
+                vertical: "top",
+                horizontal: "right",
               }}
               open={Boolean(anchorElUser)}
               onClose={handleCloseUserMenu}
             >
               <MenuItem onClick={handleCloseUserMenu}>
-                <Typography component="div" sx={{ width: '100%', textAlign: 'center' }}>
+                <Typography
+                  component="div"
+                  sx={{ width: "100%", textAlign: "center" }}
+                >
                   <p>{user?.fullname}</p>
                 </Typography>
               </MenuItem>
               <MenuItem onClick={handleCloseUserMenu}>
-                <Typography component="div" sx={{ width: '100%', textAlign: 'center' }}>
+                <Typography
+                  component="div"
+                  sx={{ width: "100%", textAlign: "center" }}
+                >
                   <p>{user?.main_group_id}</p>
                 </Typography>
               </MenuItem>
               <MenuItem onClick={handleCloseUserMenu}>
-                <Link to="/profile" style={{ textDecoration: 'none', color: 'inherit', width: '100%', textAlign: 'center' }}>
+                <Link
+                  to="/profile"
+                  style={{
+                    textDecoration: "none",
+                    color: "inherit",
+                    width: "100%",
+                    textAlign: "center",
+                  }}
+                >
                   Profile
                 </Link>
               </MenuItem>
               <MenuItem onClick={logout}>
-                <Typography component="div" sx={{ width: '100%', textAlign: 'center' }}>
+                <Typography
+                  component="div"
+                  sx={{ width: "100%", textAlign: "center" }}
+                >
                   Logout
                 </Typography>
               </MenuItem>
@@ -195,15 +219,22 @@ const ResponsiveDrawer: React.FC = () => {
           </Box>
         </Toolbar>
       </AppBar>
-      <Box component="nav" sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }} aria-label="mailbox folders">
+      <Box
+        component="nav"
+        sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
+        aria-label="mailbox folders"
+      >
         <Drawer
           variant="temporary"
           open={mobileOpen}
           onClose={handleDrawerToggle}
           ModalProps={{ keepMounted: true }}
           sx={{
-            display: { xs: 'block', sm: 'none' },
-            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+            display: { xs: "block", sm: "none" },
+            "& .MuiDrawer-paper": {
+              boxSizing: "border-box",
+              width: drawerWidth,
+            },
           }}
         >
           {drawer}
@@ -211,16 +242,27 @@ const ResponsiveDrawer: React.FC = () => {
         <Drawer
           variant="permanent"
           sx={{
-            display: { xs: 'none', sm: 'block' },
-            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+            display: { xs: "none", sm: "block" },
+            "& .MuiDrawer-paper": {
+              boxSizing: "border-box",
+              width: drawerWidth,
+            },
           }}
           open
         >
           {drawer}
         </Drawer>
       </Box>
-      <Box component="main" sx={{ flexGrow: 1, p: 3, width: { sm: `calc(100% - ${drawerWidth}px)` } }}>
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          p: 3,
+          width: { sm: `calc(100% - ${drawerWidth}px)` },
+        }}
+      >
         <Toolbar />
+        <BreadCrumbs />
         <Outlet />
       </Box>
     </Box>

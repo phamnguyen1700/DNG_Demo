@@ -7,4 +7,12 @@ module.exports = {
     extend: {},
   },
   plugins: [],
+  theme: {
+    extend: {
+      zIndex: {
+        '1300': '1300',
+        '1500': '1500',
+      },
+    },
+  },
 }

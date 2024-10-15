@@ -17,6 +17,8 @@ import { AppDispatch, IRootState } from "../../../redux/store";
 import { fetchStudentDetailAction } from "../../../redux/actions/studentAction";
 import { IContact, IStudent } from "../../../typing/studentType";
 import ModalConfirm from "../../../components/modal/modalComfirm";
+import moment from "moment";
+
 const Detail: React.FC = () => {
   // Example data for the carousel
 
@@ -64,11 +66,11 @@ const Detail: React.FC = () => {
   };
 
   const handleDeleteContact = (index: number) => {
-    setContacts(prevContacts => prevContacts.filter((_, i) => i !== index));
+    setContacts((prevContacts) => prevContacts.filter((_, i) => i !== index));
     setContactToDelete(student?.contacts[index] || null); // Lấy thông tin liên hệ cần xóa
     setExistingData(student); // Truyền dữ liệu học viên vào existingData
     setShowConfirm(false); // Đóng modal xác nhận
-  }
+  };
 
   const openRelativeModal = (title: string, index?: number) => {
     setModalTitle(title);
@@ -98,22 +100,38 @@ const Detail: React.FC = () => {
   };
 
   return (
-    <div>
+    <div className="container rounded shadow-md p-4">
       <div className="container flex justify-between space-x-4">
         <div className="detail-container w-1/3 border border-gray-200 rounded shadow-md">
           <div className="flex space-x-8 py-4 px-4">
             <div className="avt w-24 flex justify-center">
               <img
                 className="rounded-full"
-                src={student?.avatar ? student.avatar : "https://cdn.sforum.vn/sforum/wp-content/uploads/2023/10/avatar-trang-4.jpg"}
+                src={
+                  student?.avatar
+                    ? student.avatar
+                    : "https://cdn.sforum.vn/sforum/wp-content/uploads/2023/10/avatar-trang-4.jpg"
+                }
                 alt="student.avatar"
               ></img>
             </div>
             <div className="background-detail text-sm w-3/4 pt-3">
               <div>Họ và tên: {student?.full_name}</div>
               <div className="flex justify-between">
-                <div>Ngày sinh: {student?.birthday}</div>
-                <div>Giới tính: {student?.sex}</div>
+                <div>
+                  Ngày sinh:{" "}
+                  {student?.birthday
+                    ? moment(student.birthday).format("L")
+                    : "N/A"}
+                </div>
+                <div>
+                  Giới tính:{" "}
+                  {student?.sex === "male"
+                    ? "Nam"
+                    : student?.sex === "female"
+                      ? "Nữ"
+                      : "Không xác định"}
+                </div>
               </div>
               <div>Số điện thoại: {student?.phone}</div>
             </div>
@@ -136,10 +154,17 @@ const Detail: React.FC = () => {
               </div>
               <div className="dt">
                 <div className="text-center">
-                  {student?.courses.reduce(
-                    (acc, courrse) => acc + Number(courrse.total),
-                    0
-                  )}
+                  {student?.courses
+                    ? new Intl.NumberFormat("vi-VN", {
+                        style: "currency",
+                        currency: "VND",
+                      }).format(
+                        student?.courses.reduce(
+                          (acc, course) => acc + Number(course.total),
+                          0
+                        )
+                      )
+                    : "0 VND"}
                 </div>
                 <div>Số tiền đã đóng</div>
               </div>
@@ -164,11 +189,13 @@ const Detail: React.FC = () => {
               </div>
               <div>
                 Ngày cấp:{" "}
-                {student?.date_card ? student?.date_card : "Không có dữ liệu"}
+                {student?.date_card ? moment(student?.date_card).format("L") : "Không có dữ liệu"}
               </div>
               <div>
                 Địa chỉ liên hệ:{" "}
-                {student?.address ? student?.address : "Không có dữ liệu"}
+                {student?.address
+                  ? `${student.address}, ${student.ward_name || ""}, ${student.district_name || ""}, ${student.province_name || ""}`
+                  : "Không có dữ liệu"}
               </div>
             </div>
           </div>
@@ -204,9 +231,9 @@ const Detail: React.FC = () => {
                       >
                         <ModeEditOutlineIcon />
                       </button>
-                      <button 
-                      className="delete-button"
-                      onClick={() => openDeleteConfirmModal(index)}
+                      <button
+                        className="delete-button"
+                        onClick={() => openDeleteConfirmModal(index)}
                       >
                         <DeleteForeverIcon />
                       </button>
@@ -222,14 +249,14 @@ const Detail: React.FC = () => {
         </div>
       </div>
       <div>
-              {/* Modal Xác Nhận */}
-      <ModalConfirm
-        show={showConfirm}
-        title="Xác nhận xóa"
-        message="Bạn có chắc chắn muốn xóa liên hệ này?"
-        onConfirm={() => handleDeleteContact(indexToDelete)}
-        onClose={() => setShowConfirm(false)}
-      />
+        {/* Modal Xác Nhận */}
+        <ModalConfirm
+          show={showConfirm}
+          title="Xác nhận xóa"
+          message="Bạn có chắc chắn muốn xóa liên hệ này?"
+          onConfirm={() => handleDeleteContact(indexToDelete)}
+          onClose={() => setShowConfirm(false)}
+        />
       </div>
       <div>
         <RelativeModal

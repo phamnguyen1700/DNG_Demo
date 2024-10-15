@@ -171,7 +171,6 @@ nên em mới thêm flag
   //ông nội -> cha -> con -> cháu -> con -> cha -> nội -> con -> cha. => useContext
   return (
     <div>
-      Chi nhánh: {storeSelected?.name}
       <div
         style={{
           display: "flex",

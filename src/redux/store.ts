@@ -7,6 +7,8 @@ import storeReducer from './reducers/storeReducer';
 import studentReducer from './reducers/studentReducers';
 import provinceReducer from './reducers/provinceReducer';
 import uploadFileReducer from './reducers/uploadFileReducer';
+import districtReducer from './reducers/districtReducer';
+import wardReducer from './reducers/wardReducers';
 const store = configureStore({
     reducer: {
         auth: authReducer, // Xác thực
@@ -17,6 +19,8 @@ const store = configureStore({
         student: studentReducer, //
         province: provinceReducer, // Tỉnh thành
         uploadFile: uploadFileReducer, // Upload file
+        district: districtReducer, //
+        ward: wardReducer, //
     },
     devTools: process.env.NODE_ENV !== 'production', // Chỉ bật DevTools khi không phải production
 });

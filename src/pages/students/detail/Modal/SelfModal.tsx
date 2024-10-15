@@ -1,11 +1,20 @@
 import React, { useEffect, useState } from "react";
 import CloudUploadOutlinedIcon from "@mui/icons-material/CloudUploadOutlined";
-import { IFileUpload, IPayloadSaveStudent, IStudent } from "../../../..//typing/studentType";
+import {
+  IFileUpload,
+  IPayloadSaveStudent,
+  IStudent,
+} from "../../../..//typing/studentType";
 import { AppDispatch, IRootState } from "../../../../redux/store";
 import { useDispatch, useSelector } from "react-redux";
 import ModalConfirm from "../../../../components/modal/modalComfirm";
-import { saveStudentAction, uploadFileAction } from "../../../../redux/actions/studentAction";
+import {
+  saveStudentAction,
+  uploadFileAction,
+} from "../../../../redux/actions/studentAction";
 import { fetchProvinceAction } from "../../../../redux/actions/provinceAction";
+import { fetchDistrictAction } from "../../../../redux/actions/districtAction";
+import { fetchWardAction } from "../../../../redux/actions/wardAction";
 
 interface SelfModalProps {
   isOpen: boolean;
@@ -38,17 +47,21 @@ const SelfModal: React.FC<SelfModalProps> = ({
       district_id: existingData?.district_id || 0,
       ward_id: existingData?.ward_id || 0,
       address: existingData?.address || "",
-  },
-  contacts: existingData?.contacts || [],
-  courses: existingData?.courses || [],
-  media: existingData?.media || [],
+    },
+    contacts: existingData?.contacts || [],
+    courses: existingData?.courses || [],
+    media: existingData?.media || [],
   };
 
   const [showConfirm, setShowConfirm] = useState(false);
   const dispatch = useDispatch<AppDispatch>();
-  const provinces = useSelector((state: IRootState) => state.province.provinceList);
+  const provinces = useSelector(
+    (state: IRootState) => state.province.provinceList
+  );
+  const districts = useSelector((state: IRootState) => state.district.data);
+  const wards = useSelector((state: IRootState) => state.ward.data);
   const [formData, setFormData] = useState(defaultData);
-  
+  const [error, setError] = useState("");
   const [fileUrl, setFileUrl] = useState<string>("");
 
   useEffect(() => {
@@ -74,6 +87,17 @@ const SelfModal: React.FC<SelfModalProps> = ({
   }, [isOpen, existingData, provinces.length]);
   console.log("formData:", formData); // Kiểm tra formData khi thay đổi
 
+  useEffect(() => {
+    if (formData.info.province_id) {
+      dispatch(fetchDistrictAction(formData.info.province_id)); // Đảm bảo dispatch được gọi
+    }
+  }, [formData.info.province_id]);
+
+  useEffect(() => {
+    if (formData.info.district_id) {
+      dispatch(fetchWardAction(formData.info.district_id));
+    }
+  }, [formData.info.district_id]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -89,73 +113,86 @@ const SelfModal: React.FC<SelfModalProps> = ({
   const handleConfirm = async (data: IPayloadSaveStudent) => {
     const dataToSave: IPayloadSaveStudent = { ...data };
     if (existingData?.id) dataToSave.info.id = existingData.id;
-
-    console.log("Data to save before submit:", dataToSave); // Kiểm tra giá trị avatar trước khi gửi
+  
+    // Kiểm tra số CMND/CCCD
+    const regex = /^(?:\d{9}|\d{12}|0)?$/;
+  
+    if (!regex.test(dataToSave.info.id_card || "")) {
+      setError("CMND/CCCD phải là 9 hoặc 12 chữ số hoặc 0.");
+      setShowConfirm(false);
+      return; // Nếu không hợp lệ, dừng quá trình và không submit
+    }
+  
+    // Xóa thông báo lỗi nếu hợp lệ
+    setError("");
+  
+    console.log("Data to save before submit:", dataToSave); // Kiểm tra giá trị trước khi gửi
+  
+    // Thực hiện gửi dữ liệu nếu hợp lệ
     const result = await dispatch(saveStudentAction(dataToSave));
     if (result.meta.requestStatus === "fulfilled") {
-        setShowConfirm(false);
-        onRefresh && onRefresh();
-        onClose();
+      setShowConfirm(false);
+      onRefresh && onRefresh();
+      onClose();
     }
-};
-
+  };
+  
+  
 
   const handleCancel = () => {
     setFormData(defaultData);
     onClose();
   };
 
-  const handleFileChangeAndUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChangeAndUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const file = event.target.files?.[0];
     if (file) {
-        const fileData: IFileUpload = {
-            file: file,
-            type: "images",
-            folder: "avatar",
-            resizelevel: 1,
-        };
+      const fileData: IFileUpload = {
+        file: file,
+        type: "images",
+        folder: "avatar",
+        resizelevel: 1,
+      };
 
-        const resultAction = await dispatch(uploadFileAction(fileData));
+      const resultAction = await dispatch(uploadFileAction(fileData));
 
-        if (resultAction.meta.requestStatus === "fulfilled") {
-            const urlArray = resultAction.payload; // Giả sử đây là mảng trả về
-            const url = urlArray[0]; // Lấy phần tử đầu tiên từ mảng
-            console.log("Uploaded URL:", url); // Kiểm tra giá trị URL
-            setFileUrl(url); 
-            // Cập nhật formData với avatar mới
-            setFormData((prevData) => ({
-                ...prevData,
-                info: {
-                    ...prevData.info,
-                    avatar: url, // Gán URL cho avatar
-                },
-            }));
-            console.log("Updated formData:", formData); // Kiểm tra formData sau khi cập nhật
-        } else {
-            console.error("Upload file failed:", resultAction.payload);
-        }
-    }
-};
-
-
-
-const handleRemoveAvatar = () => {
-    setFileUrl(""); 
-    setFormData((prevData) => ({
-        ...prevData,
-        info: {
+      if (resultAction.meta.requestStatus === "fulfilled") {
+        const urlArray = resultAction.payload; // Giả sử đây là mảng trả về
+        const url = urlArray[0]; // Lấy phần tử đầu tiên từ mảng
+        console.log("Uploaded URL:", url); // Kiểm tra giá trị URL
+        setFileUrl(url);
+        // Cập nhật formData với avatar mới
+        setFormData((prevData) => ({
+          ...prevData,
+          info: {
             ...prevData.info,
-            avatar: "", // Đặt thành null nếu muốn xóa
-        },
+            avatar: url, // Gán URL cho avatar
+          },
+        }));
+        console.log("Updated formData:", formData); // Kiểm tra formData sau khi cập nhật
+      } else {
+        console.error("Upload file failed:", resultAction.payload);
+      }
+    }
+  };
+
+  const handleRemoveAvatar = () => {
+    setFileUrl("");
+    setFormData((prevData) => ({
+      ...prevData,
+      info: {
+        ...prevData.info,
+        avatar: "", // Đặt thành null nếu muốn xóa
+      },
     }));
-};
-
-
+  };
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-50">
+    <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-1300">
       <div className="container bg-white rounded-lg w-full max-w-4xl p-4 max-h-[90vh] overflow-y-auto h-3/4">
         <div className="flex justify-between items-center border-b border-gray-3  00 mb-4 px-1">
           <div className="flex-grow">
@@ -175,25 +212,32 @@ const handleRemoveAvatar = () => {
         <div className="text-sm pt-2 pb-1 px-2">Thông tin cơ bản</div>
         <div className="flex px-2">
           <div className="w-1/4 flex justify-center items-center">
-          <input
+            <input
               type="file"
               accept="jpg/*"
               onChange={handleFileChangeAndUpload}
-              style={{ display: "none" }} 
+              style={{ display: "none" }}
               id="file-upload"
             />
             {formData.info.avatar ? (
               <div className="relative flex flex-col items-center">
-                <img src={formData.info.avatar} alt="Uploaded" className="w-full h-32 object-cover rounded-md" />
-                <button 
-                  onClick={handleRemoveAvatar} 
-                  className="absolute top-0 right-0 mt-2 mr-2 text-gray-500" 
+                <img
+                  src={formData.info.avatar}
+                  alt="Uploaded"
+                  className="w-full h-32 object-cover rounded-md"
+                />
+                <button
+                  onClick={handleRemoveAvatar}
+                  className="absolute top-0 right-0 mt-2 mr-2 text-gray-500"
                 >
                   &times;
                 </button>
               </div>
             ) : (
-              <label htmlFor="file-upload" className="grid justify-items-center border border-dashed border-gray-800 rounded py-12 px-10 cursor-pointer">
+              <label
+                htmlFor="file-upload"
+                className="grid justify-items-center border border-dashed border-gray-800 rounded py-12 px-10 cursor-pointer"
+              >
                 <CloudUploadOutlinedIcon />
                 <div className="text-sm">Nhấn để tải ảnh lên</div>
               </label>
@@ -203,11 +247,14 @@ const handleRemoveAvatar = () => {
             <div className="col-span-3 ">
               <input
                 type="text"
-                className="w-full text-gray-900 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-600 focus:border-violet-600 p-2"
+                className="w-full text-gray-900 border border-gray-300 rounded-md p-2 
+             focus:outline-none focus:ring-2 focus:ring-violet-600 focus:border-violet-600
+             disabled:bg-gray-100 disabled:text-gray-400 disabled:border-gray-200 disabled:cursor-not-allowed"
                 placeholder="Số điện thoại"
                 name="phone"
                 value={formData.info.phone}
                 onChange={handleChange}
+                disabled={true}
               />
             </div>
             <div className="col-span-3">
@@ -218,7 +265,13 @@ const handleRemoveAvatar = () => {
                 name="full_name"
                 value={formData.info.full_name}
                 onChange={handleChange}
+                required
               />
+              {!formData.info.full_name && (
+                <p className="text-red-500 text-xs mt-1">
+                  Họ và tên là bắt buộc.
+                </p>
+              )}
             </div>
             <div className="col-span-3">
               <input
@@ -228,7 +281,13 @@ const handleRemoveAvatar = () => {
                 placeholder="Ngày sinh"
                 value={formData.info.birthday}
                 onChange={handleChange}
+                required
               />
+              {!formData.info.birthday && (
+                <p className="text-red-500 text-xs mt-1">
+                  Ngày sinh là bắt buộc.
+                </p>
+              )}
             </div>
             <div className="col-span-3">
               <select
@@ -236,11 +295,17 @@ const handleRemoveAvatar = () => {
                 name="sex"
                 value={formData.info.sex}
                 onChange={handleChange}
+                required
               >
                 <option value="">Giới tính</option>
                 <option value="male">Nam</option>
                 <option value="female">Nữ</option>
               </select>
+              {!formData.info.sex && (
+                <p className="text-red-500 text-xs mt-1">
+                  Giới tính là bắt buộc.
+                </p>
+              )}
             </div>
             <div className="col-span-6">
               <input
@@ -267,6 +332,7 @@ const handleRemoveAvatar = () => {
               value={formData.info.id_card}
               onChange={handleChange}
             />
+            {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
           </div>
           <div className="col-span-2">
             <input
@@ -315,20 +381,34 @@ const handleRemoveAvatar = () => {
             </select>
           </div>
           <div className="col-span-2">
-            <input
-              type="text"
-              className="w-full text-gray-900 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-600 focus:border-violet-600 p-2  bg-gray-100 cursor-not-allowed"
-              placeholder="Quận/ huyện"
-              disabled={true}
-            />
+            <select
+              className="w-full text-gray-900 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-600 focus:border-violet-600 p-2"
+              name="district_id"
+              onChange={handleChange}
+              value={formData.info.district_id}
+            >
+              <option value="">Chọn Quận/Huyện</option>
+              {districts?.map((district, index) => (
+                <option key={index} value={district.id}>
+                  {district.name}
+                </option>
+              ))}
+            </select>
           </div>
           <div className="col-span-2">
-            <input
-              type="text"
-              className="w-full text-gray-900 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-600 focus:border-violet-600 p-2  bg-gray-100 cursor-not-allowed"
-              placeholder="Phường/ xã"
-              disabled={true}
-            />
+            <select
+              className="w-full text-gray-900 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-600 focus:border-violet-600 p-2"
+              name="ward_id"
+              onChange={handleChange}
+              value={formData.info.ward_id}
+            >
+              <option value="">Chọn Phường/Xã</option>
+              {wards?.map((ward, index) => (
+                <option key={index} value={ward.id}>
+                  {ward.name}
+                </option>
+              ))}
+            </select>
           </div>
           <div className="col-span-6">
             <input

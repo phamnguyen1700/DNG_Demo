@@ -29,7 +29,7 @@ const studentSlice = createSlice({
             })
             .addCase(fetchStudentListAction.rejected, (state, action) => {
                 state.status = 'failed';
-                state.error = (action.payload as { message: string }).message;
+                state.error = (action.payload as { message: string }).message || 'Thất Bại';
             })
             .addCase(fetchStudentDetailAction.pending, (state) => {
                 state.status = 'loading'
@@ -40,7 +40,7 @@ const studentSlice = createSlice({
             })
             .addCase(fetchStudentDetailAction.rejected, (state, action) => {
                 state.status = 'failed';
-                state.error = (action.payload as { message: string }).message;
+                state.error = (action.payload as { message: string }).message || 'Thất Bại';
             })
             .addCase(saveStudentAction.pending, (state) => {
                 state.status = 'loading';
@@ -50,7 +50,7 @@ const studentSlice = createSlice({
               })
             .addCase(saveStudentAction.rejected, (state, action) => {
                 state.status = 'failed';
-                state.error = (action.payload as { message: string }).message;
+                state.error = (action.payload as { message: string }).message || 'Thất Bại';
               });
     }
 })

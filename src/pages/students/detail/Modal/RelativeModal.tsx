@@ -34,6 +34,11 @@ const RelativeModal: React.FC<RelativeModalProps> = ({
     phone: "",
     email: "",
   });
+  const [errors, setErrors] = useState({
+    type: "",
+    full_name: "",
+    phone: "",
+  });
 
   // Khi modal mở, nếu là chỉnh sửa thì load dữ liệu liên hệ để đổ vào form
   useEffect(() => {
@@ -108,21 +113,52 @@ const RelativeModal: React.FC<RelativeModalProps> = ({
       onClose(); // Đóng modal sau khi lưu thành công
     }
   };
+  const validateForm = () => {
+    const newErrors = {
+      type: "",
+      full_name: "",
+      phone: "",
+    };
+
+    if (!formData.type) {
+      newErrors.type = "Quan hệ không được để trống";
+    }
+
+    if (!formData.full_name) {
+      newErrors.full_name = "Họ tên không được để trống";
+    }
+
+    if (!formData.phone) {
+      newErrors.phone = "Số điện thoại không được để trống";
+    } else if (!/^\d{10,11}$/.test(formData.phone)) {
+      newErrors.phone =
+        "Số điện thoại không hợp lệ, phải chứa 10 hoặc 11 chữ số";
+    }
+
+    setErrors(newErrors);
+
+    return !newErrors.type && !newErrors.full_name && !newErrors.phone; // Nếu không có lỗi, trả về true
+  };
 
   // Lưu thông tin liên hệ khi người dùng nhấn nút "Lưu"
   const handleSubmit = async () => {
+    if (!validateForm()) {
+      return; // Dừng nếu form không hợp lệ
+    }
     let updatedContacts;
 
     if (formData.id === 0) {
       // Nếu là liên hệ mới, chỉ truyền thông tin liên hệ mới
       updatedContacts = {
         delete: [],
-        insert: [{
-          email: formData.email,
-          full_name: formData.full_name,
-          phone: formData.phone,
-          type: formData.type,
-        }],
+        insert: [
+          {
+            email: formData.email,
+            full_name: formData.full_name,
+            phone: formData.phone,
+            type: formData.type,
+          },
+        ],
         update: [],
       };
     } else {
@@ -178,7 +214,7 @@ const RelativeModal: React.FC<RelativeModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
+    <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-1300">
       <div className="bg-white p-6 rounded shadow-lg w-1/3">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-lg flex-grow text-center">{title}</h2>
@@ -194,11 +230,15 @@ const RelativeModal: React.FC<RelativeModalProps> = ({
             value={formData.type}
             onChange={handleChange}
             className="w-full p-2 border rounded"
+            required
           >
             <option value="">Quan hệ</option>
             <option value="dad">Cha</option>
             <option value="mom">Mẹ</option>
           </select>
+          {errors.type && (
+            <span className="text-red-500 text-xs">{errors.type}</span>
+          )}
 
           <input
             type="text"
@@ -209,6 +249,9 @@ const RelativeModal: React.FC<RelativeModalProps> = ({
             className="w-full p-2 border rounded"
             required
           />
+          {errors.full_name && (
+            <span className="text-red-500 text-xs">{errors.full_name}</span>
+          )}
 
           <input
             type="text"
@@ -219,6 +262,9 @@ const RelativeModal: React.FC<RelativeModalProps> = ({
             className="w-full p-2 border rounded"
             required
           />
+          {errors.phone && (
+            <span className="text-red-500 text-xs">{errors.phone}</span>
+          )}
 
           <input
             type="email"

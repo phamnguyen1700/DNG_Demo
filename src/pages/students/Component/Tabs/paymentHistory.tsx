@@ -6,6 +6,7 @@ export default function PaymentHistory() {
   const student = useSelector(
     (state: IRootState) => state.student.studentDetail
   );
+  console.log(student);
   return (
     <div className="shadow-md bg-white rounded-lg overflow-hidden">
       <table className="min-w-full">
@@ -70,10 +71,20 @@ export default function PaymentHistory() {
                   <span>{item.course_name}</span>
                 </div>
               </td>
+              <td className="text-sm text-center h-14 border p-1">Chi nhánh</td>
               <td className="text-sm text-center h-14 border p-1">
-                {student.ward_name}
+                {item.status === "completed" ? "Đã hoàn thành" : "Chưa hoàn thành"}
               </td>
-              <td className="text-sm text-center h-14 border p-1"></td>
+              <td className="text-sm text-center h-14 border p-1">
+                <img
+                  alt={student.created_name}
+                  src={student.created_avatar}
+                  className="w-10 h-10 rounded-full mx-auto"
+                />
+                <div className="absolute hidden group-hover:block bg-gray-800 text-white text-sm rounded-lg py-2 px-3 left-1/2 transform -translate-x-1/2 bottom-14 whitespace-nowrap">
+                  ID: {student.created_by} - {student.created_name}
+                </div>
+              </td>
             </tr>
           ))}
         </tbody>

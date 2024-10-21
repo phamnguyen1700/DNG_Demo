@@ -38,7 +38,7 @@ export const saveProgramAction = createAsyncThunk(
                 toast.success('Thành công');
                 return fulfillWithValue(res.data);
             }else{
-                return rejectWithValue(null)
+                return rejectWithValue('Thất bại');
             }
         } catch (error) {
             toast.error('Thất bại');

@@ -9,6 +9,9 @@ import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import "./slide.css";
+import CelebrationIcon from "@mui/icons-material/Celebration";
+import TransgenderIcon from "@mui/icons-material/Transgender";
+import ContactPhoneIcon from "@mui/icons-material/ContactPhone";
 import Tabs from "../Component/TabData";
 import RelativeModal from "./Modal/RelativeModal";
 import SelfModal from "./Modal/SelfModal";
@@ -29,6 +32,7 @@ const Detail: React.FC = () => {
     speed: 500,
     slidesToShow: 1,
     slidesToScroll: 1,
+    adaptiveHeight: true,
   };
 
   const dispatch = useDispatch<AppDispatch>();
@@ -104,9 +108,9 @@ const Detail: React.FC = () => {
       <div className="container flex justify-between space-x-4">
         <div className="detail-container w-1/3 border border-gray-200 rounded shadow-md">
           <div className="flex space-x-8 py-4 px-4">
-            <div className="avt w-24 flex justify-center">
+            <div className="avt min-w-24 flex justify-center items-center">
               <img
-                className="rounded-full"
+                className="rounded-full min-w-26 min-h-26 w-26 h-26 object-cover"
                 src={
                   student?.avatar
                     ? student.avatar
@@ -116,16 +120,16 @@ const Detail: React.FC = () => {
               ></img>
             </div>
             <div className="background-detail text-sm w-3/4 pt-3">
-              <div>Họ và tên: {student?.full_name}</div>
+              <div>{student?.full_name}</div>
               <div className="flex justify-between">
                 <div>
-                  Ngày sinh:{" "}
+                  <CelebrationIcon fontSize="small" />:{" "}
                   {student?.birthday
                     ? moment(student.birthday).format("L")
                     : "N/A"}
                 </div>
                 <div>
-                  Giới tính:{" "}
+                  <TransgenderIcon fontSize="small" />:{" "}
                   {student?.sex === "male"
                     ? "Nam"
                     : student?.sex === "female"
@@ -133,7 +137,9 @@ const Detail: React.FC = () => {
                       : "Không xác định"}
                 </div>
               </div>
-              <div>Số điện thoại: {student?.phone}</div>
+              <div className="pt-2">
+                <ContactPhoneIcon fontSize="small" />: {student?.phone}
+              </div>
             </div>
           </div>
           <div className="study-detail flex px-4  space-x-4">
@@ -189,12 +195,14 @@ const Detail: React.FC = () => {
               </div>
               <div>
                 Ngày cấp:{" "}
-                {student?.date_card ? moment(student?.date_card).format("L") : "Không có dữ liệu"}
+                {student?.date_card
+                  ? moment(student?.date_card).format("L")
+                  : "Không có dữ liệu"}
               </div>
               <div>
                 Địa chỉ liên hệ:{" "}
                 {student?.address
-                  ? `${student.address}, ${student.ward_name || ""}, ${student.district_name || ""}, ${student.province_name || ""}`
+                  ? `${student.address}${student.ward_id !== 0 && student.ward_name ? `, ${student.ward_name}` : ""}${student.district_id !== 0 && student.district_name ? `, ${student.district_name}` : ""}${student.province_id !== 0 && student.province_name ? `, ${student.province_name}` : ""}`
                   : "Không có dữ liệu"}
               </div>
             </div>
@@ -216,7 +224,14 @@ const Detail: React.FC = () => {
                 <div key={index} className="relative-body pt-2">
                   <div className="flex justify-between">
                     <div className="relative-body-detail">
-                      <div>Quan hệ: {contact.type}</div>
+                      <div>
+                        Quan hệ:{" "}
+                        {contact?.type === "dad"
+                          ? "Cha"
+                          : contact.type === "mom"
+                            ? "Mẹ"
+                            : "N/A"}
+                      </div>
                       <div>Họ và tên: {contact.full_name}</div>
                       <div>Số điện thoại: {contact.phone}</div>
                       <div>

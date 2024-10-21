@@ -25,6 +25,8 @@ const RelativeModal: React.FC<RelativeModalProps> = ({
 }) => {
   const dispatch = useDispatch<AppDispatch>();
   const contacts = existingData?.contacts || [];
+  const [error, setError] = useState("");
+  const [nameError, setNameError] = useState("");
 
   // Sử dụng interface IContact cho formData
   const [formData, setFormData] = useState<IContact>({
@@ -59,9 +61,29 @@ const RelativeModal: React.FC<RelativeModalProps> = ({
 
   // Xử lý khi người dùng thay đổi input trong form
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
   ) => {
     const { name, value } = e.target;
+    if (name === "full_name") {
+      const trimmedValue = value.trim();
+      const regex2 =
+        /^[A-ZÀÁẠẢÃÂẦẤẬẨẪĂẰẮẶẲẴÈÉẸẺẼÊỀẾỆỂỄÌÍỊỈĨÒÓỌỎÕÔỒỐỘỔỖƠỜỚỢỞỠÙÚỤỦŨƯỪỨỰỬỮỲÝỴỶỸĐ][a-zàáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]*(?:[ ][A-ZÀÁẠẢÃÂẦẤẬẨẪĂẰẮẶẲẴÈÉẸẺẼÊỀẾỆỂỄÌÍỊỈĨÒÓỌỎÕÔỒỐỘỔỖƠỜỚỢỞỠÙÚỤỦŨƯỪỨỰỬỮỲÝỴỶỸĐ][a-zàáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]*)*$/;
+      if (!regex2.test(trimmedValue)) {
+        setNameError("Họ tên không hợp lệ, viết hoa chữ cái đầu tiên");
+      } else {
+        setNameError("");
+      }
+    }
+    if (name === "phone") {
+      const regex = /^(?:\d{10}|\d{11})$/;
+      if (!regex.test(value)) {
+        setError("Số điện thoại không hợp lệ, phải chứa 10 hoặc 11 chữ số");
+      } else {
+        setError("");
+      }
+    }
     setFormData({ ...formData, [name]: value });
   };
 
@@ -113,40 +135,40 @@ const RelativeModal: React.FC<RelativeModalProps> = ({
       onClose(); // Đóng modal sau khi lưu thành công
     }
   };
-  const validateForm = () => {
-    const newErrors = {
-      type: "",
-      full_name: "",
-      phone: "",
-    };
-
-    if (!formData.type) {
-      newErrors.type = "Quan hệ không được để trống";
-    }
-
-    if (!formData.full_name) {
-      newErrors.full_name = "Họ tên không được để trống";
-    }
-
-    if (!formData.phone) {
-      newErrors.phone = "Số điện thoại không được để trống";
-    } else if (!/^\d{10,11}$/.test(formData.phone)) {
-      newErrors.phone =
-        "Số điện thoại không hợp lệ, phải chứa 10 hoặc 11 chữ số";
-    }
-
-    setErrors(newErrors);
-
-    return !newErrors.type && !newErrors.full_name && !newErrors.phone; // Nếu không có lỗi, trả về true
-  };
 
   // Lưu thông tin liên hệ khi người dùng nhấn nút "Lưu"
   const handleSubmit = async () => {
-    if (!validateForm()) {
-      return; // Dừng nếu form không hợp lệ
+    let isValid = true;
+  
+    // Validate Họ tên
+    const trimmedName = formData.full_name.trim();
+    const nameRegex =
+      /^[A-ZÀÁẠẢÃÂẦẤẬẨẪĂẰẮẶẲẴÈÉẸẺẼÊỀẾỆỂỄÌÍỊỈĨÒÓỌỎÕÔỒỐỘỔỖƠỜỚỢỞỠÙÚỤỦŨƯỪỨỰỬỮỲÝỴỶỸĐ][a-zàáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]*(?:[ ][A-ZÀÁẠẢÃÂẦẤẬẨẪĂẰẮẶẲẴÈÉẸẺẼÊỀẾỆỂỄÌÍỊỈĨÒÓỌỎÕÔỒỐỘỔỖƠỜỚỢỞỠÙÚỤỦŨƯỪỨỰỬỮỲÝỴỶỸĐ][a-zàáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]*)*$/;
+  
+    if (!nameRegex.test(trimmedName)) {
+      setNameError("Họ tên không hợp lệ, viết hoa chữ cái đầu tiên");
+      isValid = false; // Đặt cờ isValid thành false nếu lỗi
+    } else {
+      setNameError("");
     }
+  
+    // Validate Số điện thoại
+    const phoneRegex = /^(?:\d{10}|\d{11})$/;
+    if (!phoneRegex.test(formData.phone)) {
+      setError("Số điện thoại không hợp lệ, phải chứa 10 hoặc 11 chữ số");
+      isValid = false;
+    } else {
+      setError("");
+    }
+  
+    // Kiểm tra nếu có bất kỳ lỗi nào trước khi lưu
+    if (!isValid) {
+      return; // Ngăn không cho gửi nếu có lỗi
+    }
+  
+    // Xử lý cập nhật contacts như trước
     let updatedContacts;
-
+  
     if (formData.id === 0) {
       // Nếu là liên hệ mới, chỉ truyền thông tin liên hệ mới
       updatedContacts = {
@@ -168,13 +190,13 @@ const RelativeModal: React.FC<RelativeModalProps> = ({
         insert: [],
         update: [...contacts], // Giữ nguyên danh sách contacts hiện có
       };
-
+  
       // Cập nhật liên hệ tại vị trí contactIndex
       if (contactIndex !== undefined) {
         updatedContacts.update[contactIndex] = formData;
       }
     }
-
+  
     // Tạo payload để lưu thông tin sinh viên kèm liên hệ
     const dataToSave: IPayloadSaveStudent = {
       info: {
@@ -199,10 +221,7 @@ const RelativeModal: React.FC<RelativeModalProps> = ({
       courses: existingData?.courses || [],
       media: existingData?.media || [],
     };
-    console.log("exis:", existingData);
-    // Log dữ liệu trước khi gọi action
-    console.log("dataToSave:", dataToSave);
-
+  
     // Gọi action lưu thông tin sinh viên
     const result = await dispatch(saveStudentAction(dataToSave));
     if (result.meta.requestStatus === "fulfilled") {
@@ -210,7 +229,7 @@ const RelativeModal: React.FC<RelativeModalProps> = ({
       onClose(); // Đóng modal sau khi lưu thành công
     }
   };
-
+  
   if (!isOpen) return null;
 
   return (
@@ -225,6 +244,9 @@ const RelativeModal: React.FC<RelativeModalProps> = ({
 
         {/* Form nhập liệu */}
         <div className="space-y-4">
+          <label className="block text-gray-700 text-sm font-bold mb-2">
+            Quan hệ với học viên
+          </label>
           <select
             name="type"
             value={formData.type}
@@ -236,46 +258,51 @@ const RelativeModal: React.FC<RelativeModalProps> = ({
             <option value="dad">Cha</option>
             <option value="mom">Mẹ</option>
           </select>
-          {errors.type && (
-            <span className="text-red-500 text-xs">{errors.type}</span>
+          {!formData.type && (
+            <span className="text-red-500 text-xs">
+              Quan hệ không được để trống
+            </span>
           )}
-
+          <label className="block text-gray-700 text-sm font-bold mb-2">
+            Họ và tên <span className="text-red-500">*</span>
+          </label>
           <input
             type="text"
             name="full_name"
             value={formData.full_name}
             onChange={handleChange}
-            placeholder="Họ tên *"
+            placeholder="Họ tên"
             className="w-full p-2 border rounded"
             required
           />
-          {errors.full_name && (
-            <span className="text-red-500 text-xs">{errors.full_name}</span>
+          {nameError && (
+            <span className="text-red-500 text-xs">{nameError}</span>
           )}
-
+          <label className="block text-gray-700 text-sm font-bold mb-2">
+            Số điện thoại <span className="text-red-500">*</span>
+          </label>
           <input
             type="text"
             name="phone"
             value={formData.phone}
             onChange={handleChange}
-            placeholder="Số điện thoại *"
+            placeholder="Số điện thoại"
             className="w-full p-2 border rounded"
             required
           />
-          {errors.phone && (
-            <span className="text-red-500 text-xs">{errors.phone}</span>
-          )}
-
+          {error && <span className="text-red-500 text-xs">{error}</span>}
+          <label className="block text-gray-700 text-sm font-bold mb-2">
+            Email <span className="text-red-500">*</span>
+          </label>
           <input
             type="email"
             name="email"
             value={formData.email || ""}
             onChange={handleChange}
-            placeholder="Email (không bắt buộc)"
+            placeholder="Email"
             className="w-full p-2 border rounded"
           />
         </div>
-
         {/* Nút Lưu và Đóng */}
         <div className="flex justify-end space-x-2 mt-4">
           <button onClick={onClose} className="px-4 py-2 bg-gray-300 rounded">

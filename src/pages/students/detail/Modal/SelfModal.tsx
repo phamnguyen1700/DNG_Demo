@@ -15,6 +15,7 @@ import {
 import { fetchProvinceAction } from "../../../../redux/actions/provinceAction";
 import { fetchDistrictAction } from "../../../../redux/actions/districtAction";
 import { fetchWardAction } from "../../../../redux/actions/wardAction";
+import { toast } from "react-toastify";
 
 interface SelfModalProps {
   isOpen: boolean;
@@ -62,6 +63,7 @@ const SelfModal: React.FC<SelfModalProps> = ({
   const wards = useSelector((state: IRootState) => state.ward.data);
   const [formData, setFormData] = useState(defaultData);
   const [error, setError] = useState("");
+  const [nameError, setNameError] = useState("");
   const [fileUrl, setFileUrl] = useState<string>("");
 
   useEffect(() => {
@@ -99,35 +101,104 @@ const SelfModal: React.FC<SelfModalProps> = ({
     }
   }, [formData.info.district_id]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
+  ) => {
     const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      info: {
-        ...prevData.info,
-        [name]: value,
-      },
-    }));
+
+    if (name === "full_name") {
+      const trimmedValue = value.trim();
+      const regex2 =
+        /^[A-ZÀÁẠẢÃÂẦẤẬẨẪĂẰẮẶẲẴÈÉẸẺẼÊỀẾỆỂỄÌÍỊỈĨÒÓỌỎÕÔỒỐỘỔỖƠỜỚỢỞỠÙÚỤỦŨƯỪỨỰỬỮỲÝỴỶỸĐ][a-zàáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]*(?:[ ][A-ZÀÁẠẢÃÂẦẤẬẨẪĂẰẮẶẲẴÈÉẸẺẼÊỀẾỆỂỄÌÍỊỈĨÒÓỌỎÕÔỒỐỘỔỖƠỜỚỢỞỠÙÚỤỦŨƯỪỨỰỬỮỲÝỴỶỸĐ][a-zàáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]*)*$/;
+      if (!regex2.test(trimmedValue)) {
+        setNameError("Họ tên không hợp lệ, viết hoa chữ cái đầu tiên");
+      } else {
+        setNameError("");
+      }
+    }
+
+    if (name === "id_card") {
+      const regex = /^(?:\d{9}|\d{12}|0)$/;
+
+      // Kiểm tra ngay khi người dùng nhập số CMND/CCCD
+      if (!regex.test(value)) {
+        setError("CMND/CCCD phải là số có 9 hoặc 12 chữ số.");
+      } else {
+        setError(""); // Xóa lỗi nếu hợp lệ
+      }
+    }
+    if (name === "province_id") {
+      setFormData((prevData) => ({
+        ...prevData,
+        info: {
+          ...prevData.info,
+          province_id: parseInt(value),
+          district_id: 0,
+          ward_id: 0,
+        },
+      }));
+    } else if (name === "district_id") {
+      setFormData((prevData) => ({
+        ...prevData,
+        info: {
+          ...prevData.info,
+          district_id: parseInt(value),
+          ward_id: 0,
+        },
+      }));
+    } else {
+      setFormData((prevData) => ({
+        ...prevData,
+        info: {
+          ...prevData.info,
+          [name]: value,
+        },
+      }));
+    }
   };
 
   const handleConfirm = async (data: IPayloadSaveStudent) => {
     const dataToSave: IPayloadSaveStudent = { ...data };
     if (existingData?.id) dataToSave.info.id = existingData.id;
+    let isValid = true;
+    if (!dataToSave.info.birthday) {
+      setError("Ngày sinh là bắt buộc");
+      isValid = false;
+    } else if (!dataToSave.info.sex) {
+      setError("Giới tính là bắt buộc");
+      isValid = false;
+    }
+
+    if (!isValid) {
+      setShowConfirm(false);
+      return;
+    }
+
+    const trimmedName = formData.info.full_name.trim();
+    const nameRegex =
+      /^[A-ZÀÁẠẢÃÂẦẤẬẨẪĂẰẮẶẲẴÈÉẸẺẼÊỀẾỆỂỄÌÍỊỈĨÒÓỌỎÕÔỒỐỘỔỖƠỜỚỢỞỠÙÚỤỦŨƯỪỨỰỬỮỲÝỴỶỸĐ][a-zàáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]*(?:[ ][A-ZÀÁẠẢÃÂẦẤẬẨẪĂẰẮẶẲẴÈÉẸẺẼÊỀẾỆỂỄÌÍỊỈĨÒÓỌỎÕÔỒỐỘỔỖƠỜỚỢỞỠÙÚỤỦŨƯỪỨỰỬỮỲÝỴỶỸĐ][a-zàáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]*)*$/;
   
-    // Kiểm tra số CMND/CCCD
+    if (!nameRegex.test(trimmedName)) {
+      setNameError("Họ tên không hợp lệ, viết hoa chữ cái đầu tiên");
+      isValid = false; // Đặt cờ isValid thành false nếu lỗi
+    } else {
+      setNameError("");
+    }
+
     const regex = /^(?:\d{9}|\d{12}|0)?$/;
-  
+
     if (!regex.test(dataToSave.info.id_card || "")) {
-      setError("CMND/CCCD phải là 9 hoặc 12 chữ số hoặc 0.");
+      setError("CMND/CCCD phải là 9 hoặc 12 chữ số");
       setShowConfirm(false);
       return; // Nếu không hợp lệ, dừng quá trình và không submit
     }
-  
     // Xóa thông báo lỗi nếu hợp lệ
     setError("");
-  
+
     console.log("Data to save before submit:", dataToSave); // Kiểm tra giá trị trước khi gửi
-  
+
     // Thực hiện gửi dữ liệu nếu hợp lệ
     const result = await dispatch(saveStudentAction(dataToSave));
     if (result.meta.requestStatus === "fulfilled") {
@@ -136,8 +207,6 @@ const SelfModal: React.FC<SelfModalProps> = ({
       onClose();
     }
   };
-  
-  
 
   const handleCancel = () => {
     setFormData(defaultData);
@@ -148,7 +217,22 @@ const SelfModal: React.FC<SelfModalProps> = ({
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const file = event.target.files?.[0];
+
     if (file) {
+      // Danh sách các loại file hợp lệ
+      const validTypes = ["image/png", "image/jpeg", "image/jpg"];
+
+      // Kiểm tra loại file
+      if (!validTypes.includes(file.type)) {
+        console.error(
+          "File không hợp lệ. Chỉ chấp nhận các định dạng PNG, JPG, JPEG."
+        );
+        toast.error(
+          "File không hợp lệ. Chỉ chấp nhận các định dạng PNG, JPG, JPEG."
+        );
+        return;
+      }
+
       const fileData: IFileUpload = {
         file: file,
         type: "images",
@@ -159,19 +243,18 @@ const SelfModal: React.FC<SelfModalProps> = ({
       const resultAction = await dispatch(uploadFileAction(fileData));
 
       if (resultAction.meta.requestStatus === "fulfilled") {
-        const urlArray = resultAction.payload; // Giả sử đây là mảng trả về
-        const url = urlArray[0]; // Lấy phần tử đầu tiên từ mảng
-        console.log("Uploaded URL:", url); // Kiểm tra giá trị URL
+        const urlArray = resultAction.payload;
+        const url = urlArray[0];
+        console.log("Uploaded URL:", url);
         setFileUrl(url);
-        // Cập nhật formData với avatar mới
         setFormData((prevData) => ({
           ...prevData,
           info: {
             ...prevData.info,
-            avatar: url, // Gán URL cho avatar
+            avatar: url,
           },
         }));
-        console.log("Updated formData:", formData); // Kiểm tra formData sau khi cập nhật
+        console.log("Updated formData:", formData);
       } else {
         console.error("Upload file failed:", resultAction.payload);
       }
@@ -214,7 +297,7 @@ const SelfModal: React.FC<SelfModalProps> = ({
           <div className="w-1/4 flex justify-center items-center">
             <input
               type="file"
-              accept="jpg/*"
+              accept=".jpg,.jpeg,.png"
               onChange={handleFileChangeAndUpload}
               style={{ display: "none" }}
               id="file-upload"
@@ -245,6 +328,9 @@ const SelfModal: React.FC<SelfModalProps> = ({
           </div>
           <div className="pl-2 w-3/4 grid grid-cols-6 gap-2">
             <div className="col-span-3 ">
+              <label className="text-sm font-medium text-gray-700">
+                Số điện thoại <span className="text-red-500">*</span>
+              </label>
               <input
                 type="text"
                 className="w-full text-gray-900 border border-gray-300 rounded-md p-2 
@@ -258,6 +344,9 @@ const SelfModal: React.FC<SelfModalProps> = ({
               />
             </div>
             <div className="col-span-3">
+              <label className="text-sm font-medium text-gray-700">
+                Họ và tên <span className="text-red-500">*</span>
+              </label>
               <input
                 type="text"
                 className="w-full text-gray-900 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-600 focus:border-violet-600 p-2"
@@ -267,13 +356,14 @@ const SelfModal: React.FC<SelfModalProps> = ({
                 onChange={handleChange}
                 required
               />
-              {!formData.info.full_name && (
-                <p className="text-red-500 text-xs mt-1">
-                  Họ và tên là bắt buộc.
-                </p>
+              {nameError && (
+                <p className="text-red-500 text-xs mt-1">{nameError}</p>
               )}
             </div>
             <div className="col-span-3">
+              <label className="text-sm font-medium text-gray-700">
+                Ngày sinh <span className="text-red-500">*</span>
+              </label>
               <input
                 type="date"
                 className="w-full text-gray-900 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-600 focus:border-violet-600 p-2"
@@ -290,6 +380,9 @@ const SelfModal: React.FC<SelfModalProps> = ({
               )}
             </div>
             <div className="col-span-3">
+              <label className="text-sm font-medium text-gray-700">
+                Giới tính <span className="text-red-500">*</span>
+              </label>
               <select
                 className="w-full text-gray-900 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-600 focus:border-violet-600 p-2"
                 name="sex"
@@ -308,6 +401,7 @@ const SelfModal: React.FC<SelfModalProps> = ({
               )}
             </div>
             <div className="col-span-6">
+              <label className="text-sm font-medium text-gray-700">Email</label>
               <input
                 type="email"
                 className="w-full text-gray-900 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-600 focus:border-violet-600 p-2"
@@ -321,9 +415,12 @@ const SelfModal: React.FC<SelfModalProps> = ({
         </div>
 
         {/* CCCD/CMND */}
-        <div className="text-sm pt-2 pb-1 px-2">CMND/CCCD</div>
+        {/* <div className="text-sm pt-2 pb-1 px-2">CMND/CCCD</div> */}
         <div className="w-full grid grid-cols-8 gap-2 p-2">
           <div className="col-span-3">
+            <label className="text-sm font-medium text-gray-700">
+              Số CMND/CCCD
+            </label>
             <input
               type="text"
               className="w-full text-gray-900 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-600 focus:border-violet-600 p-2"
@@ -335,6 +432,9 @@ const SelfModal: React.FC<SelfModalProps> = ({
             {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
           </div>
           <div className="col-span-2">
+            <label className="text-sm font-medium text-gray-700">
+              Ngày cấp
+            </label>
             <input
               type="date"
               className="w-full text-gray-900 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-600 focus:border-violet-600 p-2"
@@ -342,16 +442,19 @@ const SelfModal: React.FC<SelfModalProps> = ({
               name="date_card"
               value={formData.info.date_card}
               onChange={handleChange}
+              disabled={!formData.info.id_card}
             />
           </div>
           <div className="col-span-3">
+            <label className="text-sm font-medium text-gray-700">Nơi cấp</label>
             <select
               className="w-full text-gray-900 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-600 focus:border-violet-600 p-2"
               name="issued_card_id"
               onChange={handleChange}
-              value={formData.info.issued_card_id}
+              value={formData.info.issued_card_id || 0}
+              disabled={!formData.info.date_card}
             >
-              <option value="">Chọn nơi cấp</option>
+              <option value={0}>Chọn nơi cấp</option>
               <option value={1}>
                 CCS quản lý hành chính về trật tự xã hội
               </option>
@@ -363,16 +466,19 @@ const SelfModal: React.FC<SelfModalProps> = ({
         </div>
 
         {/* Address Information */}
-        <div className="text-sm pt-2 pb-1 px-2">Địa chỉ liên hệ</div>
+        {/* <div className="text-sm pt-2 pb-1 px-2">Địa chỉ liên hệ</div> */}
         <div className="w-full grid grid-cols-6 gap-3 p-2 mb-4 border-b border-gray-300">
           <div className="col-span-2">
+            <label className="text-sm font-medium text-gray-700">
+              Tỉnh/Thành phố
+            </label>
             <select
               className="w-full text-gray-900 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-600 focus:border-violet-600 p-2"
               name="province_id"
               onChange={handleChange}
-              value={formData.info.province_id}
+              value={formData.info.province_id || 0}
             >
-              <option value="">Chọn Tỉnh/Thành phố</option>
+              <option value={0}>Chọn Tỉnh/Thành phố</option>
               {provinces?.map((province, index) => (
                 <option key={index} value={province.id}>
                   {province.name}
@@ -381,13 +487,17 @@ const SelfModal: React.FC<SelfModalProps> = ({
             </select>
           </div>
           <div className="col-span-2">
+            <label className="text-sm font-medium text-gray-700">
+              Quận/Huyện
+            </label>
             <select
               className="w-full text-gray-900 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-600 focus:border-violet-600 p-2"
               name="district_id"
               onChange={handleChange}
-              value={formData.info.district_id}
+              value={formData.info.district_id || 0}
+              disabled={formData.info.province_id === 0}
             >
-              <option value="">Chọn Quận/Huyện</option>
+              <option value={0}>Chọn Quận/Huyện</option>
               {districts?.map((district, index) => (
                 <option key={index} value={district.id}>
                   {district.name}
@@ -396,13 +506,17 @@ const SelfModal: React.FC<SelfModalProps> = ({
             </select>
           </div>
           <div className="col-span-2">
+            <label className="text-sm font-medium text-gray-700">
+              Phường/Xã
+            </label>
             <select
               className="w-full text-gray-900 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-600 focus:border-violet-600 p-2"
               name="ward_id"
               onChange={handleChange}
-              value={formData.info.ward_id}
+              value={formData.info.ward_id || 0}
+              disabled={formData.info.district_id === 0}
             >
-              <option value="">Chọn Phường/Xã</option>
+              <option value={0}>Chọn Phường/Xã</option>
               {wards?.map((ward, index) => (
                 <option key={index} value={ward.id}>
                   {ward.name}
@@ -411,6 +525,7 @@ const SelfModal: React.FC<SelfModalProps> = ({
             </select>
           </div>
           <div className="col-span-6">
+            <label className="text-sm font-medium text-gray-700">Địa chỉ</label>
             <input
               type="text"
               className="w-full text-gray-900 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-600 focus:border-violet-600 p-2"
@@ -421,6 +536,7 @@ const SelfModal: React.FC<SelfModalProps> = ({
             />
           </div>
           <div className="col-span-6">
+            <label className="text-sm font-medium text-gray-700">Ghi chú</label>
             <textarea
               className="w-full text-gray-900 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-violet-600 focus:border-violet-600 p-2"
               placeholder="Ghi chú"

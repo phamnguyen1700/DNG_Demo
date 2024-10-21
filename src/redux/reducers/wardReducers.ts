@@ -30,7 +30,7 @@ const wardSlice = createSlice({
             })
             .addCase(fetchWardAction.rejected, (state, action) => {
                 state.status = 0;
-                state.message = (action.payload as { message: string }).message;
+                state.message = action.payload as string;
             })
     }    
 })

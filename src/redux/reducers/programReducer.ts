@@ -21,7 +21,6 @@ const programSlice = createSlice({
         state.status = 'loading'
       })
       .addCase(fetchProgramListAction.fulfilled, (state, action) => {
-        console.log('CẤU TRÚC DỮ LIỆU TRẢ VỀ CỦA PROGRAMlIST', action.payload);
         state.status = 'succeeded';
         state.programList = action.payload.list;
         state.filteredProgramList = action.payload.list;

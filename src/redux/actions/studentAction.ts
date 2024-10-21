@@ -37,11 +37,11 @@ export const fetchStudentDetailAction = createAsyncThunk(
         return fulfillWithValue(res); // Trả về dữ liệu `res.data`
       } else {
         toast.error("Dữ liệu trả về không hợp lệ.");
-        return rejectWithValue("Dữ liệu trả về không hợp lệ.");
+        return rejectWithValue({message: res.message || "Dữ liệu trả về không hợp lệ."});
       }
     } catch (error: any) {
       toast.error("Đã xảy ra lỗi");
-      return rejectWithValue("Đã xảy ra lỗi");
+      return rejectWithValue({message: error.message || "Đã xảy ra lỗi"});
     }
   }
 );
@@ -81,11 +81,11 @@ export const saveStudentAction = createAsyncThunk(
         toast.success("Thành công");
         return fulfillWithValue(res.data);
       } else {
-        return rejectWithValue(null);
+        return rejectWithValue("Thất bại");
       }
-    } catch (error) {
+    } catch (error : any) {
       toast.error("Thất bại");
-      return rejectWithValue(null);
+      return rejectWithValue({ message: error.message || "Thất bại" });
     }
   }
 );
@@ -105,11 +105,11 @@ export const uploadFileAction = createAsyncThunk(
         return fulfillWithValue(res);
       } else {
         toast.error("Upload file thất bại");
-        return rejectWithValue(null);
+        return rejectWithValue("Upload file thất bại");
       }
     } catch (error) {
       toast.error("Upload file thất bại");
-      return rejectWithValue(null);
+      return rejectWithValue("Upload file thất bại");
     }
   }
 );

@@ -25,8 +25,6 @@ const RelativeModal: React.FC<RelativeModalProps> = ({
 }) => {
   const dispatch = useDispatch<AppDispatch>();
   const contacts = existingData?.contacts || [];
-  const [error, setError] = useState("");
-  const [nameError, setNameError] = useState("");
 
   // Sử dụng interface IContact cho formData
   const [formData, setFormData] = useState<IContact>({
@@ -36,11 +34,10 @@ const RelativeModal: React.FC<RelativeModalProps> = ({
     phone: "",
     email: "",
   });
-  const [errors, setErrors] = useState({
-    type: "",
-    full_name: "",
-    phone: "",
-  });
+  const [errors, setErrors] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [nameError, setNameError] = useState("");
+  const [typeError, setTypeError] = useState("");
 
   // Khi modal mở, nếu là chỉnh sửa thì load dữ liệu liên hệ để đổ vào form
   useEffect(() => {
@@ -66,12 +63,29 @@ const RelativeModal: React.FC<RelativeModalProps> = ({
     >
   ) => {
     const { name, value } = e.target;
+    if (name === "email") {
+      const regexMail = /^[\w\-\.]+@([\w-]+\.)+[\w-]{2,}$/;
+      if (!regexMail.test(value)) {
+        setEmailError("Email không hợp lệ");
+      } else {
+        setEmailError("");
+      }
+    }
+    if (name === "type") {
+      if (value === "null") {
+        setTypeError("Quan hệ không được để trống");
+      } else {
+        setTypeError("");
+      }
+    }
     if (name === "full_name") {
       const trimmedValue = value.trim();
       const regex2 =
         /^[A-ZÀÁẠẢÃÂẦẤẬẨẪĂẰẮẶẲẴÈÉẸẺẼÊỀẾỆỂỄÌÍỊỈĨÒÓỌỎÕÔỒỐỘỔỖƠỜỚỢỞỠÙÚỤỦŨƯỪỨỰỬỮỲÝỴỶỸĐ][a-zàáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]*(?:[ ][A-ZÀÁẠẢÃÂẦẤẬẨẪĂẰẮẶẲẴÈÉẸẺẼÊỀẾỆỂỄÌÍỊỈĨÒÓỌỎÕÔỒỐỘỔỖƠỜỚỢỞỠÙÚỤỦŨƯỪỨỰỬỮỲÝỴỶỸĐ][a-zàáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]*)*$/;
       if (!regex2.test(trimmedValue)) {
-        setNameError("Họ tên không hợp lệ, viết hoa chữ cái đầu tiên");
+        setNameError("Họ tên không hợp lệ, viết hoa chữ cái đầu tiên.");
+      } else if (!formData.full_name) {
+        setNameError("Họ tên không được để trống");
       } else {
         setNameError("");
       }
@@ -79,9 +93,9 @@ const RelativeModal: React.FC<RelativeModalProps> = ({
     if (name === "phone") {
       const regex = /^(?:\d{10}|\d{11})$/;
       if (!regex.test(value)) {
-        setError("Số điện thoại không hợp lệ, phải chứa 10 hoặc 11 chữ số");
+        setErrors("Số điện thoại không hợp lệ, phải chứa 10 hoặc 11 chữ số.");
       } else {
-        setError("");
+        setErrors("");
       }
     }
     setFormData({ ...formData, [name]: value });
@@ -139,36 +153,52 @@ const RelativeModal: React.FC<RelativeModalProps> = ({
   // Lưu thông tin liên hệ khi người dùng nhấn nút "Lưu"
   const handleSubmit = async () => {
     let isValid = true;
-  
+
+    const regexMail = /^[\w\-\.]+@([\w-]+\.)+[\w-]{2,}$/;
+
+    if (!regexMail.test(formData.email)) {
+      if (!regexMail.test(formData.email)) {
+        setEmailError("Email không hợp lệ");
+        isValid = false;
+      } else {
+        setEmailError("");
+      }
+    }
+
     // Validate Họ tên
     const trimmedName = formData.full_name.trim();
     const nameRegex =
       /^[A-ZÀÁẠẢÃÂẦẤẬẨẪĂẰẮẶẲẴÈÉẸẺẼÊỀẾỆỂỄÌÍỊỈĨÒÓỌỎÕÔỒỐỘỔỖƠỜỚỢỞỠÙÚỤỦŨƯỪỨỰỬỮỲÝỴỶỸĐ][a-zàáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]*(?:[ ][A-ZÀÁẠẢÃÂẦẤẬẨẪĂẰẮẶẲẴÈÉẸẺẼÊỀẾỆỂỄÌÍỊỈĨÒÓỌỎÕÔỒỐỘỔỖƠỜỚỢỞỠÙÚỤỦŨƯỪỨỰỬỮỲÝỴỶỸĐ][a-zàáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]*)*$/;
-  
+
     if (!nameRegex.test(trimmedName)) {
-      setNameError("Họ tên không hợp lệ, viết hoa chữ cái đầu tiên");
+      setNameError("Họ tên không hợp lệ, viết hoa chữ cái đầu tiên.");
       isValid = false; // Đặt cờ isValid thành false nếu lỗi
     } else {
       setNameError("");
     }
-  
+
     // Validate Số điện thoại
     const phoneRegex = /^(?:\d{10}|\d{11})$/;
     if (!phoneRegex.test(formData.phone)) {
-      setError("Số điện thoại không hợp lệ, phải chứa 10 hoặc 11 chữ số");
+      setErrors("Số điện thoại không hợp lệ, phải chứa 10 hoặc 11 chữ số.");
       isValid = false;
     } else {
-      setError("");
+      setErrors("");
     }
-  
+
+    if (!formData.type) {
+      setTypeError("Quan hệ không được để trống");
+      isValid = false;
+    }
+
     // Kiểm tra nếu có bất kỳ lỗi nào trước khi lưu
     if (!isValid) {
       return; // Ngăn không cho gửi nếu có lỗi
     }
-  
+
     // Xử lý cập nhật contacts như trước
     let updatedContacts;
-  
+
     if (formData.id === 0) {
       // Nếu là liên hệ mới, chỉ truyền thông tin liên hệ mới
       updatedContacts = {
@@ -190,13 +220,13 @@ const RelativeModal: React.FC<RelativeModalProps> = ({
         insert: [],
         update: [...contacts], // Giữ nguyên danh sách contacts hiện có
       };
-  
+
       // Cập nhật liên hệ tại vị trí contactIndex
       if (contactIndex !== undefined) {
         updatedContacts.update[contactIndex] = formData;
       }
     }
-  
+
     // Tạo payload để lưu thông tin sinh viên kèm liên hệ
     const dataToSave: IPayloadSaveStudent = {
       info: {
@@ -221,7 +251,7 @@ const RelativeModal: React.FC<RelativeModalProps> = ({
       courses: existingData?.courses || [],
       media: existingData?.media || [],
     };
-  
+
     // Gọi action lưu thông tin sinh viên
     const result = await dispatch(saveStudentAction(dataToSave));
     if (result.meta.requestStatus === "fulfilled") {
@@ -229,7 +259,16 @@ const RelativeModal: React.FC<RelativeModalProps> = ({
       onClose(); // Đóng modal sau khi lưu thành công
     }
   };
-  
+
+  const handleClose = () => {
+    setFormData({ id: 0, full_name: "", type: "", phone: "", email: "" });
+    setErrors("");
+    setNameError("");
+    setTypeError("");
+    setEmailError("");
+    onClose();
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -254,14 +293,12 @@ const RelativeModal: React.FC<RelativeModalProps> = ({
             className="w-full p-2 border rounded"
             required
           >
-            <option value="">Quan hệ</option>
+            <option value="null">Quan hệ</option>
             <option value="dad">Cha</option>
             <option value="mom">Mẹ</option>
           </select>
-          {!formData.type && (
-            <span className="text-red-500 text-xs">
-              Quan hệ không được để trống
-            </span>
+          {typeError && (
+            <span className="text-red-500 text-xs">{typeError}</span>
           )}
           <label className="block text-gray-700 text-sm font-bold mb-2">
             Họ và tên <span className="text-red-500">*</span>
@@ -290,9 +327,9 @@ const RelativeModal: React.FC<RelativeModalProps> = ({
             className="w-full p-2 border rounded"
             required
           />
-          {error && <span className="text-red-500 text-xs">{error}</span>}
+          {errors && <span className="text-red-500 text-xs">{errors}</span>}
           <label className="block text-gray-700 text-sm font-bold mb-2">
-            Email <span className="text-red-500">*</span>
+            Email
           </label>
           <input
             type="email"
@@ -302,10 +339,16 @@ const RelativeModal: React.FC<RelativeModalProps> = ({
             placeholder="Email"
             className="w-full p-2 border rounded"
           />
+          {emailError && (
+            <span className="text-red-500 text-xs">{emailError}</span>
+          )}
         </div>
         {/* Nút Lưu và Đóng */}
         <div className="flex justify-end space-x-2 mt-4">
-          <button onClick={onClose} className="px-4 py-2 bg-gray-300 rounded">
+          <button
+            onClick={handleClose}
+            className="px-4 py-2 bg-gray-300 rounded"
+          >
             Đóng
           </button>
           <button

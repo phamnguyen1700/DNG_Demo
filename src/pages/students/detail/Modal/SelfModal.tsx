@@ -62,8 +62,14 @@ const SelfModal: React.FC<SelfModalProps> = ({
   const districts = useSelector((state: IRootState) => state.district.data);
   const wards = useSelector((state: IRootState) => state.ward.data);
   const [formData, setFormData] = useState(defaultData);
-  const [error, setError] = useState("");
-  const [nameError, setNameError] = useState("");
+  const [error, setError] = useState({
+    id_card: "",
+    phone: "",
+    gender: "",
+    name: "",
+    birthday: "",
+  });
+  const [emailError, setEmailError] = useState("");
   const [fileUrl, setFileUrl] = useState<string>("");
 
   useEffect(() => {
@@ -108,14 +114,29 @@ const SelfModal: React.FC<SelfModalProps> = ({
   ) => {
     const { name, value } = e.target;
 
+    if (name === "email") {
+      const regexMail = /^[\w\-\.]+@([\w-]+\.)+[\w-]{2,}$/;
+      if (!regexMail.test(value)) {
+        setEmailError("Email không hợp lệ");
+      } else {
+        setEmailError("");
+      }
+    }
+
     if (name === "full_name") {
       const trimmedValue = value.trim();
       const regex2 =
         /^[A-ZÀÁẠẢÃÂẦẤẬẨẪĂẰẮẶẲẴÈÉẸẺẼÊỀẾỆỂỄÌÍỊỈĨÒÓỌỎÕÔỒỐỘỔỖƠỜỚỢỞỠÙÚỤỦŨƯỪỨỰỬỮỲÝỴỶỸĐ][a-zàáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]*(?:[ ][A-ZÀÁẠẢÃÂẦẤẬẨẪĂẰẮẶẲẴÈÉẸẺẼÊỀẾỆỂỄÌÍỊỈĨÒÓỌỎÕÔỒỐỘỔỖƠỜỚỢỞỠÙÚỤỦŨƯỪỨỰỬỮỲÝỴỶỸĐ][a-zàáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]*)*$/;
       if (!regex2.test(trimmedValue)) {
-        setNameError("Họ tên không hợp lệ, viết hoa chữ cái đầu tiên");
+        setError({
+          ...error,
+          name: "Họ tên không hợp lệ, viết hoa chữ cái đầu tiên.",
+        });
       } else {
-        setNameError("");
+        setError({
+          ...error,
+          name: "",
+        });
       }
     }
 
@@ -124,9 +145,15 @@ const SelfModal: React.FC<SelfModalProps> = ({
 
       // Kiểm tra ngay khi người dùng nhập số CMND/CCCD
       if (!regex.test(value)) {
-        setError("CMND/CCCD phải là số có 9 hoặc 12 chữ số.");
+        setError({
+          ...error,
+          id_card: "CMND/CCCD phải là 9 hoặc 12 chữ số.",
+        });
       } else {
-        setError(""); // Xóa lỗi nếu hợp lệ
+        setError({
+          ...error,
+          id_card: "",
+        }); // Xóa lỗi nếu hợp lệ
       }
     }
     if (name === "province_id") {
@@ -163,11 +190,23 @@ const SelfModal: React.FC<SelfModalProps> = ({
     const dataToSave: IPayloadSaveStudent = { ...data };
     if (existingData?.id) dataToSave.info.id = existingData.id;
     let isValid = true;
+    const regexMail = /^[\w\-\.]+@([\w-]+\.)+[\w-]{2,}$/;
+    if (dataToSave.info.email && !regexMail.test(dataToSave.info.email)) {
+      setEmailError("Email không hợp lệ");
+      isValid = false;
+    }
+
     if (!dataToSave.info.birthday) {
-      setError("Ngày sinh là bắt buộc");
+      setError({
+        ...error,
+        birthday: "Ngày sinh là bắt buộc",
+      });
       isValid = false;
     } else if (!dataToSave.info.sex) {
-      setError("Giới tính là bắt buộc");
+      setError({
+        ...error,
+        gender: "Giới tính là bắt buộc",
+      });
       isValid = false;
     }
 
@@ -179,23 +218,35 @@ const SelfModal: React.FC<SelfModalProps> = ({
     const trimmedName = formData.info.full_name.trim();
     const nameRegex =
       /^[A-ZÀÁẠẢÃÂẦẤẬẨẪĂẰẮẶẲẴÈÉẸẺẼÊỀẾỆỂỄÌÍỊỈĨÒÓỌỎÕÔỒỐỘỔỖƠỜỚỢỞỠÙÚỤỦŨƯỪỨỰỬỮỲÝỴỶỸĐ][a-zàáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]*(?:[ ][A-ZÀÁẠẢÃÂẦẤẬẨẪĂẰẮẶẲẴÈÉẸẺẼÊỀẾỆỂỄÌÍỊỈĨÒÓỌỎÕÔỒỐỘỔỖƠỜỚỢỞỠÙÚỤỦŨƯỪỨỰỬỮỲÝỴỶỸĐ][a-zàáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]*)*$/;
-  
+
     if (!nameRegex.test(trimmedName)) {
-      setNameError("Họ tên không hợp lệ, viết hoa chữ cái đầu tiên");
+      setError({
+        ...error,
+        name: "Họ tên không hợp lệ, viết hoa chữ cái đầu tiên.",
+      });
       isValid = false; // Đặt cờ isValid thành false nếu lỗi
     } else {
-      setNameError("");
+      setError({
+        ...error,
+        name: "",
+      });
     }
 
     const regex = /^(?:\d{9}|\d{12}|0)?$/;
 
     if (!regex.test(dataToSave.info.id_card || "")) {
-      setError("CMND/CCCD phải là 9 hoặc 12 chữ số");
+      setError({
+        ...error,
+        id_card: "CMND/CCCD phải là 9 hoặc 12 chữ số.",
+      });
       setShowConfirm(false);
       return; // Nếu không hợp lệ, dừng quá trình và không submit
     }
     // Xóa thông báo lỗi nếu hợp lệ
-    setError("");
+    setError({
+      ...error,
+      id_card: "",
+    });
 
     console.log("Data to save before submit:", dataToSave); // Kiểm tra giá trị trước khi gửi
 
@@ -270,6 +321,12 @@ const SelfModal: React.FC<SelfModalProps> = ({
         avatar: "", // Đặt thành null nếu muốn xóa
       },
     }));
+  };
+
+  const handleUpdate = () => {
+    if (!error.name && !error.id_card && !emailError) {
+      setShowConfirm(true);
+    }
   };
 
   if (!isOpen) return null;
@@ -356,8 +413,8 @@ const SelfModal: React.FC<SelfModalProps> = ({
                 onChange={handleChange}
                 required
               />
-              {nameError && (
-                <p className="text-red-500 text-xs mt-1">{nameError}</p>
+              {error.name && (
+                <p className="text-red-500 text-xs mt-1">{error.name}</p>
               )}
             </div>
             <div className="col-span-3">
@@ -410,6 +467,9 @@ const SelfModal: React.FC<SelfModalProps> = ({
                 value={formData.info.email}
                 onChange={handleChange}
               />
+              {emailError && (
+                <p className="text-red-500 text-xs mt-1">{emailError}</p>
+              )}
             </div>
           </div>
         </div>
@@ -429,7 +489,9 @@ const SelfModal: React.FC<SelfModalProps> = ({
               value={formData.info.id_card}
               onChange={handleChange}
             />
-            {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
+            {error.id_card && (
+              <p className="text-red-500 text-xs mt-1">{error.id_card}</p>
+            )}
           </div>
           <div className="col-span-2">
             <label className="text-sm font-medium text-gray-700">
@@ -556,7 +618,7 @@ const SelfModal: React.FC<SelfModalProps> = ({
             Đóng
           </button>
           <button
-            onClick={() => setShowConfirm(true)}
+            onClick={handleUpdate}
             className="px-4 py-2 bg-violet-800 text-white rounded-md"
           >
             Cập nhật

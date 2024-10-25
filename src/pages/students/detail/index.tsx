@@ -108,9 +108,9 @@ const Detail: React.FC = () => {
       <div className="container flex justify-between space-x-4">
         <div className="detail-container w-1/3 border border-gray-200 rounded shadow-md">
           <div className="flex space-x-8 py-4 px-4">
-            <div className="avt min-w-24 flex justify-center items-center">
+            <div className="avt flex justify-center items-center min-w-24 min-h-24 w-24 h-24 object-cover">
               <img
-                className="rounded-full min-w-26 min-h-26 w-26 h-26 object-cover"
+                className="rounded-full min-w-24 min-h-24 w-24 h-24 object-cover"
                 src={
                   student?.avatar
                     ? student.avatar
